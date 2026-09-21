@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createFlareMoLogin, identityFor } from '../packages/identity/flaremo.js';
 import { startLoginUi } from '../apps/login-demo/server.js';
+import { createMockLogin } from '../packages/identity/mock.js';
 
 const secret = 'synthetic-access-secret';
 async function fixture(t, options = {}) {
@@ -133,4 +134,27 @@ test('unconfigured demo cannot accept credentials and page uses external module 
   const page = await fetch(ui.url);
   assert.match(page.headers.get('content-security-policy'), /frame-ancestors 'none'/);
   assert.match(await page.text(), /type="module"/);
+});
+
+test('explicit mock mode switches synthetic members, expires and logs out without upstream calls', async t => {
+  const f = await fixture(t);
+  const ui = await startLoginUi({ port: 0, mock: true, baseUrl: f.baseUrl }); t.after(ui.close);
+  const post = (path, body, cookie) => fetch(`${ui.url}${path}`, {
+    method: 'POST', headers: { origin: ui.url, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body),
+  });
+  const config = await (await fetch(`${ui.url}/api/config`)).json();
+  assert.equal(config.mode, 'synthetic-local-login'); assert.equal(config.demoMembers.length, 2);
+  const first = await post('/api/login', { username: 'demo-maker' }); const cookie = first.headers.get('set-cookie');
+  const identity = (await first.json()).identity; assert.equal(identity.synthetic, true);
+  const second = await post('/api/login', { username: 'demo-helper' }, cookie);
+  const secondCookie = second.headers.get('set-cookie'); assert.notEqual((await second.json()).identity.id, identity.id);
+  assert.equal((await fetch(`${ui.url}/api/session`, { headers: { cookie } })).status, 401);
+  assert.equal((await post('/api/login', { username: 'not-a-demo-member' })).status, 400);
+  assert.equal((await post('/api/login', { username: 'demo-maker', password: 'not-accepted' })).status, 400);
+  const logout = await post('/api/logout', {}, secondCookie);
+  assert.deepEqual(await logout.json(), { signedOut: true, upstreamSignoutConfirmed: false });
+  assert.equal((await fetch(`${ui.url}/api/session`, { headers: { cookie: secondCookie } })).status, 401);
+  const provider = createMockLogin(); const session = await provider.signIn({ username: 'demo-maker' }); session.expiresAt = 0;
+  await assert.rejects(provider.verify(session), /SESSION_EXPIRED/);
+  assert.equal(f.state.calls.length, 0);
 });

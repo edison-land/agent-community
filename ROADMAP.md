@@ -15,7 +15,7 @@ Milestones describe observable outcomes, not promised dates. This is a proposed 
 
 ## Next decision gate
 
-First complete live login acceptance under [RFC 0004](RFC/0004-flaremo-login.md). Next implement explicit community joining and a small, selectively visible capability profile. Login alone does not establish membership. Then review RFC 0001/0002 against one concrete collaboration scenario and write RFC 0005 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing Stage 1. RFC 0003 covers the parallel FlareMo knowledge connector experiment; its mock checks do not complete Stage 1 or prove agent interoperability.
+Use the explicit synthetic-login mode to prototype community joining and a small, selectively visible capability profile first. Live FlareMo login is deferred to an independent integration gate under [RFC 0004](RFC/0004-flaremo-login.md); it does not block local product modeling. Login alone does not establish membership. Follow the [architecture blueprint](docs/COMMUNITY_BLUEPRINT.zh-CN.md), then review RFC 0001/0002 against one concrete collaboration scenario and write RFC 0005 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing real Stage 1 ownership verification. RFC 0003 covers the parallel FlareMo knowledge connector experiment; synthetic identities and mock checks do not prove real membership or agent interoperability.
 
 Pass: both participants can explain who may act, what is shared, and who accepts the result. Proceed to the scoped prototype. Fail: revise the scenario or authorization design and repeat this gate.
 

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { createFlareMoLogin, LoginError } from '../../packages/identity/flaremo.js';
+import { createMockLogin, demoMembers } from '../../packages/identity/mock.js';
 
 const cookieName = 'community_login_demo';
 async function readJson(request) {
@@ -18,8 +19,8 @@ async function readJson(request) {
   catch { throw new LoginError('INVALID_JSON', 400); }
 }
 
-export async function startLoginUi({ port = 4319, baseUrl, allowLocal = false, timeoutMs } = {}) {
-  const provider = baseUrl ? createFlareMoLogin({ baseUrl, allowLocal, timeoutMs }) : null;
+export async function startLoginUi({ port = 4319, baseUrl, allowLocal = false, timeoutMs, mock = false } = {}) {
+  const provider = mock ? createMockLogin() : baseUrl ? createFlareMoLogin({ baseUrl, allowLocal, timeoutMs }) : null;
   const html = await readFile(new URL('./index.html', import.meta.url));
   const script = await readFile(new URL('./client.js', import.meta.url));
   const sessions = new Map();
@@ -49,7 +50,8 @@ export async function startLoginUi({ port = 4319, baseUrl, allowLocal = false, t
       if (request.method === 'GET' && request.url === '/') return reply(200, html, 'text/html');
       if (request.method === 'GET' && request.url === '/client.js') return reply(200, script, 'text/javascript');
       if (request.method === 'GET' && request.url === '/api/config') return reply(200, {
-        configured: Boolean(provider), provider: provider?.origin ?? null, browserOrigin, mode: 'local-login-experiment',
+        configured: Boolean(provider), provider: provider?.origin ?? null, browserOrigin,
+        mode: mock ? 'synthetic-local-login' : 'local-login-experiment', demoMembers: mock ? demoMembers : [],
       });
       if (!provider) return reply(503, { error: 'LOGIN_NOT_CONFIGURED' });
       if (request.method === 'POST' && request.url === '/api/login') {
@@ -86,7 +88,7 @@ export async function startLoginUi({ port = 4319, baseUrl, allowLocal = false, t
         forget();
         let upstreamSignoutConfirmed = false;
         if (session) {
-          try { await provider.signOut(session, browserOrigin); upstreamSignoutConfirmed = true; }
+          try { await provider.signOut(session, browserOrigin); upstreamSignoutConfirmed = !mock; }
           catch { /* Local logout still succeeds; report remote uncertainty explicitly. */ }
         }
         return reply(200, { signedOut: true, upstreamSignoutConfirmed });
@@ -109,9 +111,10 @@ export async function startLoginUi({ port = 4319, baseUrl, allowLocal = false, t
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const ui = await startLoginUi({ baseUrl: process.env.FLAREMO_AUTH_URL });
+    const mock = process.argv.includes('--mock');
+    const ui = await startLoginUi({ baseUrl: process.env.FLAREMO_AUTH_URL, mock });
     console.log(`Community local login experiment: ${ui.url}`);
-    console.log('Live login requires a configured instance and its trusted-origin allowance. No credentials are logged.');
+    console.log(mock ? 'Synthetic accounts only. No FlareMo requests or real passwords.' : 'Live login requires a configured instance and its trusted-origin allowance. No credentials are logged.');
     for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await ui.close(); process.exit(0); });
   } catch { console.error('Cannot start login experiment: check origin configuration and port 4319.'); process.exitCode = 1; }
 }

@@ -2,18 +2,20 @@
 
 Status: proposed boundaries with an offline executable example. This document is not a claim of a production implementation.
 
+Start with the [Chinese product and architecture blueprint](COMMUNITY_BLUEPRINT.zh-CN.md) for the user journey, data ownership, agent onboarding, update paths and staged delivery. The next prototype uses explicit synthetic login; live FlareMo authentication is a separate integration gate.
+
 The more detailed [six-layer proposal and FlareMo experiment](../RFC/0003-layering-and-flaremo-demo.md) refines these responsibilities. The new knowledge connector has local HTTP mock tests and an optional live probe; it is independent of the discovery-only mock agent gateway below.
 
 ## Owning layers
 
 | Layer | Responsibility | Current artifact |
 | --- | --- | --- |
-| Product surface | Show human/agent attribution; discover help; agree on work | CLI discovery example in `apps/demo/` |
-| Application | Coordinate membership, requests, workrooms and approval | Proposed; no server |
+| Product surface | Show human/agent attribution; discover help; agree on work | CLI discovery example and local experiment pages |
+| Application | Coordinate membership, requests, workrooms and approval | Proposed; only local experiment servers exist |
 | Domain and policy | Community scope, principal binding, grants, lifecycle rules | Vocabulary and local discovery filter in `packages/core/` |
-| Agent gateway | Translate authorized tasks into supported runtime interfaces | Contract and discovery-only mock in `packages/gateway/` |
+| Protocols and connectors | Translate identity, knowledge and authorized runtime interfaces | `packages/identity/`, `packages/knowledge/`, discovery-only `packages/gateway/` |
 | Persistence | Authoritative memberships, grants, tasks, artifacts and audit events | Proposed; fixtures are local inputs only |
-| Federation | Opt-in exchange between separately governed nodes | Deferred |
+| Background operation | Dispatch, events, online status and recovery | Proposed; federation is a later opt-in cross-node capability |
 
 Start with one deployable node and internal module boundaries. A community is a logical ownership boundary; a deployment may later host one or more communities, but that mapping is a separate RFC. No microservices, graph database, UI framework, paid API, or hosting vendor is selected.
 

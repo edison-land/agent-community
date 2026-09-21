@@ -47,6 +47,8 @@ npm run flaremo:ui
 
 ## 登录接入实验
 
+当前先使用虚构账号：运行 `npm run community:demo`，打开 `http://127.0.0.1:4319`，选择演示成员即可进入，无需密码，不连接 FlareMo。成员档案、任务流程和真实 Agent 执行尚未实现。完整的用户路径、六层职责、数据归属和接入顺序见 [架构蓝图](docs/COMMUNITY_BLUEPRINT.zh-CN.md)。切换真实登录前先停止使用同一端口的演示服务。
+
 登录实验运行 `npm run flaremo:login`，打开 `http://127.0.0.1:4319`。配置 `FLAREMO_AUTH_URL` 后，由用户在本机页面输入自己的账号；后端核验身份，凭证只留在进程内存。实例须允许该页面来源。登录不会自动导入笔记、加入社区或授权 Agent。配置方式及登录后的开发顺序见 [登录接入指南](docs/FLAREMO_LOGIN.zh-CN.md)；边界见 [RFC 0004](RFC/0004-flaremo-login.md)。当前自动化证据来自虚构服务，不能替代真实联调。
 
 ## 一起决定怎么做

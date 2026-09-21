@@ -70,6 +70,8 @@ The second command starts a local viewer at `http://127.0.0.1:4318` (visit it in
 
 ### FlareMo login experiment
 
+For the current product prototype, run `npm run community:demo` and open `http://127.0.0.1:4319`. Select a clearly labeled fictional member without entering a password. This mode makes no FlareMo requests and does not establish real membership. See the [product and architecture blueprint](docs/COMMUNITY_BLUEPRINT.zh-CN.md). Stop that server before using the live experiment on the same port.
+
 `npm run flaremo:login` opens a separate local entry at `http://127.0.0.1:4319`. It stays disabled until the operator sets `FLAREMO_AUTH_URL` to an HTTPS origin. An authorized user then enters their own username/password in the local page. The backend verifies identity with FlareMo; tokens remain in process memory. The instance must allow the local page origin. No knowledge is imported and no community membership or agent authority is granted. See the [setup and next-step guide](docs/FLAREMO_LOGIN.zh-CN.md) and [RFC 0004](RFC/0004-flaremo-login.md). Automated checks use synthetic upstream responses; live login is not yet accepted.
 
 ## Shape the experiment

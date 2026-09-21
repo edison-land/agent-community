@@ -6,16 +6,17 @@
 :root{font-family:system-ui,-apple-system,sans-serif;color:#172b39;background:#f5f7f5;line-height:1.65}*{box-sizing:border-box}main{max-width:960px;margin:auto;padding:32px 24px}nav{display:flex;justify-content:space-between;border-bottom:1px solid #d9e2e5;padding-bottom:20px;font-size:13px}nav b{letter-spacing:.08em}.muted,p{color:#526976}.tag{color:#126b59}h1{font-size:clamp(30px,5vw,46px);line-height:1.25;margin:36px 0 16px}h2{font-size:20px;margin:0 0 12px}.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;margin-top:28px}.card{border:1px solid #d9e2e5;background:white;border-radius:16px;padding:26px}label{display:block;margin-top:16px}input{display:block;width:100%;padding:12px;border:1px solid #b5c7c0;border-radius:8px;font:inherit;margin-top:6px}button{border:0;background:#126b59;color:white;font:inherit;padding:12px 20px;border-radius:8px;cursor:pointer;margin-top:20px;width:100%}button:disabled{opacity:.5;cursor:default}.secondary{background:#e9efeb;color:#126b59}small{display:block;color:#526976;margin-top:12px}.status{min-height:30px;margin-top:18px;color:#126b59;overflow-wrap:anywhere}ol{padding-left:22px}li{padding:8px 0}li p{margin:2px 0;font-size:14px}.note{padding:20px 24px;background:#e9efeb;border-radius:12px;margin-top:24px;font-size:14px}a{color:#126b59}#provider{overflow-wrap:anywhere}footer{font-size:12px;margin-top:24px;color:#526976}[hidden]{display:none!important}@media(max-width:680px){.grid{grid-template-columns:1fr}.card{padding:22px}}
 </style>
 <main>
-<nav><b>AGENT COMMUNITY</b><span class="tag">实验 02 · 登录接入</span></nav>
+<nav><b>AGENT COMMUNITY</b><span class="tag" id="mode-label">实验 02 · 登录接入</span></nav>
 <h1>连接你的身份，<br>开始一次协作。</h1>
-<p>先用已有的 FlareMo 账号确认身份。接下来，让社区知道你和你的 Agent 能提供什么帮助。</p>
+<p id="intro">先确认成员身份。接下来，让社区知道你和你的 Agent 能提供什么帮助。</p>
 <div class="grid">
-<section class="card"><h2>使用 FlareMo 账号登录</h2><p id="provider">正在读取连接配置…</p>
-<form id="login"><label for="username">FlareMo 用户名</label><input id="username" name="username" autocomplete="username" maxlength="200" required disabled>
+<section class="card"><h2 id="login-title">使用 FlareMo 账号登录</h2><p id="provider">正在读取连接配置…</p>
+<form id="login"><div id="real-fields"><label for="username">FlareMo 用户名</label><input id="username" name="username" autocomplete="username" maxlength="200" required disabled>
 <label for="password">密码</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="1024" required disabled>
-<small>本地服务仅为验证账号转发密码，不保存密码。请使用用户名；此实验入口不支持邮箱登录。</small>
+<small>本地服务仅为验证账号转发密码，不保存密码。请使用用户名；此实验入口不支持邮箱登录。</small></div>
+<label id="demo-fields" hidden for="demo-member">选择虚构成员 <select id="demo-member" style="font:inherit;max-width:100%;padding:10px;margin-top:8px"></select></label>
 <button id="submit" disabled>登录并验证身份</button></form>
-<div id="member" hidden><h2 id="name"></h2><p>身份已验证，社区加入与 Agent 绑定将在下一阶段开放。</p><small id="expiry"></small><button id="verify" class="secondary">重新核验身份</button><button id="logout">退出本地登录</button></div>
+<div id="member" hidden><h2 id="name"></h2><p id="member-note">身份已验证，社区加入与 Agent 绑定将在下一阶段开放。</p><small id="expiry"></small><button id="verify" class="secondary">重新核验身份</button><button id="logout">退出本地登录</button></div>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
 <aside class="card"><h2>登录之后，做什么？</h2><ol>
@@ -25,6 +26,6 @@
 <li><b>验收并留下成果</b><p>人工确认结果，记录贡献者，再决定是否将选定成果分享到 FlareMo。</p></li>
 </ol><small>以上是后续开发顺序，尚未实现。</small></aside>
 </div>
-<div class="note">本次只验证登录身份，不会读取你的笔记、自动加入社区或授权 Agent。真实实例的登录仍需联调；自动化测试使用虚构服务。会话仅保存在本地进程内，重启或凭证过期后需要重新登录。</div>
+<div class="note" id="scope-note">本次只验证登录身份，不会读取你的笔记、自动加入社区或授权 Agent。真实实例的登录仍需联调；自动化测试使用虚构服务。会话仅保存在本地进程内，重启或凭证过期后需要重新登录。</div>
 <footer>Build in Public · <a href="http://127.0.0.1:4318/">查看知识共享模拟实验</a></footer>
 </main><script type="module" src="/client.js"></script></html>

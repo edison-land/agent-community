@@ -7,6 +7,7 @@
   "license": "MIT",
   "engines": { "node": ">=24 <25" },
   "scripts": {
+    "community:demo": "node apps/login-demo/server.js --mock",
     "demo": "node apps/demo/main.js",
     "flaremo:demo": "node apps/flaremo-demo/main.js",
     "flaremo:ui": "node apps/flaremo-demo/server.js",

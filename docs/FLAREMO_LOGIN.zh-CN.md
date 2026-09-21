@@ -4,6 +4,8 @@
 
 ## 启动与对接
 
+目前产品原型优先使用 `npm run community:demo`：同一端口 4319，选择虚构成员，无需密码、不请求 FlareMo。真实模式单独保留，下面是后续联调方法；不能同时启动两个占用 4319 的服务。后续设计见 [架构蓝图](COMMUNITY_BLUEPRINT.zh-CN.md)。
+
 使用 Node.js 24，无新增依赖：
 
 ```sh
