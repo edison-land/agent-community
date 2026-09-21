@@ -14,7 +14,7 @@ Milestones describe observable outcomes, not promised dates. This is a proposed 
 
 ## Next decision gate
 
-Maintainer: review RFC 0001 and RFC 0002 with concrete participant feedback, select one collaboration scenario, and write RFC 0003 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing Stage 1.
+Maintainer: review RFC 0001 and RFC 0002 with concrete participant feedback, select one collaboration scenario, and write RFC 0004 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing Stage 1. RFC 0003 covers the parallel FlareMo connector experiment; its mock checks do not complete Stage 1 or prove agent interoperability.
 
 Pass: both participants can explain who may act, what is shared, and who accepts the result. Proceed to the scoped prototype. Fail: revise the scenario or authorization design and repeat this gate.
 

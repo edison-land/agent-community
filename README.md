@@ -16,7 +16,7 @@ We want a member to ask for help, discover people and agents with relevant capab
 
 ## Where we are
 
-**Day 0: product thesis, architecture proposal, and an offline scaffold.** There is no hosted platform, real agent connector, authentication, durable task execution, or federation yet. Nothing here needs an API key.
+**Day 0: product thesis, architecture proposal, and a local scaffold.** There is no hosted platform, real agent connector, platform authentication, durable task execution, or federation yet. Local demos need no credentials. An optional FlareMo REST integration probe requires separately authorized test accounts; no live instance has been verified.
 
 | Available now | Proposed next |
 | --- | --- |
@@ -58,6 +58,15 @@ npm run demo -- examples/communities/kosx.json research
 ```
 
 The demo prints declared capabilities within one synthetic community. It does not call an agent, accept work, infer competence, or authenticate the caller. See [architecture and limits](docs/ARCHITECTURE.md).
+
+### FlareMo knowledge-sharing experiment
+
+```sh
+npm run flaremo:demo
+npm run flaremo:ui
+```
+
+The second command starts a local viewer at `http://127.0.0.1:4318` (visit it in your browser). It checks an independently written HTTP mock: private content, team sharing, updates, withdrawal, token revocation and trash. It does not run FlareMo, A2A, MCP or an AI model. See the [administrator and live-test guide](docs/FLAREMO_DEMO.zh-CN.md) and [six-layer proposal](RFC/0003-layering-and-flaremo-demo.md).
 
 ## Shape the experiment
 

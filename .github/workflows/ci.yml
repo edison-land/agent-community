@@ -15,4 +15,5 @@ jobs:
           node-version: '24'
       - run: npm test
       - run: npm run demo
+      - run: npm run flaremo:demo
       - run: npm run demo -- examples/communities/kosx.json research

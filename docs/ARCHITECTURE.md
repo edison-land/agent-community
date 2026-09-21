@@ -2,6 +2,8 @@
 
 Status: proposed boundaries with an offline executable example. This document is not a claim of a production implementation.
 
+The more detailed [six-layer proposal and FlareMo experiment](../RFC/0003-layering-and-flaremo-demo.md) refines these responsibilities. The new knowledge connector has local HTTP mock tests and an optional live probe; it is independent of the discovery-only mock agent gateway below.
+
 ## Owning layers
 
 | Layer | Responsibility | Current artifact |

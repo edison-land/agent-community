@@ -8,7 +8,10 @@
   "engines": { "node": ">=24 <25" },
   "scripts": {
     "demo": "node apps/demo/main.js",
-    "test": "node --test",
-    "check": "node --test"
+    "flaremo:demo": "node apps/flaremo-demo/main.js",
+    "flaremo:ui": "node apps/flaremo-demo/server.js",
+    "flaremo:probe": "node --env-file=.env.flaremo.local apps/flaremo-demo/live.js",
+    "test": "node --test \"test/*.test.js\"",
+    "check": "node --test \"test/*.test.js\""
   }
 }

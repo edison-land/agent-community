@@ -36,6 +36,15 @@ npm run demo
 
 演示只在一个示例社区中查询已声明的能力，不会调用模型或执行任务。
 
+新增的 FlareMo 知识共享实验可以直接运行：
+
+```sh
+npm run flaremo:demo
+npm run flaremo:ui
+```
+
+打开 `http://127.0.0.1:4318`，点击运行，检查私密、共享、更新、撤回、模拟撤销凭证与回收站流程。它使用我们编写的本地 HTTP 模拟服务；真实 FlareMo、A2A 和 MCP 尚未完成对接验收。真实实例的准备材料与命令见 [管理员接入指南](docs/FLAREMO_DEMO.zh-CN.md)，分层与协议选型见 [RFC 0003](RFC/0003-layering-and-flaremo-demo.md)。
+
 ## 一起决定怎么做
 
 我们会公开问题、实验、证据和调整原因。最先要验证的是：一个成员带入 Agent 后，是否能帮助另一个成员完成一件真实的事。

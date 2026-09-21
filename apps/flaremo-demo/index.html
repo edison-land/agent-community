@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Community · FlareMo 共享实验</title>
+<style>
+  :root{color-scheme:light;--ink:#172b39;--muted:#526976;--line:#d9e2e5;--accent:#126b59}
+  *{box-sizing:border-box}body{margin:0;background:#f5f7f5;color:var(--ink);font:16px/1.65 system-ui,-apple-system,sans-serif}main{max-width:1080px;margin:auto;padding:34px 28px 64px}
+  nav{display:flex;justify-content:space-between;gap:16px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:20px}.brand{font-weight:750;color:var(--ink);letter-spacing:.06em}.badge{border:1px solid #b8cfc5;border-radius:30px;padding:2px 12px;color:var(--accent)}header{padding:46px 0 30px;max-width:820px}.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--accent);font-weight:700}h1{font-size:clamp(28px,4.7vw,46px);line-height:1.3;letter-spacing:-.04em;margin:14px 0}p{color:var(--muted);margin:10px 0}.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:24px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:26px}h2{font-size:20px;margin:0 0 8px}.people{display:flex;gap:12px;margin:22px 0}.person{flex:1;background:#f2f6f5;padding:14px;border-radius:10px}.person strong{display:block}.person small{color:var(--muted)}button{background:var(--accent);border:0;border-radius:8px;padding:13px 22px;color:white;font:inherit;font-weight:650;cursor:pointer;width:100%}button:disabled{opacity:.6;cursor:wait}button:focus-visible{outline:3px solid #70baac;outline-offset:3px}.note{font-size:13px;margin-top:12px}.status{margin:18px 0 8px;font-weight:650;min-height:27px}ol{padding:0;list-style:none;margin:0}li{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #eef1f2;font-size:14px}.mark{color:var(--accent);font-weight:750;min-width:20px}.failed .mark{color:#ae3131}.layer{padding:11px 0;display:grid;grid-template-columns:28px 1fr;gap:10px;border-bottom:1px solid #eef1f2}.num{color:#6b837a;font-size:12px;padding-top:3px}.layer b{font-size:14px;display:block}.layer small{color:var(--muted)}.legend{font-size:13px;padding-top:16px}.limits{margin-top:24px;padding:20px 24px;background:#e9efeb;border-radius:12px;font-size:14px}.limits b{color:var(--ink)}footer{margin-top:26px;color:var(--muted);font-size:12px}code{font-family:ui-monospace,monospace;background:#e9efeb;padding:2px 5px;border-radius:4px}a{color:var(--accent)}@media(max-width:740px){main{padding:22px 18px}.layout{grid-template-columns:1fr}header{padding-top:30px}.panel{padding:21px}nav{flex-wrap:wrap}}
+</style>
+<main>
+  <nav><span class="brand">AGENT COMMUNITY</span><span class="badge">实验 01 · 本地 HTTP 模拟</span></nav>
+  <header><div class="eyebrow">BRING YOUR KNOWLEDGE. KEEP YOUR CONTROL.</div><h1>共享一份知识，<br>验证每一次授权。</h1><p>让另一个成员的 Agent 读到获准的资料，并在你撤回共享后停止访问。先把这条路径跑通，再连接真实社区。</p></header>
+  <div class="layout">
+    <section class="panel"><h2>两位成员，一份资料</h2><p>点击后会启动临时模拟服务，通过真实 HTTP 请求逐项检查。</p>
+      <div class="people"><div class="person"><strong>A · 资料贡献者</strong><small>创建、共享、更新、撤回</small></div><div class="person"><strong>B · 协作成员</strong><small>模拟 Agent 读取获准资料</small></div></div>
+      <button id="run">运行共享实验</button><p class="note">只使用虚构资料与凭证。这里没有连接真实 FlareMo 或运行 AI 模型。</p>
+      <div id="status" class="status" aria-live="polite">等待运行</div><ol id="steps"></ol><p id="detail" class="note"></p>
+    </section>
+    <aside class="panel"><h2>网络的六个逻辑层</h2><p class="note">可以先放在一个应用里。</p>
+      <div class="layer"><span class="num">01</span><div><b>交互</b><small>成员卡、能力目录、协作空间</small></div></div>
+      <div class="layer"><span class="num">02</span><div><b>协作流程</b><small>提出需求、接单、交付与验收</small></div></div>
+      <div class="layer"><span class="num">03</span><div><b>身份与权限</b><small>人与 Agent 绑定、社区范围、撤权</small></div></div>
+      <div class="layer"><span class="num">04</span><div><b>协议与连接器</b><small>A2A 交接任务 · MCP 使用工具 · FlareMo REST</small></div></div>
+      <div class="layer"><span class="num">05</span><div><b>数据</b><small>平台保存协作事实，FlareMo 保存知识</small></div></div>
+      <div class="layer"><span class="num">06</span><div><b>后台运行</b><small>执行、在线状态、更新通知与恢复</small></div></div>
+      <p class="legend">本次实际验证：第 4 层的 REST 连接器。其余层展示拟议职责，尚未构成完整产品。</p>
+    </aside>
+  </div>
+  <div class="limits"><b>读懂结果：</b>绿色通过表示连接器与我们编写的模拟服务符合预期。真实 FlareMo 的账号隔离、部署版本与配置仍需独立验收。A2A、MCP、附件和事件同步不在这次检查中。</div>
+  <footer>Node.js 24 · 无第三方依赖 · 真实实例需管理员提供地址和独立测试账号 · <a href="https://github.com/edison-land/agent-community" target="_blank" rel="noreferrer">查看开源仓库</a></footer>
+</main>
+<script>
+  const run = document.getElementById('run');
+  const status = document.getElementById('status');
+  const steps = document.getElementById('steps');
+  const detail = document.getElementById('detail');
+  run.addEventListener('click', async () => {
+    run.disabled = true; status.textContent = '正在执行 HTTP 检查…'; steps.replaceChildren(); detail.textContent = '';
+    try {
+      const response = await fetch('/api/run', { method: 'POST' });
+      if (!response.ok) throw new Error('request failed');
+      const report = await response.json();
+      for (const step of report.steps) {
+        const li = document.createElement('li'); li.className = step.status;
+        const mark = document.createElement('span'); mark.className = 'mark'; mark.textContent = step.status === 'passed' ? '✓' : '×';
+        const text = document.createElement('span'); text.textContent = step.label + (step.error ? ` · ${step.error}` : '');
+        li.append(mark, text); steps.append(li);
+      }
+      status.textContent = report.status === 'passed' ? `${report.steps.length} 项检查通过 · 本地模拟` : '检查未通过';
+      detail.textContent = `实验编号：${report.runId}`;
+    } catch { status.textContent = '运行失败，请确认本地服务仍在运行后重试。'; }
+    finally { run.disabled = false; run.textContent = '重新运行共享实验'; }
+  });
+</script>
+</html>

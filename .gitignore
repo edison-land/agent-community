@@ -2,6 +2,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+!.env.flaremo.example
 *.pem
 *.key
 .DS_Store

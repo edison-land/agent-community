@@ -10,3 +10,4 @@ Lifecycle: **Draft → In review → Accepted / Rejected / Withdrawn → Superse
 | --- | --- |
 | [0001 — Name and positioning](0001-name-and-positioning.md) | Draft |
 | [0002 — Community and agent boundaries](0002-community-and-agent-boundaries.md) | Draft |
+| [0003 — Layering and FlareMo demo](0003-layering-and-flaremo-demo.md) | Draft; local experiment implemented |
