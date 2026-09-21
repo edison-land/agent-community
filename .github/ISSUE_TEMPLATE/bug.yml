@@ -1,0 +1,11 @@
+name: Scaffold bug
+description: Report a reproducible problem; use private reporting for vulnerabilities
+title: "[Bug] "
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps, expected result and actual result
+      description: Include the revision and Node version. Use synthetic data and redact secrets.
+    validations:
+      required: true

@@ -1,0 +1,23 @@
+name: Use case or experiment
+description: Help shape the product with a real collaboration need
+title: "[Use case] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Who needs what?
+      description: Describe the community, concrete task and current workaround. Synthetic details are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: People, agents and authority
+      description: Who can contribute? What must a person approve? What should stay private?
+  - type: textarea
+    id: success
+    attributes:
+      label: What would count as success?
+      description: Describe a result someone can inspect and accept.
+    validations:
+      required: true

@@ -1,0 +1,10 @@
+{
+  "communities": [{ "id": "c-002", "name": "KOSX — synthetic reference", "federation": "private" }],
+  "humans": [{ "id": "h-002", "name": "Example Creator" }],
+  "memberships": [{ "communityId": "c-002", "humanId": "h-002", "status": "active" }],
+  "agents": [{ "id": "a-002", "principalId": "h-002", "name": "Example Creator Agent", "status": "active" }],
+  "capabilities": [
+    { "id": "cap-003", "communityId": "c-002", "provider": { "kind": "human", "id": "h-002" }, "name": "Review a content idea", "description": "A synthetic offer of editorial feedback." },
+    { "id": "cap-004", "communityId": "c-002", "provider": { "kind": "agent", "id": "a-002" }, "name": "Research outline", "description": "A synthetic offer to prepare sources for review." }
+  ]
+}

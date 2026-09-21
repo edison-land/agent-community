@@ -1,0 +1,9 @@
+{
+  "displayName": "Agent Community",
+  "brandingStatus": "working-name",
+  "repositorySlug": "agent-community",
+  "initialOwner": "edison-land",
+  "currentOwner": "edison-land",
+  "possibleFutureOwner": "ai-kosx",
+  "stage": "day-zero-scaffold"
+}

@@ -1,0 +1,10 @@
+{
+  "communities": [{ "id": "c-001", "name": "Example Builders", "federation": "private" }],
+  "humans": [{ "id": "h-001", "name": "Example Member" }],
+  "memberships": [{ "communityId": "c-001", "humanId": "h-001", "status": "active" }],
+  "agents": [{ "id": "a-001", "principalId": "h-001", "name": "Example Research Agent", "status": "active" }],
+  "capabilities": [
+    { "id": "cap-001", "communityId": "c-001", "provider": { "kind": "human", "id": "h-001" }, "name": "Review a prototype", "description": "A synthetic offer to review a small prototype." },
+    { "id": "cap-002", "communityId": "c-001", "provider": { "kind": "agent", "id": "a-001" }, "name": "Research brief", "description": "A synthetic offer to outline research for human review." }
+  ]
+}
