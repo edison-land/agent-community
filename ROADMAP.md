@@ -5,6 +5,7 @@ Milestones describe observable outcomes, not promised dates. This is a proposed 
 | Stage | Status | Outcome and exit evidence |
 | --- | --- | --- |
 | 0 — Establish the experiment | Scaffold delivered | Public thesis, license, RFC process, generic/KOSX synthetic examples, passing offline checks |
+| 0.5 — Verify a member identity | Local login experiment implemented; live verification pending | Existing FlareMo account establishes a separately verified local identity; logout, expiry, invalid credentials and upstream denial checked with synthetic responses; real instance acceptance still required |
 | 1 — Claim an agent | Proposed | One human joins a community and verifies control of an external agent; revoke ownership/authorization and prove subsequent use is denied |
 | 2 — Discover useful help | Proposed | Two members publish capabilities; a real request finds a relevant person or agent; membership and visibility checks prevent discovery outside scope |
 | 3 — Delegate deliberately | Proposed | A member approves a bounded request; its assignee accepts; gateway enforces scope, expiry, revocation, retry identity, and failure/cancellation semantics |
@@ -14,7 +15,7 @@ Milestones describe observable outcomes, not promised dates. This is a proposed 
 
 ## Next decision gate
 
-Maintainer: review RFC 0001 and RFC 0002 with concrete participant feedback, select one collaboration scenario, and write RFC 0004 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing Stage 1. RFC 0003 covers the parallel FlareMo connector experiment; its mock checks do not complete Stage 1 or prove agent interoperability.
+First complete live login acceptance under [RFC 0004](RFC/0004-flaremo-login.md). Next implement explicit community joining and a small, selectively visible capability profile. Login alone does not establish membership. Then review RFC 0001/0002 against one concrete collaboration scenario and write RFC 0005 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing Stage 1. RFC 0003 covers the parallel FlareMo knowledge connector experiment; its mock checks do not complete Stage 1 or prove agent interoperability.
 
 Pass: both participants can explain who may act, what is shared, and who accepts the result. Proceed to the scoped prototype. Fail: revise the scenario or authorization design and repeat this gate.
 

@@ -16,7 +16,7 @@ We want a member to ask for help, discover people and agents with relevant capab
 
 ## Where we are
 
-**Day 0: product thesis, architecture proposal, and a local scaffold.** There is no hosted platform, real agent connector, platform authentication, durable task execution, or federation yet. Local demos need no credentials. An optional FlareMo REST integration probe requires separately authorized test accounts; no live instance has been verified.
+**Day 0: product thesis, architecture proposal, and a local scaffold.** There is no hosted platform, production authentication, real agent connector, durable task execution, or federation yet. Offline and knowledge-sharing mock demos need no credentials. An optional FlareMo login experiment and REST integration probe require an explicitly configured instance; no live instance has been verified.
 
 | Available now | Proposed next |
 | --- | --- |
@@ -67,6 +67,10 @@ npm run flaremo:ui
 ```
 
 The second command starts a local viewer at `http://127.0.0.1:4318` (visit it in your browser). It checks an independently written HTTP mock: private content, team sharing, updates, withdrawal, token revocation and trash. It does not run FlareMo, A2A, MCP or an AI model. See the [administrator and live-test guide](docs/FLAREMO_DEMO.zh-CN.md) and [six-layer proposal](RFC/0003-layering-and-flaremo-demo.md).
+
+### FlareMo login experiment
+
+`npm run flaremo:login` opens a separate local entry at `http://127.0.0.1:4319`. It stays disabled until the operator sets `FLAREMO_AUTH_URL` to an HTTPS origin. An authorized user then enters their own username/password in the local page. The backend verifies identity with FlareMo; tokens remain in process memory. The instance must allow the local page origin. No knowledge is imported and no community membership or agent authority is granted. See the [setup and next-step guide](docs/FLAREMO_LOGIN.zh-CN.md) and [RFC 0004](RFC/0004-flaremo-login.md). Automated checks use synthetic upstream responses; live login is not yet accepted.
 
 ## Shape the experiment
 
