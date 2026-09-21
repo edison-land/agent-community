@@ -3,6 +3,8 @@
 Status: Draft; local connector experiment authorized, production design pending
 Date: 2026-09-21
 
+Revision note: the knowledge-only FlareMo role below records the earlier experiment. The maintainer subsequently selected FlareMo as the target canonical core-object store via a structured extension in [RFC 0005](0005-core-objects-and-flaremo-store.md); [RFC 0006](0006-community-a2a-profile.md) now fixes the A2A profile baseline. Business ownership remains in Community; do not interpret this historical draft as a second writable primary database.
+
 ## Outcome
 
 Demonstrate a community member sharing selected knowledge with another member's agent, updating it, and withdrawing access. The user confirmed that “Flannel” refers to FlareMo at https://github.com/realchendahuang/FlareMo.

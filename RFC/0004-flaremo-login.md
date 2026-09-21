@@ -35,7 +35,7 @@ Test with synthetic HTTP responses: successful signin/me/logout, wrong credentia
 Update (2026-09-21): the maintainer explicitly chose synthetic local accounts while FlareMo integration remains pending. `npm run community:demo` selects a separate mock provider with two hard-coded fictional identities and no external authentication requests. The UI labels every session synthetic and never asks for a password. It is not enabled as a fallback after live authentication failure. Real permissions and external identity bindings cannot be inherited by matching a mock display name. This extends the local experiment only; the product and data ownership plan is in the [architecture blueprint](../docs/COMMUNITY_BLUEPRINT.zh-CN.md).
 
 1. Explicitly join a configured community and publish a small capability profile.
-2. Verify control of one agent using a short-lived, single-use challenge; support disconnect/revocation. Describe this in RFC 0005 before implementing execution.
+2. Verify control of one agent using a short-lived, single-use challenge; support disconnect/revocation. Describe this in RFC 0007 before implementing execution.
 3. Publish selected capability offers and discover a second member. Self-description and proven work remain distinct.
 4. Agree on one bounded request, obtain acceptance, and run it through a supported adapter.
 5. Review one artifact with human/agent attribution; optionally publish selected material to FlareMo after separate sharing consent.

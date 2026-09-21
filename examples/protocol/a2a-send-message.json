@@ -1,0 +1,42 @@
+{
+  "jsonrpc": "2.0",
+  "id": "synthetic-rpc-1",
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "synthetic-message-1",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "text": "Prepare the agreed comparison brief."
+        }
+      ],
+      "extensions": [
+        "urn:uuid:8e7639ad-01a8-4e1d-9423-d7417db3ec09"
+      ],
+      "metadata": {
+        "urn:uuid:8e7639ad-01a8-4e1d-9423-d7417db3ec09": {
+          "profileVersion": "0.1.0",
+          "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+          "requestId": "urn:uuid:83026772-3d50-571a-9a54-7221d72b0ec3",
+          "workroomId": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b",
+          "executionId": "synthetic-execution-1",
+          "grantId": "synthetic-grant-1",
+          "actor": {
+            "kind": "Human",
+            "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+            "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+          },
+          "recipientAgentId": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+          "capabilityId": "urn:uuid:18464bf0-ac66-569c-8109-0fbf1ccb43db",
+          "idempotencyKey": "synthetic-command-1"
+        }
+      }
+    },
+    "configuration": {
+      "acceptedOutputModes": [
+        "text/markdown"
+      ]
+    }
+  }
+}

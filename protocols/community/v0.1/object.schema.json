@@ -1,0 +1,643 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Community core object v0.1 (draft contract)",
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "community-objects"
+    },
+    "schemaVersion": {
+      "const": "0.1.0"
+    },
+    "kind": {
+      "enum": [
+        "Community",
+        "Human",
+        "Agent",
+        "Capability",
+        "Request",
+        "Workroom",
+        "Artifact",
+        "Attestation"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "communityId": {
+      "type": "string",
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lifecycle": {
+      "enum": [
+        "active",
+        "tombstoned"
+      ]
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "visibility": {
+      "$ref": "#/$defs/Visibility"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "protocol",
+    "schemaVersion",
+    "kind",
+    "id",
+    "communityId",
+    "revision",
+    "createdAt",
+    "updatedAt",
+    "lifecycle",
+    "actor",
+    "visibility",
+    "data"
+  ],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "Community"
+        },
+        "data": {
+          "$ref": "#/$defs/Community"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Human"
+        },
+        "data": {
+          "$ref": "#/$defs/Human"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Agent"
+        },
+        "data": {
+          "$ref": "#/$defs/Agent"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Capability"
+        },
+        "data": {
+          "$ref": "#/$defs/Capability"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Request"
+        },
+        "data": {
+          "$ref": "#/$defs/Request"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Workroom"
+        },
+        "data": {
+          "$ref": "#/$defs/Workroom"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Artifact"
+        },
+        "data": {
+          "$ref": "#/$defs/Artifact"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Attestation"
+        },
+        "data": {
+          "$ref": "#/$defs/Attestation"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "Actor": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "Human",
+            "Agent"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "principalId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "principalId"
+      ],
+      "additionalProperties": false
+    },
+    "Visibility": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "enum": [
+                "private",
+                "community"
+              ]
+            }
+          },
+          "required": [
+            "scope"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "enum": [
+                "workroom"
+              ]
+            },
+            "workroomId": {
+              "type": "string",
+              "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          "required": [
+            "scope",
+            "workroomId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Community": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "ownerHumanId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "archived"
+          ]
+        }
+      },
+      "required": [
+        "displayName",
+        "ownerHumanId",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Human": {
+      "type": "object",
+      "properties": {
+        "personId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "status": {
+          "enum": [
+            "active",
+            "suspended",
+            "left"
+          ]
+        }
+      },
+      "required": [
+        "personId",
+        "displayName",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Agent": {
+      "type": "object",
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "bindingStatus": {
+          "enum": [
+            "unverified",
+            "verified",
+            "revoked"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "disabled"
+          ]
+        },
+        "interface": {
+          "type": "object",
+          "properties": {
+            "protocol": {
+              "enum": [
+                "a2a"
+              ]
+            },
+            "version": {
+              "enum": [
+                "1.0"
+              ]
+            },
+            "cardUrl": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://"
+            }
+          },
+          "required": [
+            "protocol",
+            "version",
+            "cardUrl"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "principalId",
+        "displayName",
+        "bindingStatus",
+        "status",
+        "interface"
+      ],
+      "additionalProperties": false
+    },
+    "Capability": {
+      "type": "object",
+      "properties": {
+        "providerKind": {
+          "enum": [
+            "Human",
+            "Agent"
+          ]
+        },
+        "providerId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "inputMediaTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "outputMediaTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "published",
+            "withdrawn"
+          ]
+        }
+      },
+      "required": [
+        "providerKind",
+        "providerId",
+        "title",
+        "description",
+        "inputMediaTypes",
+        "outputMediaTypes",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "type": "object",
+      "properties": {
+        "requesterHumanId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "capabilityIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "open",
+            "assigned",
+            "review",
+            "accepted",
+            "cancelled"
+          ]
+        }
+      },
+      "required": [
+        "requesterHumanId",
+        "title",
+        "description",
+        "capabilityIds",
+        "acceptanceCriteria",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Workroom": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "participantHumanIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "participantAgentIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "status": {
+          "enum": [
+            "forming",
+            "active",
+            "closed"
+          ]
+        }
+      },
+      "required": [
+        "requestId",
+        "participantHumanIds",
+        "participantAgentIds",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "workroomId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "producerKind": {
+          "enum": [
+            "Human",
+            "Agent"
+          ]
+        },
+        "producerId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "principalId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "blob": {
+          "type": "object",
+          "properties": {
+            "uri": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "uri",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "submitted",
+            "finalized",
+            "withdrawn"
+          ]
+        }
+      },
+      "required": [
+        "workroomId",
+        "producerKind",
+        "producerId",
+        "principalId",
+        "title",
+        "mediaType",
+        "blob",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Attestation": {
+      "type": "object",
+      "properties": {
+        "issuerHumanId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "subjectKind": {
+          "enum": [
+            "Human",
+            "Agent"
+          ]
+        },
+        "subjectId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "requestId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "artifactId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "artifactRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "artifactSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "outcome": {
+          "enum": [
+            "accepted",
+            "rejected",
+            "changes-requested"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "status": {
+          "enum": [
+            "issued",
+            "revoked"
+          ]
+        },
+        "supersedesId": {
+          "type": "string",
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "required": [
+        "issuerHumanId",
+        "subjectKind",
+        "subjectId",
+        "requestId",
+        "artifactId",
+        "artifactRevision",
+        "artifactSha256",
+        "outcome",
+        "statement",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

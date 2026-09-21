@@ -1,0 +1,266 @@
+{
+  "synthetic": true,
+  "objects": [
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Community",
+      "id": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "displayName": "Example Builders",
+        "ownerHumanId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "status": "active"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Human",
+      "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "personId": "urn:uuid:b04df31e-f95a-5aa4-a570-1c498a375ed2",
+        "displayName": "Synthetic requester",
+        "status": "active"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Human",
+      "id": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "personId": "urn:uuid:d9b3e8aa-7684-56b7-8b45-0b9a4fb4d1be",
+        "displayName": "Synthetic collaborator",
+        "status": "active"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Agent",
+      "id": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5",
+        "principalId": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "principalId": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5",
+        "displayName": "Synthetic research agent",
+        "bindingStatus": "verified",
+        "status": "active",
+        "interface": {
+          "protocol": "a2a",
+          "version": "1.0",
+          "cardUrl": "https://agent.example.invalid/.well-known/agent-card.json"
+        }
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Capability",
+      "id": "urn:uuid:18464bf0-ac66-569c-8109-0fbf1ccb43db",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5",
+        "principalId": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "providerKind": "Agent",
+        "providerId": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+        "title": "Compare public products",
+        "description": "Synthetic declared capability; no runtime is connected.",
+        "inputMediaTypes": [
+          "text/plain"
+        ],
+        "outputMediaTypes": [
+          "text/markdown"
+        ],
+        "status": "published"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Request",
+      "id": "urn:uuid:83026772-3d50-571a-9a54-7221d72b0ec3",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "community"
+      },
+      "data": {
+        "requesterHumanId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "title": "Compare three products",
+        "description": "Synthetic request for a one-page brief.",
+        "capabilityIds": [
+          "urn:uuid:18464bf0-ac66-569c-8109-0fbf1ccb43db"
+        ],
+        "acceptanceCriteria": [
+          "Three products with attributable sources"
+        ],
+        "status": "review"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Workroom",
+      "id": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "workroom",
+        "workroomId": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b"
+      },
+      "data": {
+        "requestId": "urn:uuid:83026772-3d50-571a-9a54-7221d72b0ec3",
+        "participantHumanIds": [
+          "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+          "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5"
+        ],
+        "participantAgentIds": [
+          "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10"
+        ],
+        "status": "active"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Artifact",
+      "id": "urn:uuid:a5065292-8b4e-55a1-992d-d432df30cdba",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Agent",
+        "id": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+        "principalId": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5"
+      },
+      "visibility": {
+        "scope": "workroom",
+        "workroomId": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b"
+      },
+      "data": {
+        "workroomId": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b",
+        "producerKind": "Agent",
+        "producerId": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+        "principalId": "urn:uuid:0c06c82a-e9bd-59fd-a4a0-05900c8939c5",
+        "title": "Synthetic comparison",
+        "mediaType": "text/markdown",
+        "blob": {
+          "uri": "https://files.example.invalid/comparison.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "status": "submitted"
+      }
+    },
+    {
+      "protocol": "community-objects",
+      "schemaVersion": "0.1.0",
+      "kind": "Attestation",
+      "id": "urn:uuid:43b470b2-56f8-5c53-8056-fd56b99ee1cd",
+      "communityId": "urn:uuid:0e8cf2b2-4fa3-5592-87bd-40debb861f0f",
+      "revision": 1,
+      "createdAt": "2026-09-21T00:00:00.000Z",
+      "updatedAt": "2026-09-21T00:00:00.000Z",
+      "lifecycle": "active",
+      "actor": {
+        "kind": "Human",
+        "id": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "principalId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00"
+      },
+      "visibility": {
+        "scope": "workroom",
+        "workroomId": "urn:uuid:79123dac-8e0a-524b-9fb1-009e0bd9979b"
+      },
+      "data": {
+        "issuerHumanId": "urn:uuid:a94b1113-3d67-589e-9df3-238bcf38db00",
+        "subjectKind": "Agent",
+        "subjectId": "urn:uuid:fe688d3f-db58-5176-87e7-a4030b2f6a10",
+        "requestId": "urn:uuid:83026772-3d50-571a-9a54-7221d72b0ec3",
+        "artifactId": "urn:uuid:a5065292-8b4e-55a1-992d-d432df30cdba",
+        "artifactRevision": 1,
+        "artifactSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "outcome": "accepted",
+        "statement": "Synthetic review fixture, not a real completed task.",
+        "status": "issued"
+      }
+    }
+  ]
+}

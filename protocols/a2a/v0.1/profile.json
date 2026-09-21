@@ -1,0 +1,21 @@
+{
+  "status": "draft-profile-not-implemented",
+  "communityProfile": "0.1.0",
+  "a2aWireVersion": "1.0",
+  "a2aSpecificationRelease": "v1.0.1",
+  "binding": "JSONRPC",
+  "streaming": "SSE",
+  "sdk": {
+    "package": "@a2a-js/sdk",
+    "version": "1.2.0",
+    "license": "Apache-2.0",
+    "installed": false
+  },
+  "extensionUri": "urn:uuid:8e7639ad-01a8-4e1d-9423-d7417db3ec09",
+  "extensionVersion": "0.1.0",
+  "sources": [
+    "https://github.com/a2aproject/A2A/releases/tag/v1.0.1",
+    "https://github.com/a2aproject/a2a-js/releases/tag/v1.2.0"
+  ],
+  "reviewedAt": "2026-09-21"
+}

@@ -59,6 +59,12 @@ npm run demo -- examples/communities/kosx.json research
 
 The demo prints declared capabilities within one synthetic community. It does not call an agent, accept work, infer competence, or authenticate the caller. See [architecture and limits](docs/ARCHITECTURE.md).
 
+### Infrastructure contracts first
+
+The current priority is the **eight core objects and their storage/communication contracts**. See [the glossary](CONTEXT.md), [RFC 0005: FlareMo object storage](RFC/0005-core-objects-and-flaremo-store.md), and [RFC 0006: A2A profile](RFC/0006-community-a2a-profile.md). FlareMo is the intended canonical object store, via a proposed structured extension; its existing memo API is not claimed to provide this contract. The A2A proposal pins wire 1.0 and official SDK 1.2.0, but the SDK is not installed and no peer is connected.
+
+Run `npm run objects:demo` to validate and create all eight kinds (nine synthetic records including two Humans) in an **in-memory contract harness**. It checks references, atomic bootstrap, version conflicts, evidence binding and command deduplication. No live FlareMo objects are created. Schema/contract checks do not implement production authentication, ACLs, database durability, complete lifecycle guards or A2A conformance.
+
 ### FlareMo knowledge-sharing experiment
 
 ```sh

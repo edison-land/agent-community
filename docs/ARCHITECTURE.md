@@ -2,6 +2,8 @@
 
 Status: proposed boundaries with an offline executable example. This document is not a claim of a production implementation.
 
+Current storage direction (2026-09-21): [RFC 0005](../RFC/0005-core-objects-and-flaremo-store.md) makes FlareMo's proposed structured object extension the canonical persistent store for all eight core types; Community still owns business and authorization rules. This supersedes any earlier assumption of an independent Community primary database. [RFC 0006](../RFC/0006-community-a2a-profile.md) defines the selected A2A baseline. Both need live implementation and acceptance.
+
 Start with the [Chinese product and architecture blueprint](COMMUNITY_BLUEPRINT.zh-CN.md) for the user journey, data ownership, agent onboarding, update paths and staged delivery. The next prototype uses explicit synthetic login; live FlareMo authentication is a separate integration gate.
 
 The more detailed [six-layer proposal and FlareMo experiment](../RFC/0003-layering-and-flaremo-demo.md) refines these responsibilities. The new knowledge connector has local HTTP mock tests and an optional live probe; it is independent of the discovery-only mock agent gateway below.
@@ -14,7 +16,7 @@ The more detailed [six-layer proposal and FlareMo experiment](../RFC/0003-layeri
 | Application | Coordinate membership, requests, workrooms and approval | Proposed; only local experiment servers exist |
 | Domain and policy | Community scope, principal binding, grants, lifecycle rules | Vocabulary and local discovery filter in `packages/core/` |
 | Protocols and connectors | Translate identity, knowledge and authorized runtime interfaces | `packages/identity/`, `packages/knowledge/`, discovery-only `packages/gateway/` |
-| Persistence | Authoritative memberships, grants, tasks, artifacts and audit events | Proposed; fixtures are local inputs only |
+| Persistence | FlareMo structured extension for core objects and supporting authority records | Schema + in-memory contract harness; real extension not implemented |
 | Background operation | Dispatch, events, online status and recovery | Proposed; federation is a later opt-in cross-node capability |
 
 Start with one deployable node and internal module boundaries. A community is a logical ownership boundary; a deployment may later host one or more communities, but that mapping is a separate RFC. No microservices, graph database, UI framework, paid API, or hosting vendor is selected.

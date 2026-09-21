@@ -45,6 +45,12 @@ npm run flaremo:ui
 
 打开 `http://127.0.0.1:4318`，点击运行，检查私密、共享、更新、撤回、模拟撤销凭证与回收站流程。它使用我们编写的本地 HTTP 模拟服务；真实 FlareMo、A2A 和 MCP 尚未完成对接验收。真实实例的准备材料与命令见 [管理员接入指南](docs/FLAREMO_DEMO.zh-CN.md)，分层与协议选型见 [RFC 0003](RFC/0003-layering-and-flaremo-demo.md)。
 
+## 当前重点：八类核心对象与基础设施协议
+
+优先完成八类对象的正式定义、FlareMo 持久化契约与 A2A 通信约定，再扩展页面。见 [统一术语](CONTEXT.md)、[RFC 0005：对象与 FlareMo 存储](RFC/0005-core-objects-and-flaremo-store.md)、[RFC 0006：A2A profile](RFC/0006-community-a2a-profile.md)。目标是由 FlareMo 保存核心对象的权威记录，Community 负责业务与授权；需要新增结构化对象扩展，不能把现有笔记接口当作已具备该协议。
+
+运行 `npm run objects:demo`，在内存中创建八类、九条虚构记录（含两位 Human），检查关系、原子创建、版本冲突、证据引用和幂等重放。尚未写入真实 FlareMo。A2A 草案固定 wire 1.0、官方 SDK 1.2.0，SDK 尚未安装，真实互通尚未实现。
+
 ## 登录接入实验
 
 当前先使用虚构账号：运行 `npm run community:demo`，打开 `http://127.0.0.1:4319`，选择演示成员即可进入，无需密码，不连接 FlareMo。成员档案、任务流程和真实 Agent 执行尚未实现。完整的用户路径、六层职责、数据归属和接入顺序见 [架构蓝图](docs/COMMUNITY_BLUEPRINT.zh-CN.md)。切换真实登录前先停止使用同一端口的演示服务。
