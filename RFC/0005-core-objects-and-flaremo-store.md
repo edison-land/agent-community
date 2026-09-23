@@ -4,6 +4,8 @@ Status: Draft protocol; eight-object vocabulary and FlareMo target storage are m
 Date: 2026-09-21
 Supersedes: the separate Community authoritative database assumption in the earlier blueprint. Refines RFC 0002/0003. Live execution is not authorized by this RFC.
 
+Update 2026-09-21: the structured extension is implemented in an independent local FlareMo copy and verified against a local instance; implementation choices and the one deliberate difference (viewer ACL enforced by the Community node, service identity and partition by FlareMo) are recorded in [RFC 0007](0007-local-closed-loop.md).
+
 ## 决策与实际交付
 
 八类对象是产品核心：Community、Human、Agent、Capability、Request、Workroom、Artifact、Attestation。必须先建立对象及其存储/通信契约，再扩大页面功能。

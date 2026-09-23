@@ -1,30 +1,47 @@
 # Roadmap
 
-Milestones describe observable outcomes, not promised dates. This is a proposed sequence; substantial implementation follows use-case and RFC review. Maintainers record evidence and changes in the public experiment log.
+Milestones describe observable outcomes, not promised dates. Direction: [RFC 0010](RFC/0010-opportunity-router.md) (2026-09-22). Each phase has an exit test; if Phase 1 does not create value in KOSX, the project stops rather than moving on.
 
-| Stage | Status | Outcome and exit evidence |
+## Phase 1 — Make one community useful (request → people)
+
+| Step | Status | Exit evidence |
 | --- | --- | --- |
-| 0 — Establish the experiment | Scaffold delivered | Public thesis, license, RFC process, generic/KOSX synthetic examples, passing offline checks |
-| 0.5 — Verify a member identity | Local login experiment implemented; live verification pending | Existing FlareMo account establishes a separately verified local identity; logout, expiry, invalid credentials and upstream denial checked with synthetic responses; real instance acceptance still required |
-| 1 — Claim an agent | Proposed | One human joins a community and verifies control of an external agent; revoke ownership/authorization and prove subsequent use is denied |
-| 2 — Discover useful help | Proposed | Two members publish capabilities; a real request finds a relevant person or agent; membership and visibility checks prevent discovery outside scope |
-| 3 — Delegate deliberately | Proposed | A member approves a bounded request; its assignee accepts; gateway enforces scope, expiry, revocation, retry identity, and failure/cancellation semantics |
-| 4 — Build together | Proposed | Two members and their agents complete one consented task, review an artifact, and record attribution; publish a redacted observation and unmet needs |
-| 5 — A second community | Proposed | An unrelated operator installs a documented node and completes the same flow by configuration, with export/restore and isolation demonstrated |
-| 6 — Connect two communities | Research | Two consenting nodes exchange selected capability metadata and complete a scoped handoff; unilateral disconnect and revoked access are verified |
+| Foundations: community node, invitation-only membership, FlareMo sign-in, visibility rules, the eight objects in FlareMo, review records, Cloudflare Worker build | Built and verified locally; not deployed | See [local loop record](docs/LOCAL_LOOP.zh-CN.md) |
+| Member agreement and consent records | Designed (RFC 0010 §6) | Members sign before any profile drafting; withdrawal removes drafted data |
+| Member profiles, drafted from community activity and confirmed by the member | Designed | Most members in the pilot confirm their draft with light edits |
+| Requests with capability breakdown, rewards and source | Designed | Requesters accept or adjust the breakdown |
+| Matching with reasons, plus community suggestions | Designed | Candidates understand "why me"; suggestions are attributed |
+| Pre-flight, accept or decline, squad with roles | Designed | A request reaches a person who accepts, without the organizer relaying messages by hand |
+| Review, capability evidence, collaboration edges, organizer dashboard | Designed | Accepted work updates profiles; dashboard shows opportunities → matches → squads → deliveries |
+| Member-agent interface: onboarding doc, `/.well-known/agent-network.json`, `/api/agent/v1`, MCP tools, inbox, scoped tokens | Built; verified by the end-to-end evaluation (RFC 0010 §7) | A member's own agent drafts a profile, suggests a candidate and answers pre-flight, and all of it is attributed and confirmed where required |
+| One focus point: a request is one paragraph, what is still unclear is named, and a member can delegate the coordination in between to their own agent | Built and verified ([RFC 0011](RFC/0011-one-focus-point.md)) | The requester never clicks through candidate selection or squad forming; invitations sent by an agent are attributed to it, and committing and judging stay with the person |
+| KOSX pilot | Planned ([plan](docs/KOSX_VALIDATION_PLAN.zh-CN.md)) | Targets in the plan are met, or the stop criteria are triggered and the result is published |
+
+## Phase 2 — Make agents useful (people + agents do the work)
+
+| Step | Status |
+| --- | --- |
+| Per-order execution on the member's own machine (Codex CLI connector, register → claim, per-order consent, completion ≠ acceptance) | Built and verified locally with a simulated Codex ([RFC 0007](RFC/0007-local-closed-loop.md), [RFC 0009](RFC/0009-agent-profile-and-onboarding.md)); a real Codex run is pending |
+| Memory capsules and per-order sandbox (what makes one member's agent different from another's, without exposing the rest of their machine) | Proposed; sandbox limits measured ([local loop record](docs/LOCAL_LOOP.zh-CN.md) §⑧) |
+| Automated pre-flight and agent-to-agent negotiation over A2A | A2A 1.0 gateway built ([RFC 0006](RFC/0006-community-a2a-profile.md)) |
+
+## Phase 3 — Connect communities
+
+Route a request one community cannot meet to other consenting communities. Research only; no federation protocol until Phase 1 and Phase 2 evidence exists.
 
 ## Next decision gate
 
-Priority update: complete [RFC 0005](RFC/0005-core-objects-and-flaremo-store.md) and [RFC 0006](RFC/0006-community-a2a-profile.md) contracts before expanding product pages. Eight object schemas and the in-memory consistency/transaction harness are implemented; FlareMo's structured extension, live persistence, permission enforcement and A2A peers are not. The maintainer selected FlareMo as the target canonical store; Community owns business rules. Validate storage atomicity, revisions, scope and recovery before real delegation. Agent control-proof implementation can follow in RFC 0007, after these protocol reviews.
+The KOSX pilot. Before it starts:
+- the FlareMo extension gains the new record kinds, and the administrator patch is regenerated;
+- the community brain provides profile-drafting signals for consenting members;
+- the member agreement is written and reviewed.
 
-After the infrastructure gate, use the explicit synthetic-login mode to prototype community joining and a small, selectively visible capability profile. Live FlareMo login is deferred to an independent integration gate under [RFC 0004](RFC/0004-flaremo-login.md); it does not block local product modeling. Login alone does not establish membership. Follow the [architecture blueprint](docs/COMMUNITY_BLUEPRINT.zh-CN.md), then review RFC 0001/0002 against one concrete collaboration scenario and write RFC 0007 for the smallest claim-agent experiment. Include a deployment/stack decision, ownership proof, revocation behavior, and acceptance evidence before implementing real Stage 1 ownership verification. RFC 0003 covers the parallel FlareMo knowledge connector experiment; synthetic identities and mock checks do not prove real membership or agent interoperability.
-
-Pass: both participants can explain who may act, what is shared, and who accepts the result. Proceed to the scoped prototype. Fail: revise the scenario or authorization design and repeat this gate.
+Deployment steps are in [DEPLOY_CLOUDFLARE](docs/DEPLOY_CLOUDFLARE.zh-CN.md) and [the FlareMo administrator handoff](docs/FLAREMO_ADMIN_HANDOFF.zh-CN.md).
 
 ## Measurement
 
-For real pilots record completed and accepted collaborations, time to find useful help, failed/revoked delegations, and whether another community can operate independently. Show sample size and limitations. Do not turn synthetic fixtures, registered agents, or generated messages into traction claims.
+Record opportunities, matches, squads, deliveries, verified capabilities, suggestions, invitation acceptance and time to first accepted match, together with sample size and limitations. Do not report synthetic fixtures, registered agents or generated messages as traction.
 
 ## Deferred
 
-Payments, global ranking, federation protocols, unattended delegation, hosted billing, production runtime framework, and an app marketplace require their own evidence and decisions. No production launch date is committed.
+Payments, global ranking, federation protocols, unattended delegation, hosted billing and an app marketplace each need their own evidence and decision. No launch date is committed.

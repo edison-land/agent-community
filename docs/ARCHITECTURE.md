@@ -2,6 +2,8 @@
 
 Status: proposed boundaries with an offline executable example. This document is not a claim of a production implementation.
 
+Update 2026-09-21: a local closed loop (FlareMo object extension, community node with A2A gateway, member connector for Codex CLI) now implements these boundaries on one machine; see [RFC 0007](../RFC/0007-local-closed-loop.md) and the [local loop record](LOCAL_LOOP.zh-CN.md). The discovery-only mock gateway described below remains for the offline demo.
+
 Current storage direction (2026-09-21): [RFC 0005](../RFC/0005-core-objects-and-flaremo-store.md) makes FlareMo's proposed structured object extension the canonical persistent store for all eight core types; Community still owns business and authorization rules. This supersedes any earlier assumption of an independent Community primary database. [RFC 0006](../RFC/0006-community-a2a-profile.md) defines the selected A2A baseline. Both need live implementation and acceptance.
 
 Start with the [Chinese product and architecture blueprint](COMMUNITY_BLUEPRINT.zh-CN.md) for the user journey, data ownership, agent onboarding, update paths and staged delivery. The next prototype uses explicit synthetic login; live FlareMo authentication is a separate integration gate.
