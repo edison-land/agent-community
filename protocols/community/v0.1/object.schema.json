@@ -262,6 +262,144 @@
             "suspended",
             "left"
           ]
+        },
+        "profile": {
+          "description": "Member profile (RFC 0010 §6). Every item states its source; delivery items are verified by an accepted review.",
+          "type": "object",
+          "properties": {
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "items": {
+              "type": "array",
+              "maxItems": 60,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{1,40}$"
+                  },
+                  "kind": {
+                    "enum": [
+                      "skill",
+                      "experience",
+                      "resource",
+                      "project"
+                    ]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 600
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                    },
+                    "maxItems": 8,
+                    "uniqueItems": true
+                  },
+                  "source": {
+                    "enum": [
+                      "self",
+                      "community-draft",
+                      "agent-draft",
+                      "delivery"
+                    ]
+                  },
+                  "visibility": {
+                    "enum": [
+                      "community",
+                      "private"
+                    ]
+                  },
+                  "verified": {
+                    "type": "boolean"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "attestationId": {
+                          "type": "string",
+                          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                        },
+                        "requestId": {
+                          "type": "string",
+                          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                        },
+                        "topicId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "title",
+                  "tags",
+                  "source",
+                  "visibility",
+                  "verified"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "hoursPerWeek": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 80
+            },
+            "openTo": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "paid",
+                  "equity",
+                  "exchange",
+                  "volunteer"
+                ]
+              },
+              "maxItems": 4,
+              "uniqueItems": true
+            },
+            "notDoing": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+              },
+              "maxItems": 20,
+              "uniqueItems": true
+            },
+            "confirmedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "items",
+            "hoursPerWeek",
+            "openTo",
+            "notDoing"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -312,13 +450,49 @@
             "cardUrl": {
               "type": "string",
               "format": "uri",
-              "pattern": "^https://"
+              "pattern": "^(https://|http://127\\.0\\.0\\.1(:[0-9]{1,5})?/)"
             }
           },
           "required": [
             "protocol",
             "version",
             "cardUrl"
+          ],
+          "additionalProperties": false
+        },
+        "profile": {
+          "description": "Self-introduction drafted by the agent and edited by its principal (RFC 0009). What the agent can do is published as Capability objects.",
+          "type": "object",
+          "properties": {
+            "intro": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "seeking": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "maxItems": 6
+            },
+            "draftedBy": {
+              "enum": [
+                "agent",
+                "principal"
+              ]
+            },
+            "editedByPrincipal": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "intro",
+            "seeking",
+            "draftedBy",
+            "editedByPrincipal"
           ],
           "additionalProperties": false
         }
@@ -424,13 +598,13 @@
           "maxItems": 100
         },
         "acceptanceCriteria": {
+          "description": "Expected outcomes. May be empty while the request is still being made clear (RFC 0011).",
           "type": "array",
           "items": {
             "type": "string",
             "minLength": 1,
             "maxLength": 4000
           },
-          "minItems": 1,
           "uniqueItems": true,
           "maxItems": 100
         },
@@ -443,13 +617,85 @@
             "accepted",
             "cancelled"
           ]
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "needs": {
+          "description": "Capability needs the request breaks down into (RFC 0010 §5).",
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,40}$"
+              },
+              "tag": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 400
+              }
+            },
+            "required": [
+              "id",
+              "tag",
+              "title"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "rewardTypes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "paid",
+              "equity",
+              "exchange",
+              "volunteer"
+            ]
+          },
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "budget": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "stage": {
+          "enum": [
+            "explore",
+            "execute"
+          ]
+        },
+        "source": {
+          "enum": [
+            "member",
+            "client",
+            "lab",
+            "community-signal"
+          ]
         }
       },
       "required": [
         "requesterHumanId",
         "title",
         "description",
-        "capabilityIds",
         "acceptanceCriteria",
         "status"
       ],
@@ -488,6 +734,40 @@
             "active",
             "closed"
           ]
+        },
+        "roles": {
+          "description": "Squad roles: who owns which needs (RFC 0010 §5).",
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "properties": {
+              "humanId": {
+                "type": "string",
+                "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "needIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]{1,40}$"
+                },
+                "maxItems": 12,
+                "uniqueItems": true
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "humanId",
+              "needIds",
+              "title"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
@@ -535,7 +815,7 @@
             "uri": {
               "type": "string",
               "format": "uri",
-              "pattern": "^https://"
+              "pattern": "^(https://|http://127\\.0\\.0\\.1(:[0-9]{1,5})?/)"
             },
             "sha256": {
               "type": "string",
@@ -636,6 +916,41 @@
         "outcome",
         "statement",
         "status"
+      ],
+      "additionalProperties": false
+    },
+    "Material": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,80}/[a-z0-9._-]{1,120}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "title",
+        "path",
+        "sha256",
+        "mediaType",
+        "bytes"
       ],
       "additionalProperties": false
     }
