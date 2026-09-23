@@ -1,0 +1,11 @@
+{
+  "pack": "oss-licenses",
+  "title": "开源许可证公开资料包",
+  "synthetic": true,
+  "description": "Public license summaries with canonical source links. No participant data.",
+  "files": [
+    { "file": "mit.md", "title": "MIT License 要点" },
+    { "file": "apache-2.0.md", "title": "Apache License 2.0 要点" },
+    { "file": "agpl-3.0.md", "title": "GNU AGPL v3.0 要点" }
+  ]
+}
