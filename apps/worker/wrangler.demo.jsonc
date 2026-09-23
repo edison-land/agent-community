@@ -1,0 +1,26 @@
+// Public demo of opportunity routing (RFC 0010, docs/EVAL.zh-CN.md): fictional
+// members and visitor guests, no FlareMo, state in the Durable Object.
+// Secret (never here): DEMO_RESET_SECRET — lets the operator wipe the demo before an evaluation run.
+{
+  "name": "agent-network-demo",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [{ "pattern": "agent-network-demo.zwteam.top", "custom_domain": true }],
+  "assets": {
+    "directory": "../node/public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/", "/api/*", "/a2a/*", "/connector/*", "/agent-onboarding.md", "/agents.md", "/.well-known/*", "/mcp", "/healthz", "/__demo/*"]
+  },
+  "durable_objects": { "bindings": [{ "name": "COMMUNITY_NODE", "class_name": "CommunityNode" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CommunityNode"] }],
+  "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
+  "vars": {
+    "COMMUNITY_MODE": "demo",
+    "PUBLIC_ORIGIN": "https://agent-network-demo.zwteam.top",
+    "COMMUNITY_OWNER_SUBJECT": "users/mia"
+  },
+  "observability": { "enabled": true }
+}
