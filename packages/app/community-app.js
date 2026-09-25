@@ -37,7 +37,7 @@ export async function createCommunityApp({
   if (registrationTtlMs) service.registrationTtlMs = registrationTtlMs;
   const gateway = new CommunityGateway({ service, log });
   // Opportunity routing (RFC 0010). `activity` builds the community-activity source for profile drafting.
-  const router = new RouterService({ service, kv, taxonomy: routerOptions.taxonomy, limits: routerOptions.limits, activity: routerOptions.activity ? routerOptions.activity(service) : null });
+  const router = new RouterService({ service, kv, taxonomy: routerOptions.taxonomy, limits: routerOptions.limits, vocabulary: routerOptions.vocabulary ?? null, activity: routerOptions.activity ? routerOptions.activity(service) : null });
   const routerApi = humanRoutes({ router, service });
   const agentApi = agentRoutes({ router });
   const mcp = mcpHandler({ router, origin });

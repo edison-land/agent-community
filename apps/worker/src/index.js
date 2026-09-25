@@ -6,6 +6,8 @@ import { CachedStore } from '../../../packages/store/cached.js';
 import { FlareMoObjectStore } from '../../../packages/store/flaremo-objects.js';
 import { createMockLogin } from '../../../packages/identity/mock.js';
 import { FixtureActivitySource } from '../../../packages/router/activity.js';
+import { embeddingFrom } from '../../../packages/router/embedding.js';
+import { Vocabulary } from '../../../packages/router/vocabulary.js';
 import { sameDigest, sha256 } from '../../../packages/community/secrets.js';
 import { durableDemoStore } from './demo-store.js';
 import demoScenario from '../../../examples/scenarios/kosx-recruitment.json';
@@ -74,6 +76,7 @@ export class CommunityNode extends DurableObject {
         autoDispatch: env.COMMUNITY_AUTO_DISPATCH !== '0',
         registrationTtlMs: env.COMMUNITY_REGISTRATION_TTL_MS ? Number(env.COMMUNITY_REGISTRATION_TTL_MS) : undefined,
         ownerSubject: env.COMMUNITY_OWNER_SUBJECT || null,
+        router: this.#vocabulary(),
         openBootstrap: env.COMMUNITY_OPEN_BOOTSTRAP === '1',
         openJoin: env.COMMUNITY_OPEN_JOIN === '1',
         log: entry => console.log(JSON.stringify({ at: new Date().toISOString(), ...entry })),
@@ -83,6 +86,12 @@ export class CommunityNode extends DurableObject {
       return app;
     })().catch(error => { this.ready = null; throw error; });
     return this.ready;
+  }
+
+  /** Matching by meaning, when Workers AI is bound; otherwise the keyword baseline. */
+  #vocabulary() {
+    const embedding = embeddingFrom({ ai: this.env.AI });
+    return embedding ? { vocabulary: new Vocabulary({ embedding }) } : {};
   }
 
   /**
@@ -98,7 +107,7 @@ export class CommunityNode extends DurableObject {
       mode: 'simulated', store: await durableDemoStore(this.ctx.storage), kv: this.kv, materials, onboarding, agentGuide, connectorBundle,
       login: createMockLogin({ members: demoScenario.members.map(({ username, displayName }) => ({ username, displayName })), allowGuests: true }),
       publicOrigin: env.PUBLIC_ORIGIN, ownerSubject: env.COMMUNITY_OWNER_SUBJECT || null, openBootstrap: !env.COMMUNITY_OWNER_SUBJECT, openJoin: true, autoDispatch: false,
-      router: { activity: service => new FixtureActivitySource({ service, signals }) },
+      router: { ...this.#vocabulary(), activity: service => new FixtureActivitySource({ service, signals }) },
       log: entry => console.log(JSON.stringify({ at: new Date().toISOString(), ...entry })),
     });
   }

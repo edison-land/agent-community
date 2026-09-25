@@ -52,13 +52,53 @@ const emptyProfile = () => ({ items: [], hoursPerWeek: 0, openTo: [], notDoing: 
  * inside squads. Every agent call is audited.
  */
 export class RouterService {
-  constructor({ service, kv, taxonomy = DEFAULT_TAXONOMY, activity = null, agreement = MEMBER_AGREEMENT, limits = {}, clock = null }) {
+  constructor({ service, kv, taxonomy = DEFAULT_TAXONOMY, activity = null, agreement = MEMBER_AGREEMENT, limits = {}, vocabulary = null, clock = null }) {
     this.service = service; this.kv = kv; this.taxonomy = validateTaxonomy(taxonomy); this.activity = activity; this.agreement = agreement; this.clock = clock ?? (() => service.clock());
+    // Optional: capability matching by meaning. Without it the keyword baseline runs, unchanged.
+    this.vocabulary = vocabulary; this.vocabularyReady = null;
     this.limits = { ...RATE_LIMITS, ...limits };
     this.suggestionLog = new Map();
   }
 
   get s() { return this.service; }
+
+  // ---------- capability vocabulary (embedding on write; ranking stays a tag intersection) ----------
+  /** Loads the community's terms once, rebuilding the vector index from them. */
+  async #vocab() {
+    if (!this.vocabulary) return null;
+    this.vocabularyReady ??= this.vocabulary.load(await this.kv.get('vocabulary:terms') ?? []).catch(error => { this.vocabularyReady = null; throw error; });
+    await this.vocabularyReady;
+    return this.vocabulary;
+  }
+  async #saveVocabulary() { if (this.vocabulary) await this.kv.put('vocabulary:terms', this.vocabulary.terms); }
+
+  /**
+   * Places each profile item in the community's vocabulary, so a member who
+   * writes "香港猎头" and a request asking for "香港招聘" meet on the same term.
+   * Keyword tags are kept alongside, so the baseline keeps working.
+   */
+  async alignProfileItems(items) {
+    const vocabulary = await this.#vocab();
+    if (!vocabulary) return items;
+    const out = [];
+    for (const item of items) {
+      if (item.verified) { out.push(item); continue; }
+      const aligned = await vocabulary.align(`${item.title}${item.detail ? ` ${item.detail}` : ''}`);
+      out.push(aligned?.term ? { ...item, tags: [...new Set([aligned.term.tag, ...item.tags])].slice(0, 8) } : item);
+    }
+    await this.#saveVocabulary();
+    return out;
+  }
+
+  /** What capabilities is this request asking for? The vocabulary answers; keywords are the fallback. */
+  async understandNeeds(request) {
+    const vocabulary = await this.#vocab();
+    if (!vocabulary) return understand(request, this.taxonomy);
+    const text = [request.title, request.description, ...(request.acceptanceCriteria ?? [])].join('\n');
+    const hits = await vocabulary.match(text, { limit: 6 });
+    if (!hits.length) return understand(request, this.taxonomy);
+    return hits.map(({ term, score }) => ({ id: term.tag, tag: term.tag, title: term.title, detail: `社区里有人做过类似的事（相似 ${score}）` }));
+  }
   actor(human) { return CommunityService.actorOf(human); }
 
   async members() {
@@ -170,7 +210,7 @@ export class RouterService {
       const fresh = await this.s.must('Human', humanId);
       const base = fresh.data.profile ?? emptyProfile();
       const byId = new Map(base.items.map(item => [item.id, item]));
-      const items = input.items.map(item => this.#cleanItem(item, { source: 'self', existing: byId.get(item.id) }));
+      const items = await this.alignProfileItems(input.items.map(item => this.#cleanItem(item, { source: 'self', existing: byId.get(item.id) })));
       const profile = { ...this.#cleanSettings(input, base), items, confirmedAt: this.s.now() };
       await this.s.commit(`profile:${shortId()}`, [this.s.next(fresh, { profile }, this.actor(human))]);
       return profile;
@@ -182,7 +222,7 @@ export class RouterService {
     return this.s.retrying(async () => {
       const fresh = await this.s.must('Human', humanId);
       const base = fresh.data.profile ?? emptyProfile();
-      const incoming = (payload.items ?? []).map(item => this.#cleanItem(item, { source, existing: undefined }));
+      const incoming = await this.alignProfileItems((payload.items ?? []).map(item => this.#cleanItem(item, { source, existing: undefined })));
       const kept = base.items.filter(item => !incoming.some(next => next.id === item.id));
       if (kept.length + incoming.length > 60) fail('INVALID_PROFILE');
       const profile = { ...this.#cleanSettings(payload, base), items: [...kept, ...incoming], confirmedAt: this.s.now() };
@@ -266,6 +306,7 @@ export class RouterService {
   async createRequest(humanId, input) {
     const human = await this.#human(humanId);
     const clean = this.cleanRequest(input);
+    if (!input.needs?.length) clean.needs = await this.understandNeeds(clean);
     const request = this.s.create('Request', { requesterHumanId: humanId, status: 'open', ...clean }, this.actor(human));
     await this.s.commit(`request:${uuidPart(request.id)}`, [request]);
     return request;
