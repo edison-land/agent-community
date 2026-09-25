@@ -54,18 +54,27 @@ export function parsePhrases(output) {
 }
 
 /**
- * Chat over Cloudflare Workers AI. `ai` is the Worker binding; `accountId` plus
- * `token` is the REST path for the Node process. The model id is configurable
- * because an account's catalog decides what it can actually run.
+ * Chat over Cloudflare Workers AI. `ai` is the Worker binding — no HTTP at all
+ * in production; `accountId` plus `token` is the REST path the Node process
+ * uses. The model id is configurable because an account's catalog decides what
+ * it can actually run.
+ *
+ * The default is deliberately a NON-reasoning instruct model. Naming four
+ * capabilities is a trivial task, and a reasoning model treats it as a puzzle:
+ * measured on DeepSeek, "有没有人懂香港招聘" cost 4,000 reasoning tokens and 19
+ * seconds and still produced nothing. An instruct model answers it in one pass.
+ * `@cf/meta/llama-3.2-3b-instruct` is the cheaper swap if volume ever matters.
  */
+export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
 export class WorkersAIChat {
-  constructor({ ai = null, accountId = null, token = null, model = '@cf/meta/llama-3.1-8b-instruct', maxTokens = 160, fetchImpl = fetch }) {
+  constructor({ ai = null, accountId = null, token = null, model = DEFAULT_CHAT_MODEL, maxTokens = 200, fetchImpl = fetch }) {
     if (!ai && !(accountId && token)) throw new Error('CHAT_NOT_CONFIGURED');
     Object.assign(this, { ai, accountId, token, model, maxTokens, fetchImpl });
   }
   async complete(prompt) {
     const input = { messages: [{ role: 'user', content: prompt }], max_tokens: this.maxTokens, temperature: 0 };
-    if (this.ai) return (await this.ai.run(this.model, input)).response ?? '';
+    if (this.ai) return (await this.ai.run(this.model, input))?.response ?? '';
     const response = await this.fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${this.model}`, {
       method: 'POST', headers: { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' }, body: JSON.stringify(input),
     });
