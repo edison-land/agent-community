@@ -96,7 +96,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   // Matching by meaning is on only when embedding credentials are present.
   const ai = { accountId: process.env.CLOUDFLARE_ACCOUNT_ID, token: process.env.CLOUDFLARE_AI_TOKEN };
   const embedding = embeddingFrom(ai);
-  const chat = chatFrom({ ...ai, model: process.env.CLOUDFLARE_AI_CHAT_MODEL });
+  const chat = chatFrom({
+    ...ai, model: process.env.CHAT_MODEL ?? process.env.CLOUDFLARE_AI_CHAT_MODEL,
+    baseUrl: process.env.CHAT_BASE_URL, apiKey: process.env.CHAT_API_KEY,
+    ...(process.env.CHAT_MAX_TOKENS ? { maxTokens: Number(process.env.CHAT_MAX_TOKENS) } : {}),
+  });
   const node = await startNode({
     port: Number(process.env.COMMUNITY_PORT ?? 4320), mode: simulated ? 'simulated' : 'live', store, login, stateDir,
     router: embedding ? { vocabulary: new Vocabulary({ embedding }), ...(chat ? { understander: new ModelUnderstander({ chat }) } : {}) } : {},
