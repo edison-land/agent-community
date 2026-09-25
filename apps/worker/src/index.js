@@ -8,6 +8,7 @@ import { createMockLogin } from '../../../packages/identity/mock.js';
 import { FixtureActivitySource } from '../../../packages/router/activity.js';
 import { embeddingFrom } from '../../../packages/router/embedding.js';
 import { Vocabulary } from '../../../packages/router/vocabulary.js';
+import { ModelUnderstander, chatFrom } from '../../../packages/router/understanding.js';
 import { sameDigest, sha256 } from '../../../packages/community/secrets.js';
 import { durableDemoStore } from './demo-store.js';
 import demoScenario from '../../../examples/scenarios/kosx-recruitment.json';
@@ -91,7 +92,9 @@ export class CommunityNode extends DurableObject {
   /** Matching by meaning, when Workers AI is bound; otherwise the keyword baseline. */
   #vocabulary() {
     const embedding = embeddingFrom({ ai: this.env.AI });
-    return embedding ? { vocabulary: new Vocabulary({ embedding }) } : {};
+    if (!embedding) return {};
+    const chat = chatFrom({ ai: this.env.AI, model: this.env.CLOUDFLARE_AI_CHAT_MODEL });
+    return { vocabulary: new Vocabulary({ embedding }), ...(chat ? { understander: new ModelUnderstander({ chat }) } : {}) };
   }
 
   /**

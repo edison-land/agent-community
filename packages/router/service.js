@@ -52,10 +52,10 @@ const emptyProfile = () => ({ items: [], hoursPerWeek: 0, openTo: [], notDoing: 
  * inside squads. Every agent call is audited.
  */
 export class RouterService {
-  constructor({ service, kv, taxonomy = DEFAULT_TAXONOMY, activity = null, agreement = MEMBER_AGREEMENT, limits = {}, vocabulary = null, clock = null }) {
+  constructor({ service, kv, taxonomy = DEFAULT_TAXONOMY, activity = null, agreement = MEMBER_AGREEMENT, limits = {}, vocabulary = null, understander = null, clock = null }) {
     this.service = service; this.kv = kv; this.taxonomy = validateTaxonomy(taxonomy); this.activity = activity; this.agreement = agreement; this.clock = clock ?? (() => service.clock());
     // Optional: capability matching by meaning. Without it the keyword baseline runs, unchanged.
-    this.vocabulary = vocabulary; this.vocabularyReady = null;
+    this.vocabulary = vocabulary; this.vocabularyReady = null; this.understander = understander;
     this.limits = { ...RATE_LIMITS, ...limits };
     this.suggestionLog = new Map();
   }
@@ -90,14 +90,29 @@ export class RouterService {
     return out;
   }
 
-  /** What capabilities is this request asking for? The vocabulary answers; keywords are the fallback. */
+  /**
+   * What capabilities is this request asking for?
+   *
+   * A model names them, each name is looked up in the community's own
+   * vocabulary, and only terms someone actually claims survive — so a made-up
+   * capability matches nobody instead of inventing a need. Three levels, each
+   * catching the one above: model naming → matching the whole text → the
+   * keyword baseline. A request is always publishable.
+   *
+   * All of it runs once, when the request is published. Reads never come here.
+   */
   async understandNeeds(request) {
     const vocabulary = await this.#vocab();
     if (!vocabulary) return understand(request, this.taxonomy);
-    const text = [request.title, request.description, ...(request.acceptanceCriteria ?? [])].join('\n');
-    const hits = await vocabulary.match(text, { limit: 6 });
-    if (!hits.length) return understand(request, this.taxonomy);
-    return hits.map(({ term, score }) => ({ id: term.tag, tag: term.tag, title: term.title, detail: `社区里有人做过类似的事（相似 ${score}）` }));
+    const text = [request.title, request.description, ...(request.acceptanceCriteria ?? [])].filter(Boolean).join('\n');
+    const found = new Map();
+    const take = hits => { for (const hit of hits) if ((found.get(hit.term.tag)?.score ?? 0) < hit.score) found.set(hit.term.tag, hit); };
+    const phrases = this.understander ? await this.understander.decompose(text) : [];
+    for (const phrase of phrases) take(await vocabulary.match(phrase, { limit: 2 }));
+    if (!found.size) take(await vocabulary.match(text, { limit: 6 }));
+    if (!found.size) return understand(request, this.taxonomy);
+    return [...found.values()].sort((a, b) => b.score - a.score).slice(0, 6)
+      .map(({ term, score }) => ({ id: term.tag, tag: term.tag, title: term.title, detail: `社区里有人做过类似的事（相似 ${score}）` }));
   }
   actor(human) { return CommunityService.actorOf(human); }
 

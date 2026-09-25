@@ -14,6 +14,7 @@ import { createFlareMoLogin } from '../../packages/identity/flaremo.js';
 import { createMockLogin } from '../../packages/identity/mock.js';
 import { embeddingFrom } from '../../packages/router/embedding.js';
 import { Vocabulary } from '../../packages/router/vocabulary.js';
+import { ModelUnderstander, chatFrom } from '../../packages/router/understanding.js';
 
 /**
  * Node adapter for the community node (development and tests). The same Fetch
@@ -93,10 +94,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     stateDir = process.env.COMMUNITY_STATE_DIR ?? join(home, 'node');
   }
   // Matching by meaning is on only when embedding credentials are present.
-  const embedding = embeddingFrom({ accountId: process.env.CLOUDFLARE_ACCOUNT_ID, token: process.env.CLOUDFLARE_AI_TOKEN });
+  const ai = { accountId: process.env.CLOUDFLARE_ACCOUNT_ID, token: process.env.CLOUDFLARE_AI_TOKEN };
+  const embedding = embeddingFrom(ai);
+  const chat = chatFrom({ ...ai, model: process.env.CLOUDFLARE_AI_CHAT_MODEL });
   const node = await startNode({
     port: Number(process.env.COMMUNITY_PORT ?? 4320), mode: simulated ? 'simulated' : 'live', store, login, stateDir,
-    router: embedding ? { vocabulary: new Vocabulary({ embedding }) } : {},
+    router: embedding ? { vocabulary: new Vocabulary({ embedding }), ...(chat ? { understander: new ModelUnderstander({ chat }) } : {}) } : {},
     autoDispatch: process.env.COMMUNITY_AUTO_DISPATCH !== '0',
     registrationTtlMs: process.env.COMMUNITY_REGISTRATION_TTL_MS ? Number(process.env.COMMUNITY_REGISTRATION_TTL_MS) : undefined,
     ownerSubject: process.env.COMMUNITY_OWNER_SUBJECT ?? null, openBootstrap: !process.env.COMMUNITY_OWNER_SUBJECT,
