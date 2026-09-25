@@ -20,11 +20,14 @@ import { MemoryVectorIndex } from './embedding.js';
  * published). Ranking stays a tag intersection, so the read path has no model
  * call and no vector query in it.
  *
- * Thresholds are measured against `@cf/qwen/qwen3-embedding-0.6b`: different
- * wordings of one capability score 0.65–0.85, genuinely different capabilities
- * 0.27–0.50, so 0.60 separates them with room on both sides.
+ * Thresholds are measured against `@cf/qwen/qwen3-embedding-0.6b`, and they
+ * depend on how much text is being compared. Short capability names sit closer
+ * together than full sentences do: measured on names, wordings of one
+ * capability score 0.71–0.91 while genuinely different ones reach 0.61, so a
+ * threshold set from sentence-length text (0.60) wrongly folded SEO into
+ * cross-border commerce and AI work into frontend. 0.65 separates the names.
  */
-export const MERGE_THRESHOLD = 0.6;
+export const MERGE_THRESHOLD = 0.65;
 export const MATCH_THRESHOLD = 0.42;
 export const MAX_TERMS = 400;
 
