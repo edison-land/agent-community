@@ -5,6 +5,7 @@
 const $ = selector => document.querySelector(selector);
 const app = $('#app');
 let base = null, state = null, tab = 'home', detail = null, who = null;
+let authorizing = new URLSearchParams(location.search).get('authorize');
 
 function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
@@ -24,6 +25,7 @@ const ERRORS = {
   HUMAN_ONLY: '这件事只能由本人做。', PREFLIGHT_REQUIRED: '请先回答预沟通，再接受邀请。', REQUESTER_ONLY: '只有需求方可以这样做。', NO_ACCEPTED_CANDIDATES: '还没有人接受邀请。',
   REASON_REQUIRED: '建议需要写理由。', DUPLICATE_SUGGESTION: '你已经推荐过这个人。', NOT_VISIBLE: '你看不到这个内容。', NOTHING_TO_REFINE: '没有要修改的内容。',
   DELEGATION_REQUIRED: '你还没有授权 Agent 代办这件事。', INVALID_TEXT: '内容为空或太长。', CANDIDATE_DECLINED: '这个人已经拒绝过这个需求。', RATE_LIMITED: '太频繁了，稍后再试。',
+  DEVICE_CODE_INVALID: '这个接入请求不存在。', DEVICE_CODE_EXPIRED: '这个接入请求已经过期，请让 Agent 重新发起。', DEVICE_ALREADY_RESOLVED: '这个接入请求已经处理过了。',
   AGREEMENT_VERSION_MISMATCH: '协议版本已更新，请刷新页面。', INVITATION_CLOSED: '这个邀请已经处理过了。', REQUEST_NOT_OPEN: '这个需求已不在找人阶段。',
 };
 async function api(path, body) {
@@ -38,6 +40,7 @@ const REWARD = { paid: '有偿', equity: '股份', exchange: '资源交换', vol
 const STATUS = { open: '找人中', assigned: '小组进行中', review: '待验收', accepted: '已完成', invited: '已邀请', declined: '已拒绝', withdrawn: '已撤回', requested: '待回答', answered: '已回答', active: '生效', revoked: '已撤销' };
 const SOURCE = { self: '本人填写', 'community-draft': '社区起草', 'agent-draft': 'Agent 起草', delivery: '交付验证' };
 const badge = (text, tone = '') => h('span', { className: `status ${tone}` }, text);
+const SCOPE_LABELS = [['profile:draft', '起草我的档案', true], ['request:draft', '起草和补全我的需求', true], ['suggest', '给别人的需求提建议', true], ['preflight:draft', '起草预沟通回答', true], ['squad:write', '在小组里提交交付物', true], ['route', '替我邀请候选人和组队', false]];
 const chips = (needs, highlight = []) => h('div', { className: 'row' }, (needs ?? []).map(need => badge(need.title, highlight.includes(need.id) ? '' : 'warn')));
 
 async function load() {
@@ -65,6 +68,11 @@ function render() {
     return app.append(h('form', { className: 'card', onsubmit: run(async () => { await api('/join', { displayName: name.value }); await load(); }) }, h('h2', {}, `加入「${base.community.name}」`), h('label', { for: 'join-name' }, '你在社区里的名字'), name, h('p', {}, h('button', {}, '加入'))));
   }
   if (!base.me.member.active) return app.append(h('div', { className: 'card' }, h('h2', {}, '成员资格未生效'), h('p', {}, '你的成员资格已被暂停或移除。')));
+  // An agent is waiting on this person's decision; nothing else matters until they make it.
+  if (authorizing) {
+    const view = h('div'); app.append(view);
+    return authorizeView(view, authorizing).catch(error => view.append(h('div', { className: 'notice' }, error.message)));
+  }
   const tabs = [['home', `我要什么${state.todo ? `（${state.todo}）` : ''}`], ['browse', '社区机会'], ['more', '更多']];
   app.append(h('nav', { className: 'tabs' }, tabs.map(([key, label]) => h('button', { className: tab === key ? 'on' : '', onclick: () => { tab = key; detail = null; render(); } }, label))));
   const view = h('div'); app.append(view);
@@ -82,6 +90,29 @@ function loginView() {
       h('h1', {}, '以虚构成员登录'), h('p', { className: 'muted' }, '演示里的成员都是虚构的，不需要密码。选一位，看他们的机会、邀请和档案。'), h('label', { for: 'member' }, '成员'), select, h('p', {}, h('button', {}, '登录'))),
     h('form', { className: 'card', onsubmit: run(async () => { await api('/login', { username: slug(), displayName: guest.value || '访客' }); await load(); }) },
       h('h2', {}, '或者以访客身份加入'), h('p', { className: 'muted' }, '起个名字加入演示社区：完善档案、发需求、给别人推荐人，也可以为你自己的 Agent 签发令牌。'), h('label', { for: 'guest-name' }, '名字'), guest, h('p', {}, h('button', { className: 'secondary' }, '以访客加入'))));
+}
+
+// ---------- an agent is asking to act for you ----------
+async function authorizeView(view, code) {
+  const asked = await api(`/router/device/${code}`);
+  const done = text => { authorizing = null; history.replaceState(null, '', location.pathname); toast(text); load(); };
+  if (asked.status !== 'pending') return view.append(h('div', { className: 'card' }, h('h2', {}, '这个接入请求已经处理过了'), h('p', {}, h('button', { onclick: () => done('') }, '回到首页'))));
+
+  const name = h('input', { id: 'dv-name', value: asked.agentName, maxlength: 120 });
+  const boxes = SCOPE_LABELS.filter(([value]) => asked.scopes.includes(value))
+    .map(([value, label, on]) => h('label', { className: 'check' }, h('input', { type: 'checkbox', value, checked: on && value !== 'route' }), label));
+  const picked = () => boxes.map(label => label.firstChild).filter(box => box.checked).map(box => box.value);
+
+  view.append(h('div', { className: 'card' },
+    h('h1', {}, `「${asked.agentName}」想代表你接入`),
+    h('div', { className: 'notice' }, '只有在你自己刚刚运行过接入命令时才点同意。如果这个链接是别人发给你的，请点拒绝——同意会让对方的 Agent 以你的名义行动。'),
+    h('p', { className: 'muted' }, `请求编码 ${asked.userCode}，十分钟内有效。`),
+    h('label', { for: 'dv-name' }, '给它起个名字（别人看到的就是这个）'), name,
+    h('label', {}, '允许它做的事'), h('div', { className: 'row' }, boxes),
+    h('p', { className: 'muted small' }, '起草的内容仍然要你确认。接受邀请和验收永远只能你本人做。随时可以在「更多 → 已签发的令牌」里撤销。'),
+    h('div', { className: 'row' },
+      h('button', { onclick: run(async () => { const result = await api(`/router/device/${code}/approve`, { scopes: picked(), name: name.value }); done(`已授权：${result.agentName}，回到你的终端就能用了`); }) }, '同意'),
+      h('button', { className: 'danger', onclick: run(async () => { await api(`/router/device/${code}/deny`, {}); done('已拒绝'); }) }, '拒绝'))));
 }
 
 // ---------- the one thing: say what you want ----------
@@ -318,8 +349,6 @@ async function profileCard(view) {
     h('div', { className: 'grid2' }, h('div', {}, h('label', { for: 'pf-hours' }, '每周可投入小时（0 表示暂不接）'), hours), h('div', {}, h('label', {}, '接受的回报方式'), h('div', { className: 'row' }, openTo))),
     h('p', {}, h('button', {}, '保存档案'))));
 }
-
-const SCOPE_LABELS = [['profile:draft', '起草我的档案', true], ['request:draft', '起草和补全我的需求', true], ['suggest', '给别人的需求提建议', true], ['preflight:draft', '起草预沟通回答', true], ['squad:write', '在小组里提交交付物', true], ['route', '替我邀请候选人和组队', false]];
 
 async function agentsCard(view) {
   const out = h('div');

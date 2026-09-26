@@ -1,6 +1,6 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { CommunityError, CommunityService } from '../community/service.js';
-import { issueCredential, parseCredential, sameDigest, sha256, uuidPart } from '../community/secrets.js';
+import { claimCode, issueCredential, normalizeCode, parseCredential, sameDigest, sha256, uuidPart } from '../community/secrets.js';
 import { DEFAULT_TAXONOMY, draftFromActivity, edgeKey, planSquad, rank, tagsIn, understand, validateTaxonomy } from './engine.js';
 import { DEFAULT_SCOPES, RATE_LIMITS, SCOPES } from './manifest.js';
 
@@ -19,6 +19,8 @@ const str = (value, max, { required = false } = {}) => {
 };
 const shortId = () => randomUUID().slice(0, 8);
 const DAY = 24 * 3600 * 1000;
+const DEVICE_TTL_MS = 10 * 60 * 1000;
+const DEVICE_POLL_SECONDS = 3;
 
 /** Demo member agreement. Not a legal text; a real deployment needs a reviewed one (RFC 0010 §6). */
 export const MEMBER_AGREEMENT = {
@@ -684,6 +686,83 @@ export class RouterService {
       await this.s.commit(`route-review:${uuidPart(attestation.id)}`, writes);
       return { attestation, evidence };
     });
+  }
+
+  // ---------- joining without handling a token (device authorization) ----------
+  /**
+   * An agent should not ask its principal to copy a secret. It asks for a code
+   * instead, shows them a link, and polls; the person signs in, sees what is
+   * being asked for and grants it. The token goes straight from the node to the
+   * agent and is handed over exactly once (RFC 8628's shape, not its wire format).
+   *
+   * The request is unauthenticated — that is the point — so it carries no
+   * standing: nothing exists until a signed-in member approves it, and a code
+   * that nobody approves expires in ten minutes.
+   */
+  async startDeviceAuthorization({ name, scopes } = {}) {
+    const wanted = Array.isArray(scopes) && scopes.length ? scopes : DEFAULT_SCOPES;
+    if (!wanted.every(scope => SCOPES.includes(scope))) fail('INVALID_SCOPES');
+    const userCode = claimCode();
+    const deviceCode = randomBytes(32).toString('base64url');
+    const record = {
+      userCode, secretHash: sha256(deviceCode), agentName: str(name, 120) ?? '一个 Agent',
+      scopes: [...new Set([...wanted, 'read'])], status: 'pending', createdAt: this.s.now(),
+      expiresAt: new Date(this.clock() + DEVICE_TTL_MS).toISOString(),
+    };
+    await this.kv.put(this.#deviceKey(userCode), record, { ttlMs: DEVICE_TTL_MS });
+    await this.kv.put(`device-secret:${record.secretHash}`, userCode, { ttlMs: DEVICE_TTL_MS });
+    return {
+      userCode, deviceCode, verifyUrl: `${this.s.publicOrigin}/router.html?authorize=${userCode}`,
+      expiresInSeconds: DEVICE_TTL_MS / 1000, intervalSeconds: DEVICE_POLL_SECONDS,
+    };
+  }
+
+  #deviceKey(userCode) { return `device:${normalizeCode(userCode)}`; }
+  async #device(userCode) {
+    const record = await this.kv.get(this.#deviceKey(userCode));
+    if (!record) fail('DEVICE_CODE_INVALID', 404);
+    if (Date.parse(record.expiresAt) <= this.clock()) fail('DEVICE_CODE_EXPIRED', 410);
+    return record;
+  }
+  async #closeDevice(record) {
+    await this.kv.delete(this.#deviceKey(record.userCode));
+    await this.kv.delete(`device-secret:${record.secretHash}`);
+  }
+
+  /** What the person is being asked to approve, for the page to show them. */
+  async deviceRequest(userCode) {
+    const { agentName, scopes, status } = await this.#device(userCode);
+    return { userCode: normalizeCode(userCode), agentName, scopes, status };
+  }
+
+  /** Human only: grant an agent the powers they actually want it to have. */
+  async approveDevice(humanId, userCode, { scopes, name } = {}) {
+    const record = await this.#device(userCode);
+    if (record.status !== 'pending') fail('DEVICE_ALREADY_RESOLVED', 409);
+    const granted = Array.isArray(scopes) && scopes.length ? scopes.filter(scope => record.scopes.includes(scope)) : record.scopes;
+    const issued = await this.issueAgentToken(humanId, { name: str(name, 120) ?? record.agentName, scopes: granted.length ? granted : ['read'] });
+    await this.kv.put(this.#deviceKey(record.userCode), { ...record, status: 'approved', humanId, issued }, { ttlMs: DEVICE_TTL_MS });
+    return { agentName: issued.agentName, scopes: issued.scopes, expiresAt: issued.expiresAt };
+  }
+
+  async denyDevice(humanId, userCode) {
+    const record = await this.#device(userCode);
+    if (record.status !== 'pending') fail('DEVICE_ALREADY_RESOLVED', 409);
+    await this.kv.put(this.#deviceKey(record.userCode), { ...record, status: 'denied' }, { ttlMs: DEVICE_TTL_MS });
+    return { status: 'denied' };
+  }
+
+  /** The agent polls with its device code. The token is handed over once, then the code is gone. */
+  async pollDevice(deviceCode) {
+    const digest = sha256(String(deviceCode ?? ''));
+    const userCode = await this.kv.get(`device-secret:${digest}`);
+    if (!userCode) fail('DEVICE_CODE_INVALID', 404);
+    const record = await this.#device(userCode);
+    if (!sameDigest(record.secretHash, digest)) fail('DEVICE_CODE_INVALID', 404);
+    if (record.status === 'pending') return { status: 'pending', intervalSeconds: DEVICE_POLL_SECONDS };
+    await this.#closeDevice(record);
+    if (record.status === 'denied') fail('DEVICE_DENIED', 403);
+    return { status: 'approved', ...record.issued };
   }
 
   // ---------- member agents ----------

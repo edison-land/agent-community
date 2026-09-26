@@ -11,17 +11,68 @@
  * Claude Code:  claude mcp add agent-network -e AGENT_NETWORK_URL=… -e AGENT_NETWORK_TOKEN=… -- node agent-mcp.mjs
  */
 import { createInterface } from 'node:readline';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 const base = String(process.env.AGENT_NETWORK_URL ?? '').replace(/\/+$/u, '');
-const token = String(process.env.AGENT_NETWORK_TOKEN ?? '');
 const ID = /^urn:uuid:[0-9a-f-]{36}$/u;
+const TOKEN = /^amt_[0-9a-f-]{36}_[A-Za-z0-9_-]{43}$/u;
+const HOME = process.env.AGENT_NETWORK_HOME ?? join(homedir(), '.agent-network');
 let manifest = null, scopes = null;
+let token = String(process.env.AGENT_NETWORK_TOKEN ?? '');
+let pending = null; // an authorization the principal has not answered yet
+
+/**
+ * The principal should never copy a secret. With no token, this asks the node
+ * for an authorization code and hands the link back through the tool result —
+ * so the agent can show it to them — then polls until they approve and keeps
+ * the token for next time (0600, outside any repository).
+ */
+const tokenFile = () => join(HOME, `${new URL(base).host.replace(/[^\w.-]/gu, '_')}.json`);
+function rememberToken(value) {
+  token = value;
+  try {
+    mkdirSync(HOME, { recursive: true, mode: 0o700 });
+    writeFileSync(tokenFile(), JSON.stringify({ url: base, token: value }), { mode: 0o600 });
+  } catch (error) { process.stderr.write(`agent-network: could not save the token (${error.message})\n`); }
+}
+function loadToken() {
+  if (TOKEN.test(token)) return true;
+  try {
+    const saved = JSON.parse(readFileSync(tokenFile(), 'utf8'));
+    if (saved.url === base && TOKEN.test(saved.token)) { token = saved.token; return true; }
+  } catch { /* nothing saved yet */ }
+  return false;
+}
+
+const post = (path, body) => fetch(`${base}/api/agent/v1${path}`, {
+  method: 'POST', redirect: 'error', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+}).then(response => response.json());
+
+/** Returns null once authorized, or what to tell the principal while it waits. */
+async function authorize() {
+  if (loadToken()) return null;
+  if (!pending) {
+    const started = await post('/device', { name: process.env.AGENT_NETWORK_AGENT_NAME || `${process.env.USER || '某位成员'} 的 Agent` });
+    if (started.error) throw new Error(started.error);
+    pending = started;
+    process.stderr.write(`agent-network: 等待授权 ${pending.verifyUrl}\n`);
+  }
+  const polled = await post('/device/token', { deviceCode: pending.deviceCode });
+  if (polled.status === 'approved') { rememberToken(polled.token); pending = null; return null; }
+  if (polled.error) { const url = pending.verifyUrl; pending = null; throw new Error(`${polled.error}（请重新发起：${url}）`); }
+  return {
+    error: 'AUTHORIZE_PENDING',
+    action: '请把下面这个链接给你的主人，让他打开、登录并勾选你可以做什么。他同意之后，再调用一次就可以了。',
+    authorize_url: pending.verifyUrl,
+  };
+}
 
 function checkConfig() {
   let url;
   try { url = new URL(base); } catch { return 'AGENT_NETWORK_URL is missing or invalid'; }
   if (url.protocol !== 'https:' && !['127.0.0.1', 'localhost'].includes(url.hostname)) return 'AGENT_NETWORK_URL must be https (or a loopback address)';
-  if (!/^amt_[0-9a-f-]{36}_[A-Za-z0-9_-]{43}$/u.test(token)) return 'AGENT_NETWORK_TOKEN is missing; ask your principal to issue one on the page';
   return null;
 }
 
@@ -31,7 +82,7 @@ async function loadManifest() {
   if (!response.ok) throw new Error(`manifest HTTP ${response.status}`);
   manifest = await response.json();
   // The token decides which actions exist for this agent; a failure here is not fatal.
-  const me = await call('me').catch(() => null);
+  const me = TOKEN.test(token) ? await call('me').catch(() => null) : null;
   scopes = Array.isArray(me?.scopes) ? me.scopes : null;
   return manifest;
 }
@@ -49,6 +100,8 @@ function tools() {
 
 async function call(name, args = {}) {
   if (name === 'network_manifest') return { ok: true, manifest };
+  const waiting = await authorize();
+  if (waiting) return { ok: false, ...waiting };
   const action = manifest.actions.find(item => item.id === name && item.human !== 'only');
   if (!action) return { ok: false, error: 'UNKNOWN_TOOL' };
   const rest = { ...args };
@@ -85,6 +138,7 @@ async function handle(message) {
         const problem = checkConfig();
         if (problem) return error(id, -32002, problem);
         await loadManifest();
+        await authorize().catch(() => {});
         return reply(id, { protocolVersion: typeof params?.protocolVersion === 'string' ? params.protocolVersion : '2025-06-18', capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'agent-network', version: manifest.version }, instructions: [manifest.description, ...manifest.principles, ...manifest.obligations].join('\n') });
       }
       case 'ping': return reply(id, {});

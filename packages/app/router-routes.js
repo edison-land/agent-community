@@ -42,6 +42,9 @@ export function humanRoutes({ router, service }) {
     ['GET', `/squads/${U}`, ({ humanId, m }) => router.squadView(humanId, m[1])],
     ['POST', `/squads/${U}/artifacts`, ({ humanId, body, m }) => router.submitArtifact({ humanId }, m[1], body)],
     ['POST', `/artifacts/${U}/review`, ({ humanId, body, m }) => router.review(humanId, m[1], { outcome: body.outcome, statement: body.statement })],
+    ['GET', `/device/([A-Z0-9-]{16,24})`, ({ m }) => router.deviceRequest(m[1])],
+    ['POST', `/device/([A-Z0-9-]{16,24})/approve`, ({ humanId, body, m }) => router.approveDevice(humanId, m[1], { scopes: body.scopes, name: body.name })],
+    ['POST', `/device/([A-Z0-9-]{16,24})/deny`, ({ humanId, m }) => router.denyDevice(humanId, m[1])],
     ['GET', '/agents', ({ humanId }) => router.agentTokens(humanId)],
     ['POST', '/agents', ({ humanId, body }) => router.issueAgentToken(humanId, { name: body.name, scopes: body.scopes, ttlDays: body.ttlDays, agentId: body.agentId })],
     ['POST', `/agents/tokens/${U}/revoke`, ({ humanId, m }) => router.revokeAgentToken(humanId, m[1])],
@@ -64,6 +67,10 @@ export function humanRoutes({ router, service }) {
 
 export function agentRoutes({ router }) {
   return async (request, path, query, body) => {
+    // Joining is the one thing an agent does before it has a token. Nothing
+    // here grants anything: a code is worthless until a member approves it.
+    if (request.method === 'POST' && path === '/device') return { status: 200, value: await router.startDeviceAuthorization({ name: body.name, scopes: body.scopes }) };
+    if (request.method === 'POST' && path === '/device/token') return { status: 200, value: await router.pollDevice(body.deviceCode) };
     const resolved = resolveAction(request.method, path);
     if (!resolved) return { status: 404, value: { error: 'NOT_FOUND' } };
     const auth = await router.agentAuth(bearer(request.headers.get('authorization')));

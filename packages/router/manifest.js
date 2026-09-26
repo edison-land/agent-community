@@ -58,7 +58,11 @@ export function agentManifest(origin) {
     description: '社区机会路由：让社群里的每一个需求，都找到能把它做成的人。主人只说清楚他要什么、最后确认拿到了没有；中间的协调是你的工作。',
     docs: `${origin}/agents.md`,
     api: `${origin}/api/agent/v1`,
-    auth: { type: 'bearer', format: 'amt_<id>_<secret>', obtain: '由主人在页面「我的 Agent」签发；有期限、可撤销、按动作授权。不要把令牌写进仓库、日志或聊天。' },
+    auth: {
+      type: 'bearer', format: 'amt_<id>_<secret>',
+      obtain: '不要让主人复制密钥。自己 POST /api/agent/v1/device 要一个授权码，把返回的 verifyUrl 交给他；他登录、勾选你可以做什么之后，POST /api/agent/v1/device/token 就能拿到令牌。令牌有期限、可撤销、按动作授权；不要写进仓库、日志或聊天。',
+      device: { start: `${origin}/api/agent/v1/device`, poll: `${origin}/api/agent/v1/device/token`, expiresInSeconds: 600 },
+    },
     scopes: SCOPES,
     inbox: { path: '/inbox', pollSeconds: 60 },
     principles: [
@@ -78,7 +82,7 @@ export function agentManifest(origin) {
     forbidden: ACTIONS.filter(action => action.human === 'only').map(action => ({ id: action.id, why: action.description })),
     rateLimits: { ...RATE_LIMITS, note: '社区可以调整；被拒绝过的人，Agent 不能再邀请' },
     actions: ACTIONS.map(({ id: actionId, method, path, scope, human, description, input }) => ({ id: actionId, method, path, scope, human, description, ...(input ? { input } : {}) })),
-    mcp: { download: `${origin}/agent-mcp.mjs`, command: 'node agent-mcp.mjs', env: { AGENT_NETWORK_URL: origin, AGENT_NETWORK_TOKEN: '<主人签发的令牌>' } },
+    mcp: { download: `${origin}/agent-mcp.mjs`, command: 'node agent-mcp.mjs', env: { AGENT_NETWORK_URL: origin }, note: '不需要令牌：第一次调用会给出授权链接，主人同意后自动保存。' },
   };
 }
 
