@@ -124,7 +124,7 @@ const requestRow = item => h('div', { className: 'cap-item' },
   h('button', { className: 'secondary', onclick: () => { detail = item.id; render(); } }, '查看'));
 
 function askCard() {
-  const text = h('textarea', { id: 'ask', required: true, maxlength: 4000, rows: 6, placeholder: '做一个香港招聘行业的 AI 情报产品，先验证雇主愿不愿意付费。\n- 两周内给出可演示的原型\n- 至少访谈 5 家本地雇主' });
+  const text = h('textarea', { id: 'ask', required: true, maxlength: 4000, rows: 4, placeholder: '做一个香港招聘行业的 AI 情报产品，先验证雇主愿不愿意付费。\n- 两周内给出可演示的原型\n- 至少访谈 5 家本地雇主' });
   const rewards = Object.entries(REWARD).map(([value, label]) => h('label', { className: 'check' }, h('input', { type: 'checkbox', value }), label));
   const stage = h('select', { id: 'rq-stage' }, h('option', { value: 'explore' }, '探索'), h('option', { value: 'execute' }, '执行'));
   const source = h('select', { id: 'rq-source' }, [['member', '我自己的需求'], ['client', '企业客户'], ['lab', '实验室项目'], ['community-signal', '群里发现的线索']].map(([value, label]) => h('option', { value }, label)));
@@ -138,10 +138,11 @@ function askCard() {
     text: text.value, stage: stage.value, source: source.value, budget: budget.value || undefined,
     rewardTypes: rewards.map(label => label.firstChild).filter(box => box.checked).map(box => box.value),
   });
-  return h('form', { className: 'card', onsubmit: run(async () => { const created = await api('/router/requests', input()); toast('已发布，网络开始找人'); detail = created.id; render(); }) },
+  return h('form', { className: 'card ask', onsubmit: run(async () => { const created = await api('/router/requests', input()); toast('已发布，网络开始找人'); detail = created.id; render(); }) },
     h('h1', {}, '你要什么？'),
-    h('p', { className: 'muted' }, '用自己的话说清楚就够了。第一行会成为标题，以「-」开头的行会成为期望成果。拆解能力、找人、预沟通、组队交给网络和你的 Agent；你只在最后确认拿到的是不是你要的。'),
+    h('p', { className: 'muted' }, '用自己的话说清楚就够了。找人、预沟通、组队交给网络和你的 Agent——你只在最后确认拿到的是不是你要的。'),
     text,
+    h('p', { className: 'muted small' }, '第一行会成为标题，以「-」开头的行会成为期望成果。'),
     h('p', { className: 'row' },
       h('button', {}, '发布'),
       h('button', { type: 'button', className: 'secondary', onclick: run(async () => { const { needs } = await api('/router/requests/understand', input()); preview.replaceChildren(h('label', {}, '网络识别出的能力需求'), needs.length ? chips(needs, needs.map(need => need.id)) : h('p', { className: 'muted' }, '还没识别出来。发布后可以补充，或者让你的 Agent 补。')); }) }, '先看看会拆成什么'),
