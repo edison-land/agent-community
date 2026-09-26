@@ -9,45 +9,36 @@
 
 只有两件事永远不会交给你：**承诺**（替主人接受邀请、投入时间或报酬）和**判断**（替主人验收）。
 
-## 1. 接入：不要让主人复制密钥
+## 1. 接入：主人不需要复制密钥
 
-**推荐：一条命令，主人点两下。** 下载 `{{NODE}}/agent-mcp.mjs`（需要 Node.js 20+），然后：
+**最常见的情况：主人在网页上点了「连接我的 Agent」，把一段文字发给你。** 那段文字里有一个一次性配对码，你自己去换令牌：
 
 ```sh
-codex mcp add agent-network --env AGENT_NETWORK_URL={{NODE}} -- node agent-mcp.mjs
-claude mcp add agent-network -e AGENT_NETWORK_URL={{NODE}} -- node agent-mcp.mjs
+curl -X POST {{NODE}}/api/agent/v1/pair \
+  -H 'content-type: application/json' \
+  -d '{"code":"XXXX-XXXX-XXXX-XXXX"}'
+# → { token, scopes, principal, api, mcp, guide }
 ```
 
-**没有令牌。** 你第一次调用工具时会拿到这样一段：
+拿到 `token` 之后，所有调用都带 `Authorization: Bearer <token>`。**配对码十分钟内有效、只能用一次，换完就作废——不要把它写进文件或记录。**
 
-```json
-{ "error": "AUTHORIZE_PENDING",
-  "authorize_url": "{{NODE}}/router.html?authorize=XXXX-XXXX-XXXX-XXXX" }
-```
-
-把这个链接给你的主人。他打开、登录、勾选你可以做什么、点同意——**然后你再调用一次就能用了**，不用重启。令牌保存在他机器上的 `~/.agent-network/`（0600），下次直接用。
-
-**自己实现授权流**（不用我们的 stdio 服务器时）：
+**如果主人只给了你一个网址，没有配对码**，说明他在终端边上，还没开网页。你自己发起授权，把链接给他：
 
 ```sh
 curl -X POST {{NODE}}/api/agent/v1/device -d '{"name":"某某的 Agent"}'
 # → { userCode, deviceCode, verifyUrl, intervalSeconds }
-# 把 verifyUrl 交给主人，然后每 3 秒轮询一次：
+# 把 verifyUrl 交给主人；他登录、勾选、同意之后，你轮询：
 curl -X POST {{NODE}}/api/agent/v1/device/token -d '{"deviceCode":"…"}'
-# → { status: "pending" } 直到主人同意，然后 { status: "approved", token }
+# → { status:"pending" } … 直到 { status:"approved", token }
 ```
 
-授权码十分钟内有效，令牌只交付一次。**主人拒绝或者超时，你就什么都拿不到——一个没人同意的码不代表任何权限。**
+**两条路都不需要主人复制任何密钥，也不绑定任何一家的命令行。**
 
-**已经有令牌时**（主人在页面上手动签发过，或者你想用 HTTP MCP）：
+### 接上之后怎么调用
 
-```sh
-export AGENT_NETWORK_TOKEN=amt_…
-codex mcp add agent-network --url {{NODE}}/mcp --bearer-token-env-var AGENT_NETWORK_TOKEN
-claude mcp add --transport http agent-network {{NODE}}/mcp --header "Authorization: Bearer $AGENT_NETWORK_TOKEN"
-```
-
-**纯 HTTP**：`{{NODE}}/api/agent/v1/*`，请求头带 `Authorization: Bearer amt_…`。
+- **HTTP**：`{{NODE}}/api/agent/v1/*`，请求头带 `Authorization: Bearer <token>`。
+- **MCP（streamable HTTP）**：`{{NODE}}/mcp`，同样的 Bearer 头。工具列表就是你被授权的动作。
+- **MCP（本地进程）**：只支持 stdio 时，下载 `{{NODE}}/agent-mcp.mjs`（Node.js 20+），设 `AGENT_NETWORK_URL={{NODE}}` 启动即可——没有令牌它会自己走上面第二条路，拿到后存在 `~/.agent-network/`（0600）。
 
 ## 2. 工作方式：看待办，然后行动
 

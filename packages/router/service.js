@@ -21,6 +21,23 @@ const shortId = () => randomUUID().slice(0, 8);
 const DAY = 24 * 3600 * 1000;
 const DEVICE_TTL_MS = 10 * 60 * 1000;
 const DEVICE_POLL_SECONDS = 3;
+const PAIRING_TTL_MS = 10 * 60 * 1000;
+
+/** What a member copies out of the page. Deliberately not any one vendor's command. */
+export const pairingText = (origin, code) => [
+  '请帮我接入社区机会网络（我是这个网络的成员，你将代表我行动）。',
+  '',
+  `1. 先读说明：${origin}/agents.md`,
+  '2. 用下面这个一次性配对码换一个访问令牌：',
+  `     POST ${origin}/api/agent/v1/pair`,
+  `     {"code": "${code}"}`,
+  '3. 之后带着返回的令牌（Authorization: Bearer …）调用：',
+  `     HTTP  ${origin}/api/agent/v1/*`,
+  `     MCP   ${origin}/mcp`,
+  '4. 读一次 inbox，按里面写的去做。',
+  '',
+  '配对码 10 分钟内有效，只能用一次；换到令牌后就把它忘掉，不要写进任何文件或记录。',
+].join('\n');
 
 /** Demo member agreement. Not a legal text; a real deployment needs a reviewed one (RFC 0010 §6). */
 export const MEMBER_AGREEMENT = {
@@ -688,7 +705,45 @@ export class RouterService {
     });
   }
 
-  // ---------- joining without handling a token (device authorization) ----------
+  // ---------- joining from the page: one block of text, any agent ----------
+  /**
+   * The member is already signed in on the page, so there is nothing left to
+   * approve: they pick what their agent may do, press a button, and get one
+   * block of text to paste into whatever agent they use. No vendor's CLI, no
+   * MCP-specific command — just an address, a code and what to do with them.
+   *
+   * The code is bound to them server-side, but it is single use and short
+   * lived, and it is exchanged for the real token. That matters because the
+   * text lands in a chat transcript: a pairing code that has been redeemed, or
+   * that sat for ten minutes, is worth nothing to whoever reads it later. A
+   * permanent personal code pasted into a transcript would be a password.
+   */
+  async createPairing(humanId, { name, scopes } = {}) {
+    const human = await this.#human(humanId);
+    const wanted = Array.isArray(scopes) && scopes.length ? scopes : DEFAULT_SCOPES;
+    if (!wanted.every(scope => SCOPES.includes(scope))) fail('INVALID_SCOPES');
+    const code = claimCode();
+    const record = {
+      code, humanId, agentName: str(name, 120) ?? `${human.data.displayName} 的 Agent`,
+      scopes: [...new Set([...wanted, 'read'])], expiresAt: new Date(this.clock() + PAIRING_TTL_MS).toISOString(),
+    };
+    await this.kv.put(`pairing:${normalizeCode(code)}`, record, { ttlMs: PAIRING_TTL_MS });
+    return { code, expiresAt: record.expiresAt, scopes: record.scopes, instructions: pairingText(this.s.publicOrigin, code) };
+  }
+
+  /** Any agent, with the code its principal gave it, exchanged once for a token. */
+  async redeemPairing(code, { name } = {}) {
+    const key = `pairing:${normalizeCode(code)}`;
+    const record = await this.kv.get(key);
+    if (!record) fail('PAIRING_CODE_INVALID', 404);
+    await this.kv.delete(key); // single use, whatever happens next
+    if (Date.parse(record.expiresAt) <= this.clock()) fail('PAIRING_CODE_EXPIRED', 410);
+    const issued = await this.issueAgentToken(record.humanId, { name: str(name, 120) ?? record.agentName, scopes: record.scopes });
+    const human = await this.#human(record.humanId);
+    return { ...issued, principal: { id: human.id, name: human.data.displayName }, api: `${this.s.publicOrigin}/api/agent/v1`, mcp: `${this.s.publicOrigin}/mcp`, guide: `${this.s.publicOrigin}/agents.md` };
+  }
+
+  // ---------- joining from the terminal (device authorization) ----------
   /**
    * An agent should not ask its principal to copy a secret. It asks for a code
    * instead, shows them a link, and polls; the person signs in, sees what is
@@ -729,10 +784,14 @@ export class RouterService {
     await this.kv.delete(`device-secret:${record.secretHash}`);
   }
 
-  /** What the person is being asked to approve, for the page to show them. */
+  /**
+   * What the person is being asked to approve. The code comes back in the form
+   * their terminal printed, dashes and all, because comparing the two is how
+   * they tell their own request apart from a link somebody sent them.
+   */
   async deviceRequest(userCode) {
-    const { agentName, scopes, status } = await this.#device(userCode);
-    return { userCode: normalizeCode(userCode), agentName, scopes, status };
+    const record = await this.#device(userCode);
+    return { userCode: record.userCode, agentName: record.agentName, scopes: record.scopes, status: record.status };
   }
 
   /** Human only: grant an agent the powers they actually want it to have. */

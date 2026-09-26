@@ -36,6 +36,7 @@ test('an agent joins with one call and no token: the member approves in a browse
   // The member sees what is being asked before granting anything.
   const asked = await ed.get(`/router/device/${started.userCode}`);
   assert.equal(asked.agentName, 'Ed 的 Codex');
+  assert.equal(asked.userCode, started.userCode, '页面上显示的编码要和终端里打印的一字不差，人才能对照');
   assert.deepEqual(asked.scopes.sort(), ['profile:draft', 'read', 'route', 'suggest']);
 
   // They grant less than was asked for.

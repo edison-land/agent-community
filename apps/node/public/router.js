@@ -354,19 +354,20 @@ async function agentsCard(view) {
   const out = h('div');
   const name = h('input', { id: 'ag-name', value: `${base.me.member.human.data.displayName} 的 Agent`, maxlength: 120 });
   const scopes = SCOPE_LABELS.map(([value, label, on]) => h('label', { className: 'check' }, h('input', { type: 'checkbox', value, checked: on }), label));
+  const picked = () => scopes.map(label => label.firstChild).filter(box => box.checked).map(box => box.value);
   view.append(h('form', { className: 'card', onsubmit: run(async () => {
-    const issued = await api('/router/agents', { name: name.value, scopes: scopes.map(label => label.firstChild).filter(box => box.checked).map(box => box.value), ttlDays: 30 });
-    out.replaceChildren(h('div', { className: 'notice' }, '令牌只显示这一次。把下面任一段交给你的 Agent：'), h('pre', {}, [
-      `export AGENT_NETWORK_TOKEN=${issued.token}`, '',
-      '# Codex（HTTP MCP）', `codex mcp add agent-network --url ${location.origin}/mcp --bearer-token-env-var AGENT_NETWORK_TOKEN`, '',
-      '# Claude Code（HTTP MCP）', `claude mcp add --transport http agent-network ${location.origin}/mcp --header "Authorization: Bearer $AGENT_NETWORK_TOKEN"`, '',
-      `# 说明：${location.origin}/agents.md`,
-    ].join('\n')));
-    toast('已签发'); await load();
-  }) }, h('h2', {}, '为我的 Agent 签发令牌'), h('p', { className: 'muted' }, '勾上的事情你的 Agent 可以做，其中起草的内容仍要你确认。接受邀请和验收永远只能你本人做。30 天有效，随时可以撤销。'),
+    const { instructions } = await api('/router/pairing', { name: name.value, scopes: picked() });
+    out.replaceChildren(
+      h('div', { className: 'notice' }, '把下面整段复制给你的 Agent —— Codex、Claude、ChatGPT，哪个都行。它自己会完成接入。'),
+      h('pre', {}, instructions),
+      h('p', { className: 'row' },
+        h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(instructions); toast('已复制'); }) }, '复制'),
+        h('span', { className: 'muted small' }, '配对码 10 分钟内有效、只能用一次。换成令牌后它就作废了，留在聊天记录里也没用。')));
+    toast('已生成');
+  }) }, h('h2', {}, '连接我的 Agent'), h('p', { className: 'muted' }, '勾上的事情你的 Agent 可以做，其中起草的内容仍要你确认。接受邀请和验收永远只能你本人做。30 天有效，随时可以撤销。'),
   h('label', { for: 'ag-name' }, 'Agent 名字'), name, h('label', {}, '允许它做的事'), h('div', { className: 'row' }, scopes),
   h('p', { className: 'muted small' }, '「替我邀请候选人和组队」默认不勾：勾上以后，你只要说清楚需求，找人和组队就不用你再点了；不勾就由你自己在需求页上做。'),
-  h('p', {}, h('button', {}, '签发')), out));
+  h('p', {}, h('button', {}, '生成接入指令')), out));
   const tokens = await api('/router/agents');
   view.append(h('div', { className: 'card' }, h('h2', {}, '已签发的令牌'), tokens.length ? tokens.map(token => h('div', { className: 'cap-item' }, h('div', { className: 'grow' }, h('div', { className: 'row' }, h('b', {}, token.agentName), badge(STATUS[token.status] ?? token.status, token.status === 'active' ? '' : 'bad')), h('p', { className: 'muted' }, `${token.scopes.join('、')} · 有效至 ${time(token.expiresAt)}`)),
     token.status === 'active' ? h('button', { className: 'danger', onclick: run(async () => { await api(`/router/agents/tokens/${token.tokenId}/revoke`, {}); toast('已撤销'); await load(); }) }, '撤销') : null)) : h('p', { className: 'muted' }, '还没有签发。')));

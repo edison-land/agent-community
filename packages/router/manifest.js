@@ -61,6 +61,7 @@ export function agentManifest(origin) {
     auth: {
       type: 'bearer', format: 'amt_<id>_<secret>',
       obtain: '不要让主人复制密钥。自己 POST /api/agent/v1/device 要一个授权码，把返回的 verifyUrl 交给他；他登录、勾选你可以做什么之后，POST /api/agent/v1/device/token 就能拿到令牌。令牌有期限、可撤销、按动作授权；不要写进仓库、日志或聊天。',
+      pair: { redeem: `${origin}/api/agent/v1/pair`, how: '主人在页面上生成一段文字发给你，里面有一次性配对码；POST {"code":"…"} 换令牌' },
       device: { start: `${origin}/api/agent/v1/device`, poll: `${origin}/api/agent/v1/device/token`, expiresInSeconds: 600 },
     },
     scopes: SCOPES,
