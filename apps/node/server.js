@@ -53,6 +53,11 @@ export async function startNode({ port = 4320, host = '127.0.0.1', publicOrigin:
     try {
       const headers = new Headers();
       for (const [key, value] of Object.entries(req.headers)) for (const item of [].concat(value)) headers.append(key, item);
+      // The caller is whoever actually opened the connection. A client may send
+      // this header itself, and on this adapter nothing upstream overwrites it,
+      // so it is replaced rather than trusted.
+      headers.delete('cf-connecting-ip');
+      if (req.socket?.remoteAddress) headers.set('cf-connecting-ip', req.socket.remoteAddress);
       request = new Request(`http://${req.headers.host ?? 'invalid.invalid'}${req.url}`, {
         method: req.method, headers, signal: controller.signal,
         ...(['GET', 'HEAD'].includes(req.method) ? {} : { body: req, duplex: 'half' }),

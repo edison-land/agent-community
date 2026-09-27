@@ -8,6 +8,7 @@ import { demoMembers } from '../identity/mock.js';
 import { RouterService } from '../router/service.js';
 import { agentManifest } from '../router/manifest.js';
 import { humanRoutes, agentRoutes } from './router-routes.js';
+import { createThrottle } from './throttle.js';
 import { mcpHandler } from './mcp.js';
 
 const COOKIE = 'community_node_session';
@@ -27,9 +28,13 @@ export async function createCommunityApp({
   mode = 'live', store, login, kv, materials, onboarding, agentGuide = '', assets = null, connectorBundle = null, publicOrigin, router: routerOptions = {},
   autoDispatch = true, registrationTtlMs, ownerSubject = null, openBootstrap = false, openJoin = false,
   pointer = null, log = () => {},
+  // How this deployment recognises a caller, for the open endpoints' rate
+  // limit. A node that returns nothing here leaves them unlimited.
+  clientIp = request => request.headers.get('cf-connecting-ip'),
 }) {
   const origin = new URL(publicOrigin).origin;
   const secureCookies = origin.startsWith('https://');
+  const throttle = createThrottle();
   const savedPointer = pointer ? await pointer.load() : await kv.get('pointer:community');
   let communityId = null;
   if (savedPointer?.storeOrigin === store.origin && await store.find(savedPointer.communityId, 'object', savedPointer.communityId).catch(() => null)) communityId = savedPointer.communityId;
@@ -213,6 +218,10 @@ export async function createCommunityApp({
       raw = await request.text();
       if (raw.length > MAX_BODY) return reply(413, { error: 'BODY_TOO_LARGE' });
     }
+    // Before anything else: the endpoints that answer an anonymous caller are
+    // the ones that can be made to do work on someone else's behalf.
+    const wait = throttle.check(request.method, path, clientIp(request));
+    if (wait) return reply(429, { error: 'RATE_LIMITED', retryAfterSeconds: wait });
     try {
       const a2a = path.match(/^\/a2a\/agents\/([0-9a-f-]{36})(\/\.well-known\/agent-card\.json)?$/u);
       if (a2a) {
@@ -270,6 +279,8 @@ export async function createCommunityApp({
   app = {
     service, gateway, router,
     fetch: handle,
+    // Swept on the node's hourly alarm, alongside the expired sessions.
+    purge: () => throttle.purge(),
     close() { for (const finish of gateway.finishers.values()) finish(); },
   };
   return app;

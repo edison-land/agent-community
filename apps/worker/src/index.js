@@ -153,7 +153,8 @@ export class CommunityNode extends DurableObject {
 
   async alarm() {
     const purged = await this.kv.purge();
-    console.log(JSON.stringify({ event: 'kv-purge', purged }));
+    const callers = await this.ready?.then(app => app.purge()).catch(() => null);
+    console.log(JSON.stringify({ event: 'kv-purge', purged, callers }));
     await this.ctx.storage.setAlarm(Date.now() + 3600 * 1000);
   }
 }
