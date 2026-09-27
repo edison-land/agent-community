@@ -120,7 +120,7 @@ export async function runScenario(scenario, {
         const issued = await humanOf(member.key).post('/router/agents', { name: member.agent.name ?? `${member.displayName} 的 Agent`, ...(member.agent.scopes ? { scopes: member.agent.scopes } : {}) });
         agents.set(member.key, issued);
         if (isExternal(member.key)) {
-          await onExternalReady({ member: member.key, displayName: member.displayName, node: node.url, token: issued.token, manifest: `${node.url}/.well-known/agent-network.json`, guide: `${node.url}/agents.md`, mcp: `${node.url}/mcp` });
+          await onExternalReady({ member: member.key, displayName: member.displayName, node: node.url, token: issued.token, manifest: `${node.url}/.well-known/agent-network.json`, guide: `${node.url}/agents.md`, mcp: `${node.url}/mcp`, api: `${node.url}/api/agent/v1` });
         } else {
           personas.set(member.key, startPersona({ persona: member.agent.persona, key: member.key, node: node.url, token: issued.token, registry, config: member.agent }));
         }

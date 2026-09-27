@@ -42,14 +42,19 @@ const result = await runScenario(scenario, {
   target: values.target ?? null, resetSecret: values['reset-secret-file'] ? JSON.parse(readFileSync(resolve(values['reset-secret-file'].replace(/^~(?=\/)/u, process.env.HOME)), 'utf8')).resetSecret : null,
   externalTimeoutMs: Number(values.timeout) * 1000, keepNode: values.serve,
   log: entry => say(`[${entry.status === 'pass' ? '通过' : entry.status === 'warn' ? '提醒' : '未通过'}] ${entry.title}（${entry.ms} ms）${entry.failed?.length ? ` — ${entry.failed.join('；')}` : ''}${entry.error ? ` — ${entry.error}` : ''}`),
+  // The block below is addressed to the agent, not to a particular vendor's CLI:
+  // it names the endpoints and lets the agent use whichever one it speaks.
   onExternalReady: info => say([
-    '', `== ${info.displayName} 的 Agent 由你来接：把下面交给你的 Agent（Codex、Claude Code 等），评估会等待它最多 ${values.timeout} 秒 ==`,
-    `export AGENT_NETWORK_TOKEN=${info.token}`,
-    `codex mcp add agent-network --url ${info.mcp} --bearer-token-env-var AGENT_NETWORK_TOKEN`,
-    `claude mcp add --transport http agent-network ${info.mcp} --header "Authorization: Bearer $AGENT_NETWORK_TOKEN"`,
-    `说明：${info.guide}    清单：${info.manifest}`,
-    `然后对 Agent 说：请阅读 ${info.guide}，作为 ${info.displayName} 的 Agent 持续查看 inbox 并按说明行动。`,
-    ...(manualHumans.includes(info.member) ? [`你本人的操作在 ${info.node}/router.html（登录选「${info.displayName}」）：确认 Agent 起草的内容、接受邀请。`] : []), '',
+    '', `== ${info.displayName} 的 Agent 由你来接：把下面整段发给它，评估会等待它最多 ${values.timeout} 秒 ==`, '',
+    `你现在是 ${info.displayName} 在一个社区机会路由网络里的 Agent。`,
+    `1. 先读接入说明：${info.guide}（机器可读清单：${info.manifest}）。`,
+    `2. 用这个令牌调用，所有请求带 Authorization: Bearer <令牌>：`,
+    `     令牌  ${info.token}`,
+    `     MCP   ${info.mcp}`,
+    `     HTTP  ${info.api}`,
+    `   两个端点内容相同，你支持哪个就用哪个。`,
+    `3. 然后持续查看 inbox，按里面每条待办写明的动作和拍板人行动。`, '',
+    ...(manualHumans.includes(info.member) ? [`你本人的操作在 ${info.node}/router（登录选「${info.displayName}」）：确认 Agent 起草的内容、接受邀请。`, ''] : []),
   ].join('\n')),
 });
 
