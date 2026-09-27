@@ -1,9 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { createCommunityApp } from '../../../packages/app/community-app.js';
 import { buildMaterials } from '../../../packages/community/materials-core.js';
-import { createFlareMoLogin } from '../../../packages/identity/flaremo.js';
-import { CachedStore } from '../../../packages/store/cached.js';
-import { FlareMoObjectStore } from '../../../packages/store/flaremo-objects.js';
+import { createFlareMoTokenLogin } from '../../../packages/identity/flaremo.js';
 import { createMockLogin } from '../../../packages/identity/mock.js';
 import { FixtureActivitySource } from '../../../packages/router/activity.js';
 import { embeddingFrom } from '../../../packages/router/embedding.js';
@@ -11,6 +9,7 @@ import { Vocabulary } from '../../../packages/router/vocabulary.js';
 import { ModelUnderstander, chatFrom } from '../../../packages/router/understanding.js';
 import { sameDigest, sha256 } from '../../../packages/community/secrets.js';
 import { durableDemoStore } from './demo-store.js';
+import { createDurableStore } from '../../../packages/store/durable-objects.js';
 import demoScenario from '../../../examples/scenarios/kosx-recruitment.json';
 import onboarding from '../../../docs/agent-onboarding.md';
 import agentGuide from '../../../docs/agents.md';
@@ -68,10 +67,19 @@ export class CommunityNode extends DurableObject {
     this.ready ??= (async () => {
       const env = this.env;
       if (env.COMMUNITY_MODE === 'demo') return this.#demoApp();
-      for (const name of ['PUBLIC_ORIGIN', 'FLAREMO_URL', 'FLAREMO_SERVICE_PAT']) if (!env[name]) throw Object.assign(new Error(`MISSING_${name}`), { code: `MISSING_${name}` });
+      for (const name of ['PUBLIC_ORIGIN', 'FLAREMO_URL']) if (!env[name]) throw Object.assign(new Error(`MISSING_${name}`), { code: `MISSING_${name}` });
       const allowLocal = env.ALLOW_LOCAL_FLAREMO === '1';
-      const store = new CachedStore(new FlareMoObjectStore({ baseUrl: env.FLAREMO_URL, token: env.FLAREMO_SERVICE_PAT, allowLocal }));
-      const login = createFlareMoLogin({ baseUrl: env.FLAREMO_URL, allowLocal });
+      // FlareMo keeps what is its own — who a member is, and that member's own
+      // agent memory. What the community is doing lives in this object, because
+      // FlareMo has no public interface that holds it and we do not patch it.
+      const store = await createDurableStore(this.ctx.storage, {
+        serviceId: new URL(env.PUBLIC_ORIGIN).host, origin: env.PUBLIC_ORIGIN,
+        limits: env.COMMUNITY_ENTITY_LIMIT ? { entities: Number(env.COMMUNITY_ENTITY_LIMIT) } : {},
+      });
+      // A token, not a password: the member makes one on FlareMo and brings it
+      // here once. See packages/identity/flaremo.js for why there is no
+      // redirect to send them through instead.
+      const login = createFlareMoTokenLogin({ baseUrl: env.FLAREMO_URL, allowLocal });
       const app = await createCommunityApp({
         mode: 'live', store, login, kv: this.kv, materials, onboarding, agentGuide, connectorBundle, publicOrigin: env.PUBLIC_ORIGIN,
         autoDispatch: env.COMMUNITY_AUTO_DISPATCH !== '0',
