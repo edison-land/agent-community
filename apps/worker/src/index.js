@@ -155,6 +155,12 @@ export default {
     // The demo opens on the routing page.
     const url = new URL(request.url);
     if (env.COMMUNITY_MODE === 'demo' && request.method === 'GET') {
+      // The landing page is published separately, under its own headers: this node's
+      // content policy is written for the app and would strip the page bare. Old links
+      // are sent on rather than silently answered with the app shell.
+      if (env.LANDING_URL && (url.pathname === '/landing' || url.pathname === '/landing.html')) {
+        return Response.redirect(env.LANDING_URL, 302);
+      }
       if (url.pathname === '/') {
         if (!url.search) return Response.redirect(new URL('/router', request.url).toString(), 302);
         return env.ASSETS.fetch(request); // the execution (Phase 2) page
