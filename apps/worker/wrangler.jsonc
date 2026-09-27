@@ -1,7 +1,13 @@
 // Agent Community node on Cloudflare Workers + Durable Objects (RFC 0008,
-// runbook: docs/DEPLOY_CLOUDFLARE.zh-CN.md). Set with `wrangler secret put`, never here:
-//   FLAREMO_SERVICE_PAT      FlareMo PAT of the authorised community service account
-//   COMMUNITY_OWNER_SUBJECT  FlareMo resource name (users/...) allowed to create the community
+// runbook: docs/DEPLOY_CLOUDFLARE.zh-CN.md).
+//
+// The node needs nothing from a FlareMo administrator. Members sign in with a
+// personal access token they make themselves, and what the community is doing
+// is kept in this object; FlareMo holds only what is its own.
+//
+// COMMUNITY_OWNER_SUBJECT is the FlareMo resource name (users/...) allowed to
+// create the community, and is the one value worth keeping out of this file:
+//   npx wrangler@4.129.1 secret put COMMUNITY_OWNER_SUBJECT --config apps/worker/wrangler.jsonc
 // Local development passes an --env-file kept outside the repository (scripts/local/worker.mjs).
 {
   "name": "agent-network",
@@ -21,6 +27,9 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CommunityNode"] }],
   "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
+  // Matching by meaning; without this binding the node falls back to the
+  // keyword baseline (docs/EVAL.zh-CN.md).
+  "ai": { "binding": "AI" },
   "vars": {
     "PUBLIC_ORIGIN": "https://agent-network.zwteam.top",
     "FLAREMO_URL": "https://flaremo.kosx.ai"
