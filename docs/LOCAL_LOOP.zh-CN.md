@@ -158,7 +158,7 @@ PLAYWRIGHT_MODULE=<playwright/index.mjs> PLAYWRIGHT_CHANNEL=chrome CODEX_MODE=re
 | Agent Card 访问控制 | 模拟 1/1：匿名、伪造凭证、不存在的 Agent 都返回 401；成员会话与该 Agent 的执行凭证返回 200；其他 Agent 的凭证返回 403；SDK 客户端带凭证取名片 |
 | 变更流与追溯按可见范围过滤 | 模拟：非参与成员看不到 Workroom、Artifact、Grant、Execution、AgentBinding、Invitation 事件，只看到自己的 IdentityLink 与 Membership；参与者能看到；追溯页计数不含不可见对象 |
 | 回归 | `npm test` 79/79（跑两次）；`npm run test:live` Node 版、Worker 版各 12/12；浏览器闭环通过 |
-| Codex 只读沙箱边界（`codex sandbox`，不调用模型） | **能读**：`~/.codex/auth.json`、`~/.ssh`、记忆库、Chrome 数据目录。**不能**：写文件、访问外网、访问本机服务（含 127.0.0.1:10100 模型代理）、读剪贴板、列钥匙串、给其他进程发信号 |
+| Codex 只读沙箱边界（`codex sandbox`，不调用模型） | **能读**：`~/.codex/auth.json`、`~/.ssh`、记忆库、Chrome 数据目录。**不能**：写文件、访问外网、访问本机服务（含本地模型代理）、读剪贴板、列钥匙串、给其他进程发信号 |
 | 权限配置收窄可读范围（`default_permissions` 加 `permissions` 内联表） | 只允许 `:minimal` 和工作目录时：`auth.json`、`~/.ssh`、记忆库、Chrome 都读不到，基础文本工具可用。授权记忆库后只多出记忆库。`rg`、`node`、`python3`、`shasum` 需要额外授权工具目录。Codex 自身程序目录必须可读。`codex exec` 中是否生效尚未用真实调用验证 |
 
 `wrangler dev --local` 会把请求的 Host 改写为本机地址，所以错误 Host 的拒绝只在单元测试中验证过；线上只挂自定义域名，需要部署后复核。

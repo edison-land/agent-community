@@ -77,7 +77,7 @@ npm run router:demo   # 跑完评估后保持节点运行，可在浏览器里�
 - 本机 FlareMo：端口 8787，2026-09-22 已停止（演示框架和线上演示都不依赖它；跑 `npm run test:live` 前需要先启动）。启动命令：
 
   ```sh
-  FLAREMO_DIR=/Users/jairwu/resources/dev/flaremo-community-ext node scripts/local/flaremo.mjs start
+  FLAREMO_DIR=<你的 FlareMo 副本目录> node scripts/local/flaremo.mjs start
   ```
 
   日志在 `~/.agent-community/local/flaremo-dev.log`。
@@ -86,11 +86,11 @@ npm run router:demo   # 跑完评估后保持节点运行，可在浏览器里�
 - Playwright 不是本仓库的依赖。浏览器测试这样运行：
 
   ```sh
-  PLAYWRIGHT_MODULE=/Users/jairwu/resources/dev/flaremo-community-ext/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/index.mjs PLAYWRIGHT_CHANNEL=chrome CODEX_MODE=fake SECOND_ROUND_MODEL=gpt-5.5 CONNECTOR_MODELS=gpt-5.4-mini,gpt-5.5 node scripts/local/browser-loop.mjs <输出目录>
+  PLAYWRIGHT_MODULE=<某个已安装 Playwright 的 node_modules/playwright/index.mjs> PLAYWRIGHT_CHANNEL=chrome \\
+    CODEX_MODE=fake node scripts/local/browser-loop.mjs <输出目录>
   ```
 
-- 本机 wrangler 已用 OAuth 登录 diom1120@gmail.com，这是用户之前自己做的。`agent-network.zwteam.top` 目前没有 DNS 记录（用 DoH 查询是 NXDOMAIN）。
-- 本机 DNS 走代理的 fake-IP（198.18.x），所以 `dig` 的结果不可信，要用 DoH 查。
+- `agent-network.zwteam.top` 目前没有 DNS 记录。如果本机 DNS 经过代理，`dig` 的结果可能不可信，用 DoH 查证。
 
 
 ## 7. 必须遵守的边界

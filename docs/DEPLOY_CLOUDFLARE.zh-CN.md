@@ -25,7 +25,7 @@ CFG="--config apps/worker/wrangler.jsonc"
 ## 1. 本机演练（可选，不需要 Cloudflare 账号）
 
 ```sh
-FLAREMO_DIR=/Users/jairwu/resources/dev/flaremo-community-ext node scripts/local/flaremo.mjs start   # 另一个终端
+FLAREMO_DIR=<你的 FlareMo 副本目录> node scripts/local/flaremo.mjs start   # 另一个终端
 node scripts/local/worker.mjs                                   # Worker 版节点，http://127.0.0.1:4320
 COMMUNITY_RUNTIME=worker npm run test:live                      # 真实联调测试跑在 Worker 版上
 ```
@@ -33,7 +33,7 @@ COMMUNITY_RUNTIME=worker npm run test:live                      # 真实联调�
 ## 2. 登录 Cloudflare（你本人）
 
 ```sh
-npx --yes wrangler@4.129.1 login          # 浏览器里选 diom1120@gmail.com 的账号并授权
+npx --yes wrangler@4.129.1 login          # 浏览器里选择部署用的 Cloudflare 账号并授权
 npx --yes wrangler@4.129.1 whoami         # 确认账号；zwteam.top 必须在这个账号下
 ```
 

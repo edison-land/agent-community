@@ -2,7 +2,7 @@
 
 Status: In review. The Worker build is implemented and verified under `wrangler dev --local` against a local FlareMo; nothing is deployed. Deployment waits for the maintainer's Cloudflare login and plan choice and for the FlareMo administrator (see open questions).
 Date: 2026-09-22
-Decision basis: the maintainer chose Cloudflare, the account `diom1120@gmail.com`, the domain `agent-network.zwteam.top` (zone `zwteam.top` already on Cloudflare), and the online FlareMo `https://flaremo.kosx.ai`, whose administrator the maintainer can contact. This RFC extends [RFC 0007](0007-local-closed-loop.md) from loopback to a public HTTPS origin and supersedes RFC 0004's "loopback only" restriction for this deployment under the conditions below. Runbook: [DEPLOY_CLOUDFLARE](../docs/DEPLOY_CLOUDFLARE.zh-CN.md). Administrator handoff: [FLAREMO_ADMIN_HANDOFF](../docs/FLAREMO_ADMIN_HANDOFF.zh-CN.md).
+Decision basis: the maintainer chose Cloudflare, a dedicated account, and the domain `agent-network.zwteam.top` (its zone already on Cloudflare), and the online FlareMo `https://flaremo.kosx.ai`, whose administrator the maintainer can contact. This RFC extends [RFC 0007](0007-local-closed-loop.md) from loopback to a public HTTPS origin and supersedes RFC 0004's "loopback only" restriction for this deployment under the conditions below. Runbook: [DEPLOY_CLOUDFLARE](../docs/DEPLOY_CLOUDFLARE.zh-CN.md). Administrator handoff: [FLAREMO_ADMIN_HANDOFF](../docs/FLAREMO_ADMIN_HANDOFF.zh-CN.md).
 
 ## 结论
 

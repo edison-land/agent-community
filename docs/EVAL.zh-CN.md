@@ -15,7 +15,7 @@
 
 ## 0. 线上演示
 
-**https://agent-network-demo.zwteam.top**（2026-09-22 部署在 Cloudflare 账号 diom1120@gmail.com）
+**https://agent-network-demo.zwteam.top**（2026-09-22 部署）
 
 - Worker 名为 `agent-network-demo`，配置 `apps/worker/wrangler.demo.jsonc`，演示模式：
   - 不连 FlareMo；
@@ -48,10 +48,10 @@ node apps/eval/cli.js --target https://agent-network-demo.zwteam.top --reset-sec
 
 重置密钥只存在本机的 `~/.agent-community/local/demo.json`（权限 0600），以及 Worker 的 secret 里。
 
-如果本机网络通过 127.0.0.1:7890 这类代理出网，需要先设置代理，Node 的 fetch 才会走代理：
+如果你的网络要经过代理出网，Node 的 fetch 需要显式告知，否则会卡住：
 
 ```sh
-export HTTPS_PROXY=http://127.0.0.1:7890 NO_PROXY=127.0.0.1,localhost NODE_USE_ENV_PROXY=1
+export HTTPS_PROXY=<你的代理地址> NO_PROXY=127.0.0.1,localhost NODE_USE_ENV_PROXY=1
 ```
 
 **线上验证结果（2026-09-22）：**
