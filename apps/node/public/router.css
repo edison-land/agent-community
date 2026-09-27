@@ -158,6 +158,9 @@ li { margin: 3px 0 }
 .field-label {
   position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
 }
+.entry-steps { margin: 0 0 20px; padding: 0 0 0 20px; font-size: 14px; line-height: 2; color: var(--ink-2) }
+.entry-steps li { padding-left: 2px }
+.entry-steps li::marker { color: var(--ink-3); font-variant-numeric: tabular-nums }
 .entry-alt { font-size: 13px; color: var(--ink-3); margin: 18px 0 0; line-height: 1.9 }
 .entry-alt .link { font-size: 13px; margin-left: 6px }
 .entry-guest { margin-top: 14px; animation: rise .38s var(--ease) both }

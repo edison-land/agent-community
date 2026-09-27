@@ -100,3 +100,72 @@ export function createFlareMoLogin({ baseUrl, allowLocal = false, timeoutMs = 10
     async signOut(session, browserOrigin) { await request('signout', { browserOrigin, session }); },
   };
 }
+
+/**
+ * Sign in with a FlareMo personal access token, so a member's password never
+ * reaches this node.
+ *
+ * FlareMo is not an identity provider: its Better Auth deployment enables
+ * `username`, `organization` and `apiKey`, and no OIDC provider, so there is no
+ * authorisation-code flow to redirect into. Its session cookie is SameSite=Lax,
+ * so a browser will not carry it here either. What it does have is per-user
+ * tokens, and `GET /api/v1/auth/me` accepts one as a bearer credential.
+ *
+ * The member creates a token on FlareMo and pastes it in once. We read the
+ * identity behind it and then forget the token: nothing is stored, so nothing
+ * here can be stolen or replayed. The cost is that a token revoked on FlareMo
+ * still leaves this node's own session valid until it expires, which is why the
+ * session is short. `links` tells the page where to send someone, so no
+ * deployment's address is written into the page.
+ */
+export function createFlareMoTokenLogin({ baseUrl, allowLocal = false, timeoutMs = 10000, sessionTtlMs = 12 * 3600 * 1000 }) {
+  let url;
+  try { url = new URL(baseUrl); } catch { throw new LoginError('INVALID_AUTH_ORIGIN', 400); }
+  const local = allowLocal && url.protocol === 'http:' && url.hostname === '127.0.0.1';
+  if ((url.protocol !== 'https:' && !local) || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
+    throw new LoginError('INVALID_AUTH_ORIGIN', 400);
+  }
+  const origin = url.origin;
+
+  // A bearer request without an Origin header is the server-to-server case
+  // FlareMo allows; sending one would put us behind its trusted-origin list.
+  async function whoIs(token) {
+    let response;
+    try {
+      response = await fetch(`${origin}/api/v1/auth/me`, {
+        method: 'GET', headers: { accept: 'application/json', authorization: `Bearer ${token}` },
+        redirect: 'manual', signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (error) {
+      throw new LoginError(error.name === 'TimeoutError' ? 'FLAREMO_TIMEOUT' : 'FLAREMO_UNAVAILABLE');
+    }
+    if (response.status === 401 || response.status === 403) throw new LoginError('INVALID_TOKEN', 401);
+    if (!response.ok) throw new LoginError('FLAREMO_UNAVAILABLE');
+    let body;
+    try { body = await response.json(); } catch { throw new LoginError('INVALID_AUTH_RESPONSE'); }
+    return identityFor(origin, body?.user);
+  }
+
+  return {
+    origin,
+    kind: 'flaremo-token',
+    // Where a member goes to register, to sign in, and to make the token.
+    links: { register: `${origin}/register`, signIn: `${origin}/login`, token: `${origin}/account` },
+    async signIn(credentials) {
+      const token = typeof credentials?.token === 'string' ? credentials.token.trim() : '';
+      // The prefix is FlareMo's own, and checking it here keeps a mistyped
+      // password from being sent anywhere.
+      if (!token.startsWith('memos_pat_') || token.length > 8192 || !/^[\x21-\x7e]+$/u.test(token)) {
+        throw new LoginError('INVALID_TOKEN', 400);
+      }
+      return { identity: await whoIs(token), expiresAt: Date.now() + sessionTtlMs };
+    },
+    // The token is not kept, so there is nothing to re-check: the session this
+    // node issued stands on its own until it expires.
+    async verify(session) {
+      if (session.expiresAt <= Date.now()) throw new LoginError('SESSION_EXPIRED', 401);
+      return session.identity;
+    },
+    async signOut() {},
+  };
+}

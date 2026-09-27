@@ -85,8 +85,34 @@ function render() {
  * place is for. Then one way in, and a quieter second way for people who are
  * not on the roster — not two identical boxes competing for the same click.
  */
+// A real community signs in with its own accounts. FlareMo has no redirect
+// flow to send someone through, so the member makes a token there and brings it
+// back once; the password never reaches this node. The addresses come from the
+// node, so nothing here is written for one deployment.
+function tokenLoginView() {
+  const links = base.loginLinks ?? {};
+  const token = h('input', { id: 'flaremo-token', type: 'password', autocomplete: 'off', spellcheck: 'false', placeholder: 'memos_pat_…' });
+  const open = (href, label, className) => h('a', { href, target: '_blank', rel: 'noopener', className }, label);
+  return h('div', { className: 'entry' },
+    h('div', { className: 'entry-body' },
+      h('p', { className: 'eyebrow' }, base.community?.name ?? '机会路由'),
+      h('h1', {}, '让社群里的每一个需求，', h('br'), h('em', {}, '都找到能把它做成的人。')),
+      h('p', { className: 'lede' }, '用你的 ', h('b', {}, base.loginProvider?.replace(/^https?:\/\//u, '') ?? '社区'), ' 账号进入。密码不会经过这里：你在那边生成一个访问令牌，贴回来一次即可。'),
+      h('ol', { className: 'entry-steps' },
+        h('li', {}, '打开 ', open(links.token ?? links.signIn ?? '#', '账号设置 → 访问令牌', 'link'), '，新建一个令牌并复制。'),
+        h('li', {}, '贴在下面，点「进入」。令牌用完即弃，我们不保存。')),
+      h('form', { className: 'entry-form', onsubmit: run(async () => { await api('/login', { token: token.value.trim() }); await load(); }) },
+        h('div', { className: 'field' }, h('span', { className: 'field-label' }, '访问令牌'), token, h('button', {}, '进入'))),
+      h('p', { className: 'entry-alt' },
+        '还没有账号？', open(links.register ?? '#', '去注册', 'link'),
+        '　已登录但没有令牌？', open(links.signIn ?? '#', '去登录', 'link'))));
+}
+
 function loginView() {
-  if (base.mode !== 'simulated') return h('div', { className: 'entry' }, h('div', { className: 'entry-body' }, h('p', { className: 'eyebrow' }, '需要登录'), h('h1', {}, '请先在主页登录'), h('p', { className: 'lede' }, h('a', { href: '/' }, '前往主页 →'))));
+  if (base.mode !== 'simulated') {
+    if (base.loginKind === 'flaremo-token') return tokenLoginView();
+    return h('div', { className: 'entry' }, h('div', { className: 'entry-body' }, h('p', { className: 'eyebrow' }, '需要登录'), h('h1', {}, '请先在主页登录'), h('p', { className: 'lede' }, h('a', { href: '/' }, '前往主页 →'))));
+  }
   const select = h('select', { id: 'member' }, (base.demoMembers ?? []).map(member => h('option', { value: member.username }, member.displayName)));
   const guest = h('input', { id: 'guest-name', maxlength: 40, placeholder: '你的名字' });
   const slug = () => `guest-${Math.random().toString(36).slice(2, 8)}`;
