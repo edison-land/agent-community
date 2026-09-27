@@ -1,5 +1,7 @@
 # Architecture scaffold
 
+> **Superseded.** These are the boundaries as proposed on 2026-09-21. The current direction is [RFC 0010](../RFC/0010-opportunity-router.md) and the current state is the [handover](HANDOFF.zh-CN.md).
+
 Status: proposed boundaries with an offline executable example. This document is not a claim of a production implementation.
 
 Update 2026-09-21: a local closed loop (FlareMo object extension, community node with A2A gateway, member connector for Codex CLI) now implements these boundaries on one machine; see [RFC 0007](../RFC/0007-local-closed-loop.md) and the [local loop record](LOCAL_LOOP.zh-CN.md). The discovery-only mock gateway described below remains for the offline demo.

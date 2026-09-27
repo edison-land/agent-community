@@ -1,5 +1,7 @@
 # Agent Community
 
+> **已被取代。** 这里的产品语言来自 2026-09-21 的早期形态，保留是因为 RFC 0005 引用它。当前方向见 [RFC 0010](RFC/0010-opportunity-router.md)，当前状态见 [交接说明](docs/HANDOFF.zh-CN.md)。
+
 社区成员带着自己的 Agent 发现能力、委派任务并共同交付成果。以下八个核心对象是统一产品语言。
 
 ## Language

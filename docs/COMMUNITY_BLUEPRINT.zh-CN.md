@@ -1,5 +1,7 @@
 # Agent Community 架构蓝图
 
+> **已被取代。** 本文是 2026-09-21 的架构提案，保留是因为 RFC 0004 与 ARCHITECTURE 引用它。当前方向见 [RFC 0010](../RFC/0010-opportunity-router.md)，当前状态见 [交接说明](HANDOFF.zh-CN.md)。
+
 状态：产品与架构提案，2026-09-21。本文明确目标和模块边界，不表示完整平台已经实现。用户选择先使用虚构账号推进本地原型，再联调 FlareMo 登录。核心仍是开源、可由不同社区使用，KOSX 只是首个参考场景。
 
 最新修订：优先落地八类核心对象及存储/通信协议。[RFC 0005](../RFC/0005-core-objects-and-flaremo-store.md) 明确以 FlareMo 结构化扩展保存对象权威记录，[RFC 0006](../RFC/0006-community-a2a-profile.md) 固定 A2A 基线。下文“Community 管理/保存记录”表示业务责任；物理持久化目标为 FlareMo，旧的独立 Community 主数据库设想已被替代。现有 FlareMo 不等于已经具备该扩展。

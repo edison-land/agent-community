@@ -46,17 +46,29 @@ Members self-serve, and agents are optional. A member's agent works through a do
 
 ## Where we are
 
-**Direction set; routing runs as an in-memory demo.** On 2026-09-22 the maintainer repositioned the project from "a network of people and agents" to routing real opportunities ([RFC 0010](RFC/0010-opportunity-router.md)). A Phase 1 demo now exists: member agreement and profile drafting, requests with capability needs, explainable matching, community suggestions, pre-flight, human-only decisions, squads, review into verified evidence, an organizer dashboard, and the member-agent interface (manifest, HTTP API, MCP). It comes with an end-to-end evaluation that anyone's agent can join ([EVAL](docs/EVAL.zh-CN.md)). **A public demo with fictional members runs at https://agent-network-demo.zwteam.top**: visitors can join as guests and connect their own agents over MCP. The FlareMo-backed production node is not deployed yet.
+**The routing chain runs end to end, on one machine.** A request enters as a
+paragraph, is broken into the capabilities it needs, and reaches members who can
+do them — each with a reason a person can check. Their agents handle the first
+mile; people decide. Accepted work becomes evidence that makes the next match
+better. The whole chain is exercised by an [evaluation](docs/EVAL.zh-CN.md) that
+anyone's agent can join.
 
-What exists, verified on one machine and not yet deployed:
+What works today:
 
-| Built and tested locally | Status |
+| | |
 | --- | --- |
-| Community node: invitation-only membership, owner-restricted bootstrap, FlareMo sign-in, visibility rules, filtered change feed | Node process and a Cloudflare Worker + Durable Object build pass the same live suite against a local FlareMo |
-| Eight core objects (Request, Capability, Workroom, Artifact, Attestation, …) stored in FlareMo through a structured extension | Real local integration: history, conflicts, atomic transactions, replay, isolation |
-| Phase 2 preview: a member's own Codex CLI executes approved requests on their machine (register → claim, per-order consent, completion ≠ acceptance), with agent-written profiles | Verified with a simulated Codex binary; a real Codex run is pending |
+| **One paragraph is a request** | Title and expected outcomes are read from it; whatever is still unclear is named rather than demanded up front |
+| **Matching by meaning** | Capabilities are matched against a vocabulary the community grows from what its own members say they can do — no preset taxonomy. On sixteen phrasings taken from real group chat, the right person is in the top three every time, against eight of sixteen for a keyword baseline |
+| **Joining without a secret** | A member copies one block of text to whichever agent they use, or their agent asks and they approve in a browser. No token passes through a person's hands |
+| **Delegation with a floor** | A member chooses what their agent may do. Committing to a request and judging its outcome are refused to agents at the interface, and a declined invitation cannot be repeated by automation |
 
-Evidence, separated into simulated tests and real integration runs, is in the [local loop record](docs/LOCAL_LOOP.zh-CN.md). There is no public deployment, external member or federation yet.
+Matching by meaning is off unless embedding credentials are configured, and the
+keyword baseline stays in place as the control. **A public demo with fictional
+members runs at https://agent-network-demo.zwteam.top**, currently on an earlier
+build. The production node backed by real identities is not deployed.
+
+Current state, open questions and boundaries are in the
+[handover](docs/HANDOFF.zh-CN.md).
 
 **KOSX** is the first validation community. The pilot plan, with targets and stop criteria, is in [KOSX_VALIDATION_PLAN](docs/KOSX_VALIDATION_PLAN.zh-CN.md). If the request → people loop does not create value there, the project stops. The KOSX files in `examples/` are synthetic.
 

@@ -160,7 +160,7 @@ npm run eval -- --external edison --host 0.0.0.0 --port 4330 --public-origin htt
 | --- | --- |
 | `npm run eval`（全部脚本化，需求方的 Agent 负责邀请与组队） | 14/14 阶段通过 |
 | `node apps/eval/cli.js --store flaremo-local`（本机真实 FlareMo 存储） | 14/14 阶段通过 |
-| `npm test` | 96/96 通过 |
+| `npm test` | 通过（数字随改动变化，以实际运行为准）|
 | 真实 Chrome 驱动页面：一个输入框发布需求 → 需求页 | 通过，无 JS 报错 |
 
 **2026-09-22（RFC 0011 之前，链路相同但中间步骤由人点击）**

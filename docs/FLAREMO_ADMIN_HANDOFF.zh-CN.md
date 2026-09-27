@@ -1,5 +1,7 @@
 # 给 flaremo.kosx.ai 管理员的交接说明：Agent Community 对象扩展
 
+> **暂缓。** 项目已决定不再改动 FlareMo，只调用它的公开接口（见[交接说明](HANDOFF.zh-CN.md)第 4 节），本文描述的扩展补丁因此不是当前方案。若仍要走这条路线，补丁必须先把 `0030_community_objects.sql` 重编号到 `0032`——上游已占用 0030。
+
 你好。Agent Community 是一个"成员把自己的 Agent 接入社区、逐单授权执行"的社区节点，准备部署在 `https://agent-network.zwteam.top`（Cloudflare Workers）。它不自建数据库，所有社区数据保存在 FlareMo 里。为此需要在 flaremo.kosx.ai 上做下面几件事。**每一项都由你决定是否执行；我们不会直接修改你的实例。**
 
 设计依据：[RFC 0005 存储扩展](../RFC/0005-core-objects-and-flaremo-store.md)、[RFC 0007 本机闭环](../RFC/0007-local-closed-loop.md)、[RFC 0008 Cloudflare 部署](../RFC/0008-cloudflare-deployment.md)。

@@ -7,12 +7,12 @@ Milestones describe observable outcomes, not promised dates. Direction: [RFC 001
 | Step | Status | Exit evidence |
 | --- | --- | --- |
 | Foundations: community node, invitation-only membership, FlareMo sign-in, visibility rules, the eight objects in FlareMo, review records, Cloudflare Worker build | Built and verified locally; not deployed | See [local loop record](docs/LOCAL_LOOP.zh-CN.md) |
-| Member agreement and consent records | Designed (RFC 0010 §6) | Members sign before any profile drafting; withdrawal removes drafted data |
-| Member profiles, drafted from community activity and confirmed by the member | Designed | Most members in the pilot confirm their draft with light edits |
-| Requests with capability breakdown, rewards and source | Designed | Requesters accept or adjust the breakdown |
-| Matching with reasons, plus community suggestions | Designed | Candidates understand "why me"; suggestions are attributed |
-| Pre-flight, accept or decline, squad with roles | Designed | A request reaches a person who accepts, without the organizer relaying messages by hand |
-| Review, capability evidence, collaboration edges, organizer dashboard | Designed | Accepted work updates profiles; dashboard shows opportunities → matches → squads → deliveries |
+| Member agreement and consent records | Built; in the evaluation (RFC 0010 §6) | Members sign before any profile drafting; withdrawal removes drafted data |
+| Member profiles, drafted from community activity and confirmed by the member | Built; in the evaluation | Most members in the pilot confirm their draft with light edits |
+| Requests with capability breakdown, rewards and source | Built; one paragraph is enough, and matching is by meaning | Requesters accept or adjust the breakdown |
+| Matching with reasons, plus community suggestions | Built; reasons quote the profile entry that matched | Candidates understand "why me"; suggestions are attributed |
+| Pre-flight, accept or decline, squad with roles | Built; a squad can still take someone who accepts late | A request reaches a person who accepts, without the organizer relaying messages by hand |
+| Review, capability evidence, collaboration edges, organizer dashboard | Built; in the evaluation | Accepted work updates profiles; dashboard shows opportunities → matches → squads → deliveries |
 | Member-agent interface: onboarding doc, `/.well-known/agent-network.json`, `/api/agent/v1`, MCP tools, inbox, scoped tokens | Built; verified by the end-to-end evaluation (RFC 0010 §7) | A member's own agent drafts a profile, suggests a candidate and answers pre-flight, and all of it is attributed and confirmed where required |
 | One focus point: a request is one paragraph, what is still unclear is named, and a member can delegate the coordination in between to their own agent | Built and verified ([RFC 0011](RFC/0011-one-focus-point.md)) | The requester never clicks through candidate selection or squad forming; invitations sent by an agent are attributed to it, and committing and judging stay with the person |
 | KOSX pilot | Planned ([plan](docs/KOSX_VALIDATION_PLAN.zh-CN.md)) | Targets in the plan are met, or the stop criteria are triggered and the result is published |
