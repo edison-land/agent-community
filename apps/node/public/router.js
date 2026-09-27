@@ -95,7 +95,7 @@ function loginView() {
   return h('div', { className: 'entry' },
     h('div', { className: 'entry-body' },
       h('p', { className: 'eyebrow' }, base.community?.name ?? '机会路由'),
-      h('h1', {}, '让社群里的每一个需求，', h('br'), '都找到能把它做成的人。'),
+      h('h1', {}, '让社群里的每一个需求，', h('br'), h('em', {}, '都找到能把它做成的人。')),
       h('p', { className: 'lede' }, '你说清楚要什么，网络把它拆成需要的能力、找到能做的人。接不接、成没成，始终由人决定。'),
       h('form', { className: 'entry-form', onsubmit: run(async () => { await api('/login', { username: select.value }); await load(); }) },
         h('div', { className: 'field' }, h('span', { className: 'field-label' }, '以成员身份进入'), select, h('button', {}, '进入'))),
