@@ -68,8 +68,9 @@ npm run router:demo   # 跑完评估后保持节点运行，可在浏览器里�
 | 线上演示站 | 还是 2026-09-22 的旧版，没有新界面和新接入方式 |
 | 产品定性 | 头一批真实需求的来源和负责人、成员协议文本、试点名单——**这是前置条件，不是待办** |
 | 真实 Codex 联调、MCP OAuth、设计 token 与落地页共用 | 未开始 |
+| 落地页的社交预览图 | `docs/index.html` 的 OG/Twitter 标签指向 `/assets/og-image.png`，这个文件还没有，分享出去没有预览图 |
 
-`apps/node/public/landing.html`（131 KB）和 `_headers` 是用户自己放进仓库的，被 `git add -A` 扫进了提交 `20927a5`（提交信息讲的是设备授权），归属对不上。Node 适配器不提供它，但 Worker 的 Static Assets 会在 `/landing.html` 提供。
+**落地页**在 `docs/index.html`，由 GitHub Pages 从默认分支的 `/docs` 目录发布（同目录下还有 `.nojekyll`、`robots.txt`、`sitemap.xml`、`llms.txt`）。本地预览 `npm run landing`。它不经过应用运行时：Node 适配器的静态资源白名单不含它，Worker 也不再提供它。`apps/node/public/_headers` 是 Worker 静态资源的 CSP 响应头，与落地页无关。
 
 ## 6. 本机环境与密钥（只说位置，不要读出或复制内容）
 
