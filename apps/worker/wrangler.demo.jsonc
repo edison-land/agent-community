@@ -12,7 +12,7 @@
     "directory": "../node/public",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/", "/api/*", "/a2a/*", "/connector/*", "/agent-onboarding.md", "/agents.md", "/.well-known/*", "/mcp", "/healthz", "/__demo/*"]
+    "run_worker_first": ["/", "/api/*", "/a2a/*", "/connector/*", "/agent-onboarding.md", "/agents.md", "/.well-known/*", "/mcp", "/healthz", "/__demo/*", "/landing", "/landing.html"]
   },
   // Capability matching by meaning. Without this binding the node falls back to the
   // keyword baseline, which finds far fewer of the right people (docs/EVAL.zh-CN.md).
@@ -23,7 +23,8 @@
   "vars": {
     "COMMUNITY_MODE": "demo",
     "PUBLIC_ORIGIN": "https://agent-network-demo.zwteam.top",
-    "COMMUNITY_OWNER_SUBJECT": "users/mia"
+    "COMMUNITY_OWNER_SUBJECT": "users/mia",
+    "LANDING_URL": "https://edison-land.github.io/agent-community/"
   },
   "observability": { "enabled": true }
 }
