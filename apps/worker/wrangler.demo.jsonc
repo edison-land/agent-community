@@ -14,6 +14,9 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/", "/api/*", "/a2a/*", "/connector/*", "/agent-onboarding.md", "/agents.md", "/.well-known/*", "/mcp", "/healthz", "/__demo/*"]
   },
+  // Capability matching by meaning. Without this binding the node falls back to the
+  // keyword baseline, which finds far fewer of the right people (docs/EVAL.zh-CN.md).
+  "ai": { "binding": "AI" },
   "durable_objects": { "bindings": [{ "name": "COMMUNITY_NODE", "class_name": "CommunityNode" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CommunityNode"] }],
   "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
