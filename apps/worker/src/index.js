@@ -154,9 +154,14 @@ export default {
   async fetch(request, env) {
     // The demo opens on the routing page.
     const url = new URL(request.url);
-    if (env.COMMUNITY_MODE === 'demo' && request.method === 'GET' && url.pathname === '/') {
-      if (!url.search) return Response.redirect(new URL('/router', request.url).toString(), 302);
-      return env.ASSETS.fetch(request); // the execution (Phase 2) page
+    if (env.COMMUNITY_MODE === 'demo' && request.method === 'GET') {
+      if (url.pathname === '/landing' || url.pathname === '/landing.html') {
+        return env.ASSETS.fetch(new Request(new URL('/landing.html', request.url), request));
+      }
+      if (url.pathname === '/') {
+        if (!url.search) return Response.redirect(new URL('/router', request.url).toString(), 302);
+        return env.ASSETS.fetch(request); // the execution (Phase 2) page
+      }
     }
     // One node per deployment; the object's name is stable across deploys.
     const stub = env.COMMUNITY_NODE.get(env.COMMUNITY_NODE.idFromName('community-node'));
