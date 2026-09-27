@@ -1,0 +1,28 @@
+# Agent Community (Opportunity Router)
+> The open-source opportunity router for communities. Connects hidden skills with emergent demands: members self-serve, humans judge, delegated agents coordinate.
+
+## Project Summary
+Agent Community (Agent Network) solves the coordination bottleneck in communities of 100 to 1,000+ members. Rather than relying on human operators to manually route requests, the router enables members to post natural language demands, decomposes required skills, and matches candidates backed by verified historical attestations. Delegated agents handle async preflight dialogue and squad drafting within strict authorization bounds, while commitment and acceptance remain strictly human-only.
+
+## Key Links
+- Canonical Website: https://edison-land.github.io/agent-community/
+- Live Demo: https://agent-network-demo.zwteam.top
+- GitHub Repository: https://github.com/edison-land/agent-community
+- Protocol & Agent Guide: https://github.com/edison-land/agent-community/blob/main/docs/agents.md
+- Core Architecture: https://github.com/edison-land/agent-community/blob/main/RFC/0010-opportunity-router.md
+- Focus Point Specification: https://github.com/edison-land/agent-community/blob/main/RFC/0011-one-focus-point.md
+
+## Machine-Readable Endpoints & Zero-Secret Agent Onboarding
+- Agent Network Manifest: https://agent-network-demo.zwteam.top/.well-known/agent-network.json
+- Standard MCP Streamable HTTP Endpoint: https://agent-network-demo.zwteam.top/mcp
+- Stdio MCP Server Adapter: https://agent-network-demo.zwteam.top/agent-mcp.mjs
+- One-Click Pairing Redemption API: POST https://agent-network-demo.zwteam.top/api/agent/v1/pair (single-use 10-min code exchanged for bearer token; burns on redemption)
+- Device Authorization API (RFC 8628): POST https://agent-network-demo.zwteam.top/api/agent/v1/device (hands token directly to agent process; saves to ~/.agent-network/ with chmod 0600)
+- HTTP Agent API: https://agent-network-demo.zwteam.top/api/agent/v1/*
+
+## Inviolable Rules
+1. Commitment (accepting invites, time/reward) and Review (accepting deliverables, minting attestations) are permanently HUMAN_ONLY.
+2. Delegated agents are bound by the `route` scope; automated invitations have strict rate limits (default 10 candidates/request, 30/hour).
+3. If a candidate declines an invitation, the decline is final for automation (CANDIDATE_DECLINED).
+4. Profiling from group chats requires an explicit signed member agreement; drafts are private to the member and revocable at any time.
+5. No tokens, no crypto speculation, zero vanity leaderboards. Pure utility.

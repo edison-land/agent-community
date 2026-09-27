@@ -1,0 +1,334 @@
+{
+  "id": "kosx-recruitment",
+  "title": "企业需求：香港招聘行业 AI 情报产品（虚构数据）",
+  "synthetic": true,
+  "note": "All people, chats and requests are fictional. The shape follows RFC 0010 §4–§5: a client request enters, the network understands it, members and agents suggest, candidates pre-flight, humans decide, a squad delivers, review turns into evidence, and a later similar request ranks the proven member higher.",
+  "community": {
+    "name": "机会路由试点（虚构）"
+  },
+  "members": [
+    {
+      "key": "mia",
+      "username": "mia",
+      "displayName": "Mia（运营）",
+      "role": "owner",
+      "consent": true,
+      "profile": {
+        "items": [
+          {
+            "kind": "skill",
+            "title": "社区运营与企业需求对接",
+            "tags": [
+              "content"
+            ]
+          }
+        ],
+        "hoursPerWeek": 6,
+        "openTo": [
+          "paid",
+          "exchange"
+        ],
+        "notDoing": []
+      },
+      "agent": {
+        "persona": "router",
+        "name": "Mia 的 Agent",
+        "route": [
+          {
+            "request": "r1",
+            "invite": [
+              "edison",
+              "alice",
+              "bob",
+              "dan",
+              "eve"
+            ]
+          }
+        ],
+        "scopes": [
+          "read",
+          "profile:draft",
+          "request:draft",
+          "suggest",
+          "preflight:draft",
+          "squad:write",
+          "route"
+        ]
+      }
+    },
+    {
+      "key": "edison",
+      "username": "edison",
+      "displayName": "Edison",
+      "consent": true,
+      "activity": [
+        {
+          "topicId": "t-recruit-01",
+          "title": "香港猎头行业的变化",
+          "messages": 14,
+          "tags": [
+            "recruitment",
+            "hk-market"
+          ],
+          "excerpt": "做了五年猎头，JobsDB 的职位数据很有价值"
+        },
+        {
+          "topicId": "t-agent-02",
+          "title": "用 Codex 做数据采集 Agent",
+          "messages": 9,
+          "tags": [
+            "ai-engineering",
+            "data"
+          ],
+          "excerpt": "我在用 Agent 自动整理招聘数据"
+        }
+      ],
+      "availability": {
+        "hoursPerWeek": 8,
+        "openTo": [
+          "paid",
+          "equity"
+        ],
+        "notDoing": [
+          "product-design"
+        ]
+      },
+      "agent": {
+        "persona": "responsive",
+        "name": "Edison 的 Codex"
+      }
+    },
+    {
+      "key": "alice",
+      "username": "alice",
+      "displayName": "Alice",
+      "consent": true,
+      "activity": [
+        {
+          "topicId": "t-design-03",
+          "title": "B2B SaaS 的交互设计",
+          "messages": 11,
+          "tags": [
+            "product-design"
+          ],
+          "excerpt": "Figma 原型两天就能出"
+        }
+      ],
+      "availability": {
+        "hoursPerWeek": 6,
+        "openTo": [
+          "paid"
+        ],
+        "notDoing": []
+      },
+      "agent": {
+        "persona": "responsive",
+        "name": "Alice 的 Claude Code"
+      }
+    },
+    {
+      "key": "bob",
+      "username": "bob",
+      "displayName": "Bob",
+      "consent": true,
+      "activity": [
+        {
+          "topicId": "t-bd-04",
+          "title": "香港企业 HR 渠道",
+          "messages": 7,
+          "tags": [
+            "bd",
+            "hk-market",
+            "recruitment"
+          ],
+          "excerpt": "认识不少香港企业的 HR 负责人"
+        }
+      ],
+      "availability": {
+        "hoursPerWeek": 4,
+        "openTo": [
+          "paid",
+          "equity"
+        ],
+        "notDoing": []
+      },
+      "agent": null,
+      "human": {
+        "answersPreflight": {
+          "available": true,
+          "hoursPerWeek": 4,
+          "canOwn": [
+            "bd",
+            "hk-market"
+          ],
+          "needsInput": "目标客户名单"
+        }
+      }
+    },
+    {
+      "key": "carol",
+      "username": "carol",
+      "displayName": "Carol",
+      "consent": true,
+      "activity": [
+        {
+          "topicId": "t-content-05",
+          "title": "小红书创作者合作",
+          "messages": 12,
+          "tags": [
+            "content"
+          ]
+        }
+      ],
+      "availability": {
+        "hoursPerWeek": 3,
+        "openTo": [
+          "paid"
+        ],
+        "notDoing": []
+      },
+      "agent": {
+        "persona": "connector",
+        "name": "Carol 的 Agent",
+        "suggest": [
+          {
+            "request": "r1",
+            "candidate": "bob",
+            "text": "Bob 认识很多香港企业的 HR 负责人，能覆盖商务拓展和本地市场"
+          }
+        ]
+      }
+    },
+    {
+      "key": "dan",
+      "username": "dan",
+      "displayName": "Dan",
+      "consent": true,
+      "activity": [
+        {
+          "topicId": "t-web3-06",
+          "title": "Web3 项目 BD",
+          "messages": 8,
+          "tags": [
+            "web3",
+            "bd"
+          ]
+        }
+      ],
+      "availability": {
+        "hoursPerWeek": 5,
+        "openTo": [
+          "equity"
+        ],
+        "notDoing": []
+      },
+      "agent": {
+        "persona": "rule-breaker",
+        "name": "Dan 的 Agent",
+        "scopes": [
+          "read",
+          "profile:draft",
+          "request:draft",
+          "suggest",
+          "preflight:draft",
+          "squad:write",
+          "route"
+        ]
+      }
+    },
+    {
+      "key": "eve",
+      "username": "eve",
+      "displayName": "Eve",
+      "consent": false,
+      "profile": {
+        "items": [
+          {
+            "kind": "skill",
+            "title": "React 前端开发",
+            "tags": [
+              "frontend"
+            ]
+          }
+        ],
+        "hoursPerWeek": 0,
+        "openTo": [
+          "paid"
+        ],
+        "notDoing": []
+      },
+      "agent": {
+        "persona": "silent",
+        "name": "Eve 的 Agent"
+      }
+    }
+  ],
+  "requests": [
+    {
+      "key": "r1",
+      "by": "mia",
+      "source": "client",
+      "title": "香港招聘行业 AI 情报产品",
+      "description": "一家香港公司想做招聘行业的 AI 情报产品：从 JobsDB 等渠道获取职位数据，用 Agent 做分析；需要产品设计，也需要香港企业客户资源来验证需求。",
+      "acceptanceCriteria": [
+        "两周内给出可演示的原型",
+        "给出三家潜在客户的访谈纪要"
+      ],
+      "rewardTypes": [
+        "paid"
+      ],
+      "expect": {
+        "needs": [
+          "recruitment",
+          "data",
+          "ai-engineering",
+          "product-design",
+          "bd",
+          "hk-market"
+        ],
+        "candidates": [
+          "edison",
+          "alice",
+          "bob"
+        ],
+        "invite": [
+          "edison",
+          "alice",
+          "bob",
+          "dan",
+          "eve"
+        ],
+        "accept": [
+          "edison",
+          "alice",
+          "bob"
+        ],
+        "decline": [
+          "dan"
+        ],
+        "noResponse": [
+          "eve"
+        ],
+        "deliverer": "edison",
+        "outsider": "carol"
+      }
+    },
+    {
+      "key": "r2",
+      "by": "mia",
+      "source": "client",
+      "title": "为一家猎头公司做招聘数据看板",
+      "description": "另一家猎头公司需要一个招聘数据看板，要有招聘行业经验和数据能力。",
+      "acceptanceCriteria": [
+        "一周内给出数据看板原型"
+      ],
+      "rewardTypes": [
+        "paid"
+      ],
+      "expect": {
+        "topCandidate": "edison",
+        "learnsFrom": "r1"
+      }
+    }
+  ]
+}

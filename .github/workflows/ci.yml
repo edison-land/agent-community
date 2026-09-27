@@ -7,13 +7,21 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
+      - run: npm ci
       - run: npm test
       - run: npm run demo
       - run: npm run flaremo:demo
       - run: npm run demo -- examples/communities/kosx.json research
+      - run: npm run objects:demo
+      - run: npm run eval   # opportunity-routing end-to-end evaluation (in memory, fictional scenario)
+      - run: npm run build:connector
+      # Cloudflare Worker build of the node (RFC 0008): bundle only, no account, nothing deployed.
+      - run: npx --yes wrangler@4.129.1 deploy --dry-run --config apps/worker/wrangler.jsonc --outdir "$RUNNER_TEMP/worker"
+        env:
+          WRANGLER_SEND_METRICS: 'false'

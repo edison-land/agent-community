@@ -2,10 +2,12 @@
   "name": "agent-community",
   "version": "0.0.0",
   "private": true,
-  "description": "Offline scaffold for an open-source agent-native community platform",
+  "description": "Agent-native community platform: local node, FlareMo object store extension client, A2A gateway and Codex connector",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=24 <25" },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "objects:demo": "node apps/demo/objects.js",
     "community:demo": "node apps/login-demo/server.js --mock",
@@ -15,6 +17,19 @@
     "flaremo:login": "node apps/login-demo/server.js",
     "flaremo:probe": "node --env-file=.env.flaremo.local apps/flaremo-demo/live.js",
     "test": "node --test \"test/*.test.js\"",
-    "check": "node --test \"test/*.test.js\""
+    "check": "node --test \"test/*.test.js\"",
+    "node": "node apps/node/server.js",
+    "node:simulated": "node apps/node/server.js --simulated",
+    "connector": "node apps/connector/cli.js",
+    "a2a:client": "node apps/a2a-client/cli.js",
+    "flaremo:local": "node scripts/local/flaremo.mjs",
+    "test:live": "node --test --test-concurrency=1 \"test/live/*.live.js\"",
+    "build:connector": "node scripts/build-connector.mjs",
+    "eval": "node apps/eval/cli.js",
+    "router:demo": "node apps/eval/cli.js --serve --port 4330",
+    "landing": "node scripts/serve-landing.mjs"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.2.0"
   }
 }

@@ -1,6 +1,8 @@
 # RFC 0006 — Community A2A Profile v0.1
 
-Status: Draft interoperability profile; version/transport baseline selected for this proposal, no live peer or SDK execution implemented.
+Status: Draft interoperability profile; version/transport baseline selected for this proposal.
+
+Update 2026-09-21: `@a2a-js/sdk` 1.2.0 is installed (exact version, lockfile). The community gateway and an independent client process interoperate locally over JSON-RPC and SSE. CancelTask is handled by the gateway so a running task is never reported canceled before the connector confirms the stop. Details and differences are in [RFC 0007](0007-local-closed-loop.md).
 Date: 2026-09-21
 
 ## 固定基线
@@ -15,9 +17,9 @@ Date: 2026-09-21
 
 ## Agent 加入、路由与认证
 
-Human 先经认证并取得有效成员资格 → 创建 unverified Agent 对象 → 服务生成短期、单次 challenge（绑定 community、principal、Agent ID 和经过审核的目标端点）→ 运行环境使用自己持有的连接凭证证明控制 → 消耗 challenge，写 AgentBinding 与 verified 状态。
+Agent 接入方式以 [RFC 0007 §4](0007-local-closed-loop.md) 为准：运行环境的连接器先登记（只提交本机生成密钥的哈希），节点返回 10 分钟有效的一次性认领链接；已认证的有效成员打开链接、输入终端上指纹的最后 4 位后，才写入 AgentBinding 与 verified 状态。本草案早先设想的“服务生成 challenge、运行环境提交 challenge”的握手已被取代，不再实现。
 
-挑战有效期建议 5 分钟、只可消费一次；挑战不是执行令牌。领取/响应必须绑定原始已认证成员和连接端点；不能把“可以贴出 Agent Card”当作拥有 Agent 的证明。更换控制者或端点需要重新验证并撤销旧 Grant。该握手尚未实现，需独立安全与互通测试。
+认领链接不是执行令牌。不能把“可以贴出 Agent Card”当作拥有 Agent 的证明。更换运行环境需要重新登记并认领，原有生效绑定随之撤销。
 
 Agent Card 使用标准 `/.well-known/agent-card.json` 发现方式或管理员明确登记的位置；`supportedInterfaces` 声明 JSONRPC 与 protocolVersion 1.0。Card 的 skills 是外部能力描述，映射为经过成员确认的 Capability，不自动发布所有工具。
 
@@ -88,7 +90,7 @@ SSE 事件以 Task/Artifact 标识去重和汇总；不假设 SSE 服务一定�
 ## 互通验收门槛
 
 1. 两个独立进程使用固定官方 SDK；核对 Card、版本、扩展与 HTTPS/身份。
-2. 拒绝伪造 principal、跨社区 Grant、错误 audience、过期/撤销授权和重放绑定挑战。
+2. 拒绝伪造 principal、跨社区 Grant、错误 audience、过期/撤销授权，以及过期、已作废或已被认领的认领链接。
 3. 验证 SendMessage、GetTask、流式状态、Artifact 内容和取消，证据明确标注真实/模拟。
 4. 注入响应丢失、进程重启、重复事件、乱序事件与未知执行结果，不重复产生副作用。
 5. 验证 completed 不会自动生成 accepted Request/Attestation。

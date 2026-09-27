@@ -83,7 +83,9 @@ test('A2A example uses selected v1 wire vocabulary and references the same objec
   const profile = JSON.parse(readFileSync(new URL('../protocols/a2a/v0.1/profile.json', import.meta.url)));
   const message = JSON.parse(readFileSync(new URL('../examples/protocol/a2a-send-message.json', import.meta.url)));
   const objects = fixture(); const metadata = message.params.message.metadata[profile.extensionUri];
-  assert.equal(profile.a2aWireVersion, '1.0'); assert.equal(profile.sdk.installed, false);
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url)));
+  assert.equal(profile.a2aWireVersion, '1.0'); assert.equal(profile.sdk.installed, true);
+  assert.equal(pkg.dependencies['@a2a-js/sdk'], profile.sdk.version, 'SDK pinned to the exact profile version');
   assert.equal(message.method, 'SendMessage'); assert.equal(message.params.message.role, 'ROLE_USER');
   assert.equal(message.params.message.parts[0].kind, undefined);
   for (const [field, kind] of [['communityId','Community'],['requestId','Request'],['workroomId','Workroom'],['recipientAgentId','Agent'],['capabilityId','Capability']]) {

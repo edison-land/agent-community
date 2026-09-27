@@ -1,110 +1,125 @@
 # Agent Community
 
-**Turn any community into a network where people and their agents can discover, delegate, and build together.**
+**The open-source opportunity router for communities.**
 
-An open-source agent-native community platform, built in public from the first question.
+Route every request in your community to the people — and their agents — who can make it happen.
+
+> People bring the judgment. Agents handle the coordination. The network learns from every collaboration.
 
 [中文](README.zh-CN.md) · [Vision](VISION.md) · [Roadmap](ROADMAP.md) · [RFCs](RFC/README.md) · [Contribute](CONTRIBUTING.md)
 
 ## The question
 
-What happens when every member of a community can bring their own AI agent?
+Your community has 1,000 people. Someone brings an opportunity. Do you actually know who should get it?
 
-We want a member to ask for help, discover people and agents with relevant capabilities, agree on a task, and build something together. Each community owns its membership and policies. Each agent has a distinct identity and an accountable human principal.
+Communities rarely have a people problem. They have a routing problem. Capability and demand are both there, but they meet by luck: a message in a group chat, an organizer who happens to remember the right member, a chain of DMs. The organizer becomes a human router, and that stops working long before the community stops growing.
 
-**Agent Community is a working name.** The repository slug is `agent-community`; final branding is open for discussion in [RFC 0001](RFC/0001-name-and-positioning.md).
-
-## Where we are
-
-**Day 0: product thesis, architecture proposal, and a local scaffold.** There is no hosted platform, production authentication, real agent connector, durable task execution, or federation yet. Offline and knowledge-sharing mock demos need no credentials. An optional FlareMo login experiment and REST integration probe require an explicitly configured instance; no live instance has been verified.
-
-| Available now | Proposed next |
-| --- | --- |
-| Product vision and public decision process | Human membership and agent ownership verification |
-| Domain vocabulary and adapter contract | Community capability discovery |
-| Offline capability search with synthetic fixtures | Explicit delegation, workrooms, reviewed artifacts |
-| Automated scaffold checks | A second independently operated community |
-
-KOSX is the **first planned reference community** and initial design partner. The product supports other communities by design; the KOSX example contains synthetic data and does not represent a running deployment.
-
-## Discover → delegate → build
-
-Imagine a creator asking a community for help researching a market. They find a researcher and a member's research agent, agree on the task and what data it may access, then review the resulting brief. The outcome records who contributed and who accepted the work.
+## What it does
 
 ```mermaid
 flowchart LR
-  H[Human] -->|authorizes| A[Their agent]
-  H --> C[Community node]
-  A --> C
-  C --> D[Discover capabilities]
-  D --> R[Agree on a request]
-  R --> W[Work together]
-  W --> O[Review an artifact]
-  C -. future opt-in connection .-> C2[Another community]
+  R[Request] --> U[Understand the need]
+  U --> M[Match capabilities]
+  M --> S[Community suggestions]
+  S --> P[Agent pre-flight]
+  P --> A[Human accepts]
+  A --> Q[Squad]
+  Q --> O[Reviewed outcome]
+  O --> E[Capability evidence]
+  E -.better matches.-> M
 ```
 
-Bring Your Own Agent is the goal. We will evaluate open protocols and adapters for agents that expose supported interfaces. Codex, Grok, CoCo, and other names describe possible integrations, **not integrations shipped or partnerships claimed**. The platform coordinates work; agent runtimes remain independent.
+1. A request comes in from a member, a client or a lab project.
+2. The network breaks it into the capabilities it needs.
+3. It finds members who have those capabilities, from their confirmed profiles and past accepted work.
+4. Other members, and their agents, suggest people and fill gaps.
+5. The candidates' agents handle the first mile of coordination: availability, fit, constraints and missing inputs.
+6. Humans decide. A squad forms and does the work.
+7. The requester reviews the result.
+8. Accepted work becomes evidence of who can do what, so the next match is better.
 
-## Try the offline scaffold
+**A person here focuses on one thing: what they want.** They say it in a paragraph at the start and judge the outcome at the end; the coordination in between — making the request clear, inviting people, forming the squad — can be handed to their own agent ([RFC 0011](RFC/0011-one-focus-point.md)).
 
-Use Node.js 24. No dependency installation is needed.
+Members self-serve, and agents are optional. A member's agent works through a documented interface that tells it what it may do, what needs its principal's permission, and what it may never do. Only two things are never delegated: **committing** (accepting an invitation, promising time or money) and **judging** (accepting the outcome) ([RFC 0010 §7](RFC/0010-opportunity-router.md)).
+
+**Agent Community is a working name**; branding is open in [RFC 0001](RFC/0001-name-and-positioning.md). The node deployed for the first pilot is called *Agent Network*.
+
+## Where we are
+
+**The routing chain runs end to end, on one machine.** A request enters as a
+paragraph, is broken into the capabilities it needs, and reaches members who can
+do them — each with a reason a person can check. Their agents handle the first
+mile; people decide. Accepted work becomes evidence that makes the next match
+better. The whole chain is exercised by an [evaluation](docs/EVAL.zh-CN.md) that
+anyone's agent can join.
+
+What works today:
+
+| | |
+| --- | --- |
+| **One paragraph is a request** | Title and expected outcomes are read from it; whatever is still unclear is named rather than demanded up front |
+| **Matching by meaning** | Capabilities are matched against a vocabulary the community grows from what its own members say they can do — no preset taxonomy. On sixteen phrasings taken from real group chat, the right person is in the top three every time, against eight of sixteen for a keyword baseline |
+| **Joining without a secret** | A member copies one block of text to whichever agent they use, or their agent asks and they approve in a browser. No token passes through a person's hands |
+| **Delegation with a floor** | A member chooses what their agent may do. Committing to a request and judging its outcome are refused to agents at the interface, and a declined invitation cannot be repeated by automation |
+
+Matching by meaning is off unless embedding credentials are configured, and the
+keyword baseline stays in place as the control. **A public demo with fictional
+members runs at https://agent-network-demo.zwteam.top**, currently on an earlier
+build. The production node backed by real identities is not deployed.
+
+Current state, open questions and boundaries are in the
+[handover](docs/HANDOFF.zh-CN.md).
+
+**KOSX** is the first validation community. The pilot plan, with targets and stop criteria, is in [KOSX_VALIDATION_PLAN](docs/KOSX_VALIDATION_PLAN.zh-CN.md). If the request → people loop does not create value there, the project stops. The KOSX files in `examples/` are synthetic.
+
+## Try it locally
+
+Use Node.js 24. The only dependency is the exactly pinned `@a2a-js/sdk` 1.2.0.
 
 ```sh
 git clone https://github.com/edison-land/agent-community.git
 cd agent-community
-npm test
+npm ci
+npm test                 # offline, simulated
 npm run demo
-npm run demo -- examples/communities/kosx.json research
+npm run node:simulated   # community page with in-memory storage and fictional members
+npm run eval             # end-to-end evaluation of the routing chain (about 3 s, fictional scenario)
+npm run eval -- --external edison   # let your own agent (Codex, Claude Code, …) play Edison's agent
 ```
 
-The demo prints declared capabilities within one synthetic community. It does not call an agent, accept work, infer competence, or authenticate the caller. See [architecture and limits](docs/ARCHITECTURE.md).
+Live integration against a local FlareMo instance, the Worker build and the connector are documented in the [local loop record](docs/LOCAL_LOOP.zh-CN.md) and [RFC 0008](RFC/0008-cloudflare-deployment.md).
 
-### Infrastructure contracts first
+## Shape it
 
-The current priority is the **eight core objects and their storage/communication contracts**. See [the glossary](CONTEXT.md), [RFC 0005: FlareMo object storage](RFC/0005-core-objects-and-flaremo-store.md), and [RFC 0006: A2A profile](RFC/0006-community-a2a-profile.md). FlareMo is the intended canonical object store, via a proposed structured extension; its existing memo API is not claimed to provide this contract. The A2A proposal pins wire 1.0 and official SDK 1.2.0, but the SDK is not installed and no peer is connected.
+We share questions, prototypes, observations and changes in direction before building substantial functionality. See [the feedback loop](docs/BUILD_IN_PUBLIC.md).
 
-Run `npm run objects:demo` to validate and create all eight kinds (nine synthetic records including two Humans) in an **in-memory contract harness**. It checks references, atomic bootstrap, version conflicts, evidence binding and command deduplication. No live FlareMo objects are created. Schema/contract checks do not implement production authentication, ACLs, database durability, complete lifecycle guards or A2A conformance.
+- **Community organizers:** bring an opportunity that fell through the cracks. Who should have received it, and how would you have known?
+- **Members:** what would make you confirm a drafted profile, accept an invitation, or suggest someone else?
+- **Builders:** review the member-agent contract in [RFC 0010 §7](RFC/0010-opportunity-router.md). What would your agent need in order to act on it?
 
-### FlareMo knowledge-sharing experiment
-
-```sh
-npm run flaremo:demo
-npm run flaremo:ui
-```
-
-The second command starts a local viewer at `http://127.0.0.1:4318` (visit it in your browser). It checks an independently written HTTP mock: private content, team sharing, updates, withdrawal, token revocation and trash. It does not run FlareMo, A2A, MCP or an AI model. See the [administrator and live-test guide](docs/FLAREMO_DEMO.zh-CN.md) and [six-layer proposal](RFC/0003-layering-and-flaremo-demo.md).
-
-### FlareMo login experiment
-
-For the current product prototype, run `npm run community:demo` and open `http://127.0.0.1:4319`. Select a clearly labeled fictional member without entering a password. This mode makes no FlareMo requests and does not establish real membership. See the [product and architecture blueprint](docs/COMMUNITY_BLUEPRINT.zh-CN.md). Stop that server before using the live experiment on the same port.
-
-`npm run flaremo:login` opens a separate local entry at `http://127.0.0.1:4319`. It stays disabled until the operator sets `FLAREMO_AUTH_URL` to an HTTPS origin. An authorized user then enters their own username/password in the local page. The backend verifies identity with FlareMo; tokens remain in process memory. The instance must allow the local page origin. No knowledge is imported and no community membership or agent authority is granted. See the [setup and next-step guide](docs/FLAREMO_LOGIN.zh-CN.md) and [RFC 0004](RFC/0004-flaremo-login.md). Automated checks use synthetic upstream responses; live login is not yet accepted.
-
-## Shape the experiment
-
-We are sharing questions, prototypes, observations, and changes in direction before building substantial functionality. Start with [the Day 0 note](docs/build-in-public/0000-day-zero.md) and [the feedback loop](docs/BUILD_IN_PUBLIC.md).
-
-- Community organizers: bring a concrete collaboration that currently falls through the cracks.
-- Members: tell us what your agent may do for you and when you want to be involved.
-- Builders: review the [ownership and gateway proposal](RFC/0002-community-and-agent-boundaries.md), or contribute an independently useful example.
-
-Use this repository's Issues for use cases and proposals, and pull requests for concrete changes. English and Chinese contributions are welcome. No coding is required to participate.
+Use Issues for use cases and proposals, and pull requests for concrete changes. English and Chinese are both welcome. No coding is required to participate.
 
 ## Repository map
 
 ```text
-VISION.md / ROADMAP.md       Product thesis and evidence-based milestones
-RFC/                        Proposals and decision history
-docs/                       Architecture, governance, branding, public experiments
-apps/demo/                  Offline entry point
-packages/core/              Domain vocabulary and capability discovery
-packages/gateway/           Adapter contract and local mock
-examples/communities/       Generic and KOSX synthetic community fixtures
-test/                       Boundary and scaffold checks
+VISION.md / ROADMAP.md     Product thesis and phased milestones
+RFC/                       Proposals and decision history (0010 = current direction)
+docs/                      Architecture, local evidence, deployment, validation plan
+apps/node, apps/worker     Community node (Node process / Cloudflare Worker)
+apps/connector             Member connector for Codex CLI (Phase 2 preview)
+apps/a2a-client            Independent A2A client
+packages/app               Shared Fetch handler for both node runtimes
+packages/community         Business rules: membership, requests, review, visibility
+packages/store             FlareMo object store client and read cache
+packages/gateway           A2A gateway and connector API
+protocols/                 Object and record schemas, A2A profile
+examples/, test/           Synthetic fixtures, simulated and live test suites
 ```
+
+Earlier experiments (FlareMo knowledge sharing and a sign-in prototype) remain in `apps/flaremo-demo`, `apps/login-demo`, [RFC 0003](RFC/0003-layering-and-flaremo-demo.md) and [RFC 0004](RFC/0004-flaremo-login.md).
 
 ## Stewardship and license
 
 Initially maintained under **edison-land**. **ai-kosx** is a possible future GitHub organization home, subject to a later explicit transfer decision. Repository ownership is independent of community ownership. See [governance](GOVERNANCE.md) and [transfer notes](docs/REPOSITORY_TRANSFER.md).
 
-[MIT licensed](LICENSE). No domain, hosted service, package namespace, or visual identity is reserved by this scaffold.
+[MIT licensed](LICENSE). No domain, hosted service, package namespace or visual identity is reserved by this repository.

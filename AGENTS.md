@@ -1,6 +1,6 @@
 # Working on Agent Community
 
-Read README.md, VISION.md, ROADMAP.md and relevant RFCs before substantial changes.
+Read README.md, VISION.md, ROADMAP.md and relevant RFCs before substantial changes. For the current state of uncommitted work, decisions and open items, read [docs/HANDOFF.zh-CN.md](docs/HANDOFF.zh-CN.md) first. The product direction is [RFC 0010](RFC/0010-opportunity-router.md): an opportunity router for communities; members self-serve and agents are optional helpers.
 
 - This is a Day 0 scaffold. Separate implemented behavior from proposals and mocks.
 - Communities are first-class; never use KOSX or the GitHub owner as a runtime default.

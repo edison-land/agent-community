@@ -1,0 +1,29 @@
+// Agent Community node on Cloudflare Workers + Durable Objects (RFC 0008,
+// runbook: docs/DEPLOY_CLOUDFLARE.zh-CN.md). Set with `wrangler secret put`, never here:
+//   FLAREMO_SERVICE_PAT      FlareMo PAT of the authorised community service account
+//   COMMUNITY_OWNER_SUBJECT  FlareMo resource name (users/...) allowed to create the community
+// Local development passes an --env-file kept outside the repository (scripts/local/worker.mjs).
+{
+  "name": "agent-network",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [{ "pattern": "agent-network.zwteam.top", "custom_domain": true }],
+  "assets": {
+    "directory": "../node/public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/a2a/*", "/connector/*", "/agent-onboarding.md", "/agents.md", "/.well-known/*", "/mcp", "/healthz"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "COMMUNITY_NODE", "class_name": "CommunityNode" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CommunityNode"] }],
+  "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
+  "vars": {
+    "PUBLIC_ORIGIN": "https://agent-network.zwteam.top",
+    "FLAREMO_URL": "https://flaremo.kosx.ai"
+  },
+  "observability": { "enabled": true }
+}

@@ -1,25 +1,29 @@
-import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+// JSON imports work in Node 24 and in the Cloudflare Workers bundler alike.
+import objectSchemaJson from '../../protocols/community/v0.1/object.schema.json' with { type: 'json' };
+import recordSchemaJson from '../../protocols/community/v0.1/record.schema.json' with { type: 'json' };
 
-export const objectSchema = JSON.parse(readFileSync(new URL('../../protocols/community/v0.1/object.schema.json', import.meta.url)));
+export const objectSchema = objectSchemaJson;
+export const recordSchema = recordSchemaJson;
 export const objectKinds = objectSchema.properties.kind.enum;
+export const recordKinds = recordSchema.properties.kind.enum;
 const fail = code => { throw new Error(code); };
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // Deliberately limited to the keywords used by the bundled contract. Not a general
 // JSON Schema engine or an authorization boundary; unknown keywords fail closed.
-function check(schema, value) {
-  const supported = ['$schema', '$defs', 'title', '$ref', 'oneOf', 'type', 'const', 'enum', 'properties', 'required', 'additionalProperties', 'items', 'minItems', 'maxItems', 'uniqueItems', 'minLength', 'maxLength', 'pattern', 'minimum', 'format'];
+function check(schema, value, root = objectSchema) {
+  const supported = ['$schema', '$defs', 'title', 'description', '$ref', 'oneOf', 'type', 'const', 'enum', 'properties', 'required', 'additionalProperties', 'items', 'minItems', 'maxItems', 'uniqueItems', 'minLength', 'maxLength', 'pattern', 'minimum', 'maximum', 'format'];
   if (Object.keys(schema).some(key => !supported.includes(key))) fail('UNSUPPORTED_SCHEMA_KEYWORD');
   if (schema.$ref) {
     if (!schema.$ref.startsWith('#/$defs/')) fail('UNSUPPORTED_SCHEMA_REF');
-    const target = objectSchema.$defs[schema.$ref.slice(8)];
+    const target = root.$defs[schema.$ref.slice(8)];
     if (!target) fail('UNKNOWN_SCHEMA_REF');
-    check(target, value);
+    check(target, value, root);
   }
   if (schema.oneOf) {
-    const matches = schema.oneOf.filter(branch => { try { check(branch, value); return true; } catch { return false; } });
+    const matches = schema.oneOf.filter(branch => { try { check(branch, value, root); return true; } catch { return false; } });
     if (matches.length !== 1) fail('SCHEMA_UNION_MISMATCH');
   }
   if (Object.hasOwn(schema, 'const') && !equal(schema.const, value)) fail('SCHEMA_CONST');
@@ -28,12 +32,14 @@ function check(schema, value) {
   if (schema.type === 'array' && !Array.isArray(value)) fail('SCHEMA_ARRAY');
   if (schema.type === 'string' && typeof value !== 'string') fail('SCHEMA_STRING');
   if (schema.type === 'integer' && !Number.isSafeInteger(value)) fail('SCHEMA_INTEGER');
+  if (schema.type === 'boolean' && typeof value !== 'boolean') fail('SCHEMA_BOOLEAN');
   if (schema.minimum !== undefined && value < schema.minimum) fail('SCHEMA_MINIMUM');
+  if (schema.maximum !== undefined && value > schema.maximum) fail('SCHEMA_MAXIMUM');
   if (schema.properties) {
     if (!record(value)) fail('SCHEMA_OBJECT');
     for (const key of schema.required ?? []) if (!Object.hasOwn(value, key)) fail('SCHEMA_REQUIRED');
     for (const [key, item] of Object.entries(value)) {
-      if (Object.hasOwn(schema.properties, key)) check(schema.properties[key], item);
+      if (Object.hasOwn(schema.properties, key)) check(schema.properties[key], item, root);
       else if (schema.additionalProperties === false) fail('SCHEMA_UNKNOWN_FIELD');
     }
   }
@@ -50,7 +56,7 @@ function check(schema, value) {
   if (Array.isArray(value)) {
     if (value.length < (schema.minItems ?? 0) || value.length > (schema.maxItems ?? Infinity)) fail('SCHEMA_ITEMS');
     if (schema.uniqueItems && new Set(value.map(item => JSON.stringify(item))).size !== value.length) fail('SCHEMA_DUPLICATE_ITEMS');
-    if (schema.items) for (const item of value) check(schema.items, item);
+    if (schema.items) for (const item of value) check(schema.items, item, root);
   }
 }
 
@@ -58,6 +64,13 @@ export function validateObject(value) {
   check(objectSchema, value);
   if (value.updatedAt < value.createdAt) fail('TIME_REVERSED');
   if (value.kind === 'Community' && value.communityId !== value.id) fail('COMMUNITY_ID_MISMATCH');
+  return true;
+}
+
+/** Supporting records (RFC 0007): strict shape only; business rules live in the service. */
+export function validateRecord(value) {
+  check(recordSchema, value, recordSchema);
+  if (value.updatedAt < value.createdAt) fail('TIME_REVERSED');
   return true;
 }
 
@@ -89,13 +102,14 @@ export function validateGraph(objects, historical = () => undefined) {
       case 'Capability': get(d.providerId, d.providerKind); break;
       case 'Request':
         get(d.requesterHumanId, 'Human');
-        d.capabilityIds.forEach(id => get(id, 'Capability'));
+        (d.capabilityIds ?? []).forEach(id => get(id, 'Capability'));
         if (d.status === 'accepted' && !objects.some(item => item.kind === 'Attestation' && item.lifecycle === 'active' && item.data.requestId === object.id && item.data.status === 'issued' && item.data.outcome === 'accepted' && item.data.issuerHumanId === d.requesterHumanId)) fail('ACCEPTANCE_EVIDENCE_REQUIRED');
         break;
       case 'Workroom': {
         const request = get(d.requestId, 'Request');
         d.participantHumanIds.forEach(id => get(id, 'Human'));
         if (!d.participantHumanIds.includes(request.data.requesterHumanId)) fail('REQUESTER_NOT_IN_WORKROOM');
+        for (const role of d.roles ?? []) if (!d.participantHumanIds.includes(role.humanId)) fail('ROLE_NOT_IN_WORKROOM');
         for (const id of d.participantAgentIds) if (!d.participantHumanIds.includes(get(id, 'Agent').data.principalId)) fail('PRINCIPAL_NOT_IN_WORKROOM');
         if (object.visibility.scope === 'workroom' && object.visibility.workroomId !== object.id) fail('WORKROOM_SCOPE_MISMATCH');
         break;

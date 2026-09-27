@@ -1,6 +1,6 @@
 # RFC 0001 — Name and positioning
 
-Status: Draft
+Status: Draft. The positioning below is superseded by [RFC 0010](0010-opportunity-router.md) (2026-09-22); the naming question remains open.
 Author: project maintainers
 Discussion: repository Issues or a linked PR
 Decision date: pending

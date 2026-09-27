@@ -1,5 +1,5 @@
 {
-  "status": "draft-profile-not-implemented",
+  "status": "draft-profile-implemented-locally",
   "communityProfile": "0.1.0",
   "a2aWireVersion": "1.0",
   "a2aSpecificationRelease": "v1.0.1",
@@ -9,7 +9,7 @@
     "package": "@a2a-js/sdk",
     "version": "1.2.0",
     "license": "Apache-2.0",
-    "installed": false
+    "installed": true
   },
   "extensionUri": "urn:uuid:8e7639ad-01a8-4e1d-9423-d7417db3ec09",
   "extensionVersion": "0.1.0",

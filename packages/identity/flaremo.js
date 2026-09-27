@@ -36,8 +36,12 @@ export function createFlareMoLogin({ baseUrl, allowLocal = false, timeoutMs = 10
       const response = await fetch(`${origin}/api/v1/auth/${route}`, {
         method: route === 'me' ? 'GET' : 'POST', headers,
         body: credentials ? JSON.stringify({ passwordCredentials: credentials }) : undefined,
-        redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
+        redirect: 'manual', signal: AbortSignal.timeout(timeoutMs),
       });
+      if (response.status >= 300 && response.status < 400) {
+        await response.body?.cancel();
+        throw new LoginError('FLAREMO_REDIRECT_REFUSED');
+      }
       if (!response.ok) {
         await response.body?.cancel();
         const status = [401, 403, 429].includes(response.status) ? response.status : 502;

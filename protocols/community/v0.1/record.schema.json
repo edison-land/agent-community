@@ -1,0 +1,1080 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Community supporting record v0.1 (draft contract, RFC 0007)",
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "community-records"
+    },
+    "schemaVersion": {
+      "const": "0.1.0"
+    },
+    "kind": {
+      "enum": [
+        "Membership",
+        "IdentityLink",
+        "AgentBinding",
+        "Grant",
+        "Execution",
+        "Invitation",
+        "Match",
+        "Suggestion",
+        "Preflight",
+        "Consent",
+        "AgentToken"
+      ]
+    },
+    "id": {
+      "$ref": "#/$defs/Urn"
+    },
+    "communityId": {
+      "$ref": "#/$defs/Urn"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "createdAt": {
+      "$ref": "#/$defs/Time"
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/Time"
+    },
+    "lifecycle": {
+      "enum": [
+        "active",
+        "tombstoned"
+      ]
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "protocol",
+    "schemaVersion",
+    "kind",
+    "id",
+    "communityId",
+    "revision",
+    "createdAt",
+    "updatedAt",
+    "lifecycle",
+    "actor",
+    "data"
+  ],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "Membership"
+        },
+        "data": {
+          "$ref": "#/$defs/Membership"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "IdentityLink"
+        },
+        "data": {
+          "$ref": "#/$defs/IdentityLink"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "AgentBinding"
+        },
+        "data": {
+          "$ref": "#/$defs/AgentBinding"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Grant"
+        },
+        "data": {
+          "$ref": "#/$defs/Grant"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Execution"
+        },
+        "data": {
+          "$ref": "#/$defs/Execution"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Invitation"
+        },
+        "data": {
+          "$ref": "#/$defs/Invitation"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Match"
+        },
+        "data": {
+          "$ref": "#/$defs/Match"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Suggestion"
+        },
+        "data": {
+          "$ref": "#/$defs/Suggestion"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Preflight"
+        },
+        "data": {
+          "$ref": "#/$defs/Preflight"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "Consent"
+        },
+        "data": {
+          "$ref": "#/$defs/Consent"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "AgentToken"
+        },
+        "data": {
+          "$ref": "#/$defs/AgentToken"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "Urn": {
+      "type": "string",
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "Time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "Actor": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "Human",
+            "Agent"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/Urn"
+        },
+        "principalId": {
+          "$ref": "#/$defs/Urn"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "principalId"
+      ],
+      "additionalProperties": false
+    },
+    "Membership": {
+      "type": "object",
+      "properties": {
+        "humanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "role": {
+          "enum": [
+            "owner",
+            "member"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "suspended",
+            "left",
+            "removed"
+          ]
+        }
+      },
+      "required": [
+        "humanId",
+        "role",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "IdentityLink": {
+      "type": "object",
+      "properties": {
+        "humanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "provider": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 500
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^users/[A-Za-z0-9_-]{1,200}$"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "revoked"
+          ]
+        }
+      },
+      "required": [
+        "humanId",
+        "provider",
+        "subject",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Connector": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Label"
+        },
+        "platform": {
+          "$ref": "#/$defs/Label"
+        },
+        "runtime": {
+          "enum": [
+            "codex-cli"
+          ]
+        },
+        "runtimeVersion": {
+          "$ref": "#/$defs/Label"
+        },
+        "model": {
+          "$ref": "#/$defs/Label"
+        },
+        "instructionIsolation": {
+          "enum": [
+            "isolated-codex-home",
+            "personal-codex-home"
+          ]
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Label"
+          },
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "name",
+        "platform",
+        "runtime",
+        "runtimeVersion",
+        "model",
+        "instructionIsolation",
+        "fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "AgentBinding": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "principalId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "revoked"
+          ]
+        },
+        "connector": {
+          "$ref": "#/$defs/Connector"
+        },
+        "credentialHash": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "deviceId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "claimedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "rotatedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "revokedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "revokedReason": {
+          "$ref": "#/$defs/Label"
+        }
+      },
+      "required": [
+        "agentId",
+        "principalId",
+        "status",
+        "connector",
+        "credentialHash",
+        "deviceId",
+        "claimedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Material": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/Label"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,80}/[a-z0-9._-]{1,120}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "mediaType": {
+          "$ref": "#/$defs/Label"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "title",
+        "path",
+        "sha256",
+        "mediaType",
+        "bytes"
+      ],
+      "additionalProperties": false
+    },
+    "Grant": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "workroomId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "agentId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "capabilityId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "grantorHumanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "requesterHumanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "execute-research-report"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 1,
+          "uniqueItems": true
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "minItems": 0,
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "runtime": {
+          "enum": [
+            "codex-cli"
+          ]
+        },
+        "model": {
+          "$ref": "#/$defs/Label"
+        },
+        "instructionIsolation": {
+          "enum": [
+            "isolated-codex-home",
+            "personal-codex-home"
+          ]
+        },
+        "timeLimitSeconds": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3600
+        },
+        "costBearer": {
+          "const": "grantor-model-account"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "revoked",
+            "expired",
+            "consumed"
+          ]
+        },
+        "revokedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "revision": {
+          "$ref": "#/$defs/Revision"
+        }
+      },
+      "required": [
+        "requestId",
+        "workroomId",
+        "agentId",
+        "capabilityId",
+        "grantorHumanId",
+        "requesterHumanId",
+        "actions",
+        "materials",
+        "runtime",
+        "model",
+        "instructionIsolation",
+        "timeLimitSeconds",
+        "costBearer",
+        "expiresAt",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Progress": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Time"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "at",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "A2ATask": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "$ref": "#/$defs/Label"
+        },
+        "contextId": {
+          "$ref": "#/$defs/Label"
+        },
+        "state": {
+          "enum": [
+            "TASK_STATE_SUBMITTED",
+            "TASK_STATE_WORKING",
+            "TASK_STATE_COMPLETED",
+            "TASK_STATE_FAILED",
+            "TASK_STATE_CANCELED",
+            "TASK_STATE_INPUT_REQUIRED",
+            "TASK_STATE_REJECTED",
+            "TASK_STATE_AUTH_REQUIRED"
+          ]
+        },
+        "messageId": {
+          "$ref": "#/$defs/Label"
+        }
+      },
+      "required": [
+        "taskId",
+        "contextId",
+        "state",
+        "messageId"
+      ],
+      "additionalProperties": false
+    },
+    "Usage": {
+      "type": "object",
+      "properties": {
+        "inputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cachedInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "inputTokens",
+        "outputTokens"
+      ],
+      "additionalProperties": false
+    },
+    "Execution": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "workroomId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "grantId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "agentId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "status": {
+          "enum": [
+            "authorized",
+            "queued",
+            "claimed",
+            "running",
+            "succeeded",
+            "failed",
+            "cancel-requested",
+            "cancelled",
+            "rejected",
+            "unknown"
+          ]
+        },
+        "idempotencyKey": {
+          "$ref": "#/$defs/Label"
+        },
+        "callerCredentialHash": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "callerCredentialExpiresAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "a2a": {
+          "$ref": "#/$defs/A2ATask"
+        },
+        "claimCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claimedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "startedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "finishedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "cancelRequestedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "cancelConfirmed": {
+          "type": "boolean"
+        },
+        "failureCode": {
+          "$ref": "#/$defs/Label"
+        },
+        "progress": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Progress"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "artifactId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        }
+      },
+      "required": [
+        "requestId",
+        "workroomId",
+        "grantId",
+        "agentId",
+        "status",
+        "idempotencyKey",
+        "callerCredentialHash",
+        "callerCredentialExpiresAt",
+        "claimCount",
+        "progress"
+      ],
+      "additionalProperties": false
+    },
+    "Revision": {
+      "type": "object",
+      "properties": {
+        "round": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 20
+        },
+        "artifactId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "artifactRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "artifactSha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "attestationId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "feedback": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "round",
+        "artifactId",
+        "artifactRevision",
+        "artifactSha256",
+        "attestationId",
+        "feedback"
+      ],
+      "additionalProperties": false
+    },
+    "Invitation": {
+      "type": "object",
+      "properties": {
+        "issuerHumanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "role": {
+          "enum": [
+            "member"
+          ]
+        },
+        "codeHash": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "maxUses": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "uses": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "exhausted",
+            "revoked"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/Label"
+        }
+      },
+      "required": [
+        "issuerHumanId",
+        "role",
+        "codeHash",
+        "maxUses",
+        "uses",
+        "expiresAt",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Match": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "humanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "needIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{1,40}$"
+          },
+          "maxItems": 12,
+          "uniqueItems": true
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "maxItems": 12
+        },
+        "source": {
+          "enum": [
+            "system",
+            "suggestion",
+            "agent"
+          ]
+        },
+        "status": {
+          "enum": [
+            "invited",
+            "accepted",
+            "declined",
+            "withdrawn"
+          ]
+        },
+        "invitedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "invitedByAgentId": {
+          "description": "The agent that sent this invitation for the requester (RFC 0011). Stable: unlike the entity actor, it is not overwritten when the invited member responds. Plain data, not a typed reference, so the FlareMo extension needs no change.",
+          "$ref": "#/$defs/Urn"
+        },
+        "respondedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "requestId",
+        "humanId",
+        "needIds",
+        "score",
+        "reasons",
+        "source",
+        "status",
+        "invitedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Suggestion": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "authorHumanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "kind": {
+          "enum": [
+            "candidate",
+            "need",
+            "question"
+          ]
+        },
+        "candidateHumanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "need": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            }
+          },
+          "required": [
+            "tag",
+            "title"
+          ],
+          "additionalProperties": false
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        }
+      },
+      "required": [
+        "requestId",
+        "authorHumanId",
+        "kind",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "Preflight": {
+      "type": "object",
+      "properties": {
+        "matchId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "requestId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "humanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,40}$"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "id",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "answers": {
+          "type": "object",
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "hoursPerWeek": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 80
+            },
+            "canOwn": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,40}$"
+              },
+              "maxItems": 12,
+              "uniqueItems": true
+            },
+            "constraints": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "needsInput": {
+              "type": "string",
+              "maxLength": 600
+            }
+          },
+          "required": [
+            "available",
+            "hoursPerWeek",
+            "canOwn"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "enum": [
+            "requested",
+            "answered"
+          ]
+        },
+        "draftedBy": {
+          "enum": [
+            "human",
+            "agent"
+          ]
+        },
+        "answeredAt": {
+          "$ref": "#/$defs/Time"
+        }
+      },
+      "required": [
+        "matchId",
+        "requestId",
+        "humanId",
+        "questions",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Consent": {
+      "type": "object",
+      "properties": {
+        "humanId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "agreementVersion": {
+          "$ref": "#/$defs/Label"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "profile-drafting-from-community-activity",
+              "matching"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "active",
+            "withdrawn"
+          ]
+        },
+        "signedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "withdrawnAt": {
+          "$ref": "#/$defs/Time"
+        }
+      },
+      "required": [
+        "humanId",
+        "agreementVersion",
+        "scopes",
+        "status",
+        "signedAt"
+      ],
+      "additionalProperties": false
+    },
+    "AgentToken": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "principalId": {
+          "$ref": "#/$defs/Urn"
+        },
+        "tokenHash": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "read",
+              "profile:draft",
+              "request:draft",
+              "suggest",
+              "preflight:draft",
+              "squad:write",
+              "route"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "active",
+            "revoked"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "revokedAt": {
+          "$ref": "#/$defs/Time"
+        },
+        "label": {
+          "$ref": "#/$defs/Label"
+        }
+      },
+      "required": [
+        "agentId",
+        "principalId",
+        "tokenHash",
+        "scopes",
+        "status",
+        "expiresAt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

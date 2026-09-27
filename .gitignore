@@ -10,3 +10,7 @@ coverage/
 dist/
 work/
 outputs/
+.wrangler/
+.dev.vars*
+apps/node/public/connector.mjs
+apps/node/public/connector.json

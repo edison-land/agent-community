@@ -1,0 +1,33 @@
+:root{--ink:#172b39;--muted:#5a6f7c;--line:#d9e2e5;--brand:#126b59;--soft:#e9efeb;--warn:#8a5a00;--warn-bg:#fff4dc;--bad:#9b2c2c;--bad-bg:#fdecec;--bg:#f5f7f5;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+*{box-sizing:border-box}body{margin:0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 24px;border-bottom:1px solid var(--line);background:#fff}
+.brand b{letter-spacing:.08em;margin-right:12px}.meta{display:flex;gap:12px;align-items:center;font-size:14px;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:999px;font-size:12px;background:var(--soft);color:var(--brand)}.badge.sim{background:var(--warn-bg);color:var(--warn)}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 80px}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}nav.tabs button{background:#fff;color:var(--ink);border:1px solid var(--line)}nav.tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+h1{font-size:26px;margin:8px 0 12px}h2{font-size:18px;margin:0 0 10px}h3{font-size:15px;margin:14px 0 6px}
+p,li,td,th,label{font-size:14px}.muted{color:var(--muted)}
+label{display:block;margin:10px 0 4px;font-weight:600}input,textarea,select{width:100%;font:inherit;padding:9px 10px;border:1px solid #b5c7c0;border-radius:8px;background:#fff}textarea{min-height:90px}
+button{font:inherit;border:0;border-radius:8px;padding:8px 14px;background:var(--brand);color:#fff;cursor:pointer}button.secondary{background:var(--soft);color:var(--brand)}button.danger{background:var(--bad-bg);color:var(--bad)}button.link{background:none;color:var(--brand);padding:0}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.status{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;background:var(--soft);color:var(--brand)}.status.warn{background:var(--warn-bg);color:var(--warn)}.status.bad{background:var(--bad-bg);color:var(--bad)}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+pre{white-space:pre-wrap;word-break:break-word;background:#f8faf9;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;max-height:520px;overflow:auto}
+code,.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.table{overflow-x:auto}
+ol.timeline{padding-left:18px}ol.timeline li{padding:2px 0}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:8px 0}dt{color:var(--muted);font-size:13px}dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}#toast.show{opacity:1}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}header{padding:12px 16px}}
+.row h1,.row h2{margin:0}.row>.grow{flex:1 1 280px}label.check{font-weight:400}label.check input{width:auto;margin-right:8px}
+.row label{font-weight:400;display:flex;gap:6px;align-items:center;margin:4px 0}.row label input{width:auto;max-width:12em}
+.profile h3{margin:12px 0 4px}.profile p{margin:4px 0}.small{font-size:12px}
+.caps{display:grid;gap:8px}.cap-item{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:10px 12px}.cap-item p{margin:2px 0 0}.cap-item>.grow{flex:1 1 auto}
+.cap-edit{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:6px}.cap-edit textarea{min-height:60px}
+.subcard{border-top:1px solid var(--line);margin-top:12px;padding-top:6px}
+ol.flow{padding-left:20px;margin:6px 0 10px}ol.flow li{padding:2px 0;font-size:14px}
+details{margin:10px 0}summary{cursor:pointer;color:var(--brand);font-size:14px}
+[hidden]{display:none!important}
+.cap-edit .link{justify-self:start}
