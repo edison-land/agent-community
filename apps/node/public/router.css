@@ -118,13 +118,39 @@ main > div > .card:nth-child(n+5) { animation-delay: .2s }
 @keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
 
 h1 { font-size: 27px; line-height: 1.35; letter-spacing: -.015em; margin: 0 0 10px; font-weight: 650 }
-h2 { font-size: 17px; margin: 0 0 10px; font-weight: 650; letter-spacing: -.01em }
+h2 { font-size: 18px; margin: 0 0 12px; font-weight: 650; letter-spacing: -.015em }
 h3 { font-size: 14px; margin: 18px 0 6px; font-weight: 650; color: var(--ink-2); letter-spacing: .02em }
 p { margin: 6px 0 }
 ul, ol { margin: 6px 0; padding-left: 20px }
 li { margin: 3px 0 }
 .muted { color: var(--ink-2) }
 .small { font-size: 12.5px }
+
+/* ---------- the way in ---------- */
+/*
+ * No card here. A bordered rectangle around a form field is not design, and on
+ * a first screen it says nothing. What earns the space is the sentence that
+ * tells someone what this is, one obvious way in, and a quieter second one.
+ */
+.entry { display: grid; place-items: center; min-height: calc(100vh - 210px); padding: 24px 0 }
+.entry-body { width: 100%; max-width: 470px; animation: rise .6s var(--ease) both }
+.eyebrow {
+  font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3); margin: 0 0 18px; font-weight: 600;
+}
+.entry-body h1 { font-size: 30px; line-height: 1.42; letter-spacing: -.02em; margin: 0 0 16px; font-weight: 650 }
+.lede { font-size: 14.5px; line-height: 1.85; color: var(--ink-2); margin: 0 0 30px; max-width: 42ch }
+.lede a { color: var(--accent); text-decoration: none }
+
+.field { display: flex; gap: 10px; align-items: stretch }
+.field > select, .field > input { flex: 1 1 auto; height: 44px; padding: 0 14px; border-radius: 12px }
+.field > button { flex: 0 0 auto; height: 44px; padding: 0 22px; border-radius: 12px; font-size: 14.5px }
+.field-label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+.entry-alt { font-size: 13px; color: var(--ink-3); margin: 18px 0 0; line-height: 1.9 }
+.entry-alt .link { font-size: 13px; margin-left: 6px }
+.entry-guest { margin-top: 14px; animation: rise .38s var(--ease) both }
 
 /* ---------- the one field that matters ---------- */
 .card.ask {
@@ -153,8 +179,16 @@ input, textarea, select {
   width: 100%; font: inherit; color: var(--ink);
   padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--r);
   background: var(--surface);
-  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
 }
+select {
+  appearance: none; padding-right: 36px; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 19px) calc(50% + 1px), calc(100% - 13px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+select:hover { border-color: var(--ink-3) }
 textarea { min-height: 88px; line-height: 1.7 }
 input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft) }
 
@@ -207,12 +241,22 @@ label.check input { width: auto; margin-right: 8px }
 .notice ul { margin: 2px 0; padding-left: 18px }
 
 .caps { display: grid; gap: 10px }
+/*
+ * A bordered box inside a bordered box is the surest sign nobody designed the
+ * page. Rows inside a card are separated by a rule and a little air, and the
+ * card keeps the only border.
+ */
 .cap-item {
   display: flex; gap: 14px; align-items: flex-start; justify-content: space-between;
-  border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px;
-  transition: border-color .22s var(--ease), background .22s var(--ease);
+  border-radius: 12px; padding: 14px 14px 15px; margin: 0 -14px;
+  border-bottom: 1px solid var(--line);
+  transition: background .22s var(--ease);
 }
-.cap-item:hover { border-color: var(--line-strong); background: var(--surface-2) }
+.cap-item:hover { background: var(--surface-2) }
+.card > .cap-item:last-child, .cap-item + form, .cap-item:has(+ h3) { border-bottom: 0 }
+.card > .cap-item:last-of-type { border-bottom: 0 }
+.caps > .cap-item { border: 1px solid var(--line); margin: 0 }
+.caps > .cap-item:hover { border-color: var(--line-strong) }
 .cap-item > .grow { flex: 1 1 auto; min-width: 0 }
 .cap-item p { margin: 4px 0 0 }
 .cap-item .row > b { font-weight: 600 }

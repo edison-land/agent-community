@@ -80,17 +80,31 @@ function render() {
   views[tab](view).catch(error => view.append(h('div', { className: 'notice' }, error.message)));
 }
 
+/**
+ * The first thing anyone sees. It has one job before the form: say what this
+ * place is for. Then one way in, and a quieter second way for people who are
+ * not on the roster — not two identical boxes competing for the same click.
+ */
 function loginView() {
-  if (base.mode !== 'simulated') return h('div', { className: 'card' }, h('h2', {}, '请先在主页登录'), h('p', {}, h('a', { href: '/' }, '前往主页')));
+  if (base.mode !== 'simulated') return h('div', { className: 'entry' }, h('div', { className: 'entry-body' }, h('p', { className: 'eyebrow' }, '需要登录'), h('h1', {}, '请先在主页登录'), h('p', { className: 'lede' }, h('a', { href: '/' }, '前往主页 →'))));
   const select = h('select', { id: 'member' }, (base.demoMembers ?? []).map(member => h('option', { value: member.username }, member.displayName)));
-  const guest = h('input', { id: 'guest-name', maxlength: 40, placeholder: '例如：小王' });
+  const guest = h('input', { id: 'guest-name', maxlength: 40, placeholder: '你的名字' });
   const slug = () => `guest-${Math.random().toString(36).slice(2, 8)}`;
-  return h('div', {},
-    h('form', { className: 'card', onsubmit: run(async () => { await api('/login', { username: select.value }); await load(); }) },
-      h('h1', {}, '以虚构成员登录'), h('p', { className: 'muted' }, '演示里的成员都是虚构的，不需要密码。选一位，看他们的机会、邀请和档案。'), h('label', { for: 'member' }, '成员'), select, h('p', {}, h('button', {}, '登录'))),
-    h('form', { className: 'card', onsubmit: run(async () => { await api('/login', { username: slug(), displayName: guest.value || '访客' }); await load(); }) },
-      h('h2', {}, '或者以访客身份加入'), h('p', { className: 'muted' }, '起个名字加入演示社区：完善档案、发需求、给别人推荐人，也可以为你自己的 Agent 签发令牌。'), h('label', { for: 'guest-name' }, '名字'), guest, h('p', {}, h('button', { className: 'secondary' }, '以访客加入'))));
+  const asGuest = h('form', { className: 'entry-guest', hidden: true, onsubmit: run(async () => { await api('/login', { username: slug(), displayName: guest.value || '访客' }); await load(); }) },
+    h('div', { className: 'field' }, guest, h('button', { className: 'secondary' }, '加入')));
+  return h('div', { className: 'entry' },
+    h('div', { className: 'entry-body' },
+      h('p', { className: 'eyebrow' }, base.community?.name ?? '机会路由'),
+      h('h1', {}, '让社群里的每一个需求，', h('br'), '都找到能把它做成的人。'),
+      h('p', { className: 'lede' }, '你说清楚要什么，网络把它拆成需要的能力、找到能做的人。接不接、成没成，始终由人决定。'),
+      h('form', { className: 'entry-form', onsubmit: run(async () => { await api('/login', { username: select.value }); await load(); }) },
+        h('div', { className: 'field' }, h('span', { className: 'field-label' }, '以成员身份进入'), select, h('button', {}, '进入'))),
+      h('p', { className: 'entry-alt' },
+        '演示里的成员都是虚构的，不需要密码。',
+        h('button', { type: 'button', className: 'link', onclick: event => { asGuest.hidden = !asGuest.hidden; event.target.textContent = asGuest.hidden ? '或者用自己的名字加入' : '收起'; if (!asGuest.hidden) guest.focus(); } }, '或者用自己的名字加入')),
+      asGuest));
 }
+
 
 // ---------- an agent is asking to act for you ----------
 async function authorizeView(view, code) {

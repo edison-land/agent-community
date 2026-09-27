@@ -26,7 +26,8 @@
     "test:live": "node --test --test-concurrency=1 \"test/live/*.live.js\"",
     "build:connector": "node scripts/build-connector.mjs",
     "eval": "node apps/eval/cli.js",
-    "router:demo": "node apps/eval/cli.js --serve --port 4330"
+    "router:demo": "node apps/eval/cli.js --serve --port 4330",
+    "landing": "node scripts/serve-landing.mjs"
   },
   "dependencies": {
     "@a2a-js/sdk": "1.2.0"
