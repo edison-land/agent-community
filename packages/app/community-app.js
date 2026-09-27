@@ -93,7 +93,7 @@ export async function createCommunityApp({
     if (request.method === 'GET' && path === '/state') {
       const community = service.communityId ? await service.get('Community', service.communityId) : null;
       return out(200, {
-        mode, store: store.kind, storeOrigin: store.origin, loginProvider: login.origin, demoMembers: mode === 'simulated' ? (login.members ?? demoMembers) : [],
+        mode, store: store.kind, storeOrigin: store.origin, loginProvider: login.origin, loginKind: login.kind ?? 'password', loginLinks: login.links ?? null, demoMembers: mode === 'simulated' ? (login.members ?? demoMembers) : [],
         community: community ? { id: community.id, name: community.data.displayName } : null, me: await me(session),
         canBootstrap: !community && Boolean(session) && (openBootstrap || (ownerSubject && session.identity.subject === ownerSubject)),
         inviteRequired: !openJoin, connector: connectorBundle ? { sha256: connectorBundle.sha256, bytes: connectorBundle.bytes } : null,
