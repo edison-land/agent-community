@@ -326,7 +326,7 @@ function askCard() {
     h('h1', {}, '你要什么？'),
     h('p', { className: 'muted' }, '用自己的话说清楚就够了。网络会智能拆解所需技能关键词，供你修改和确认。'),
     text,
-    h('p', { className: 'muted small' }, '第一行会成为标题，以「-」开头的行会成为期望成果。'),
+    h('p', { className: 'muted small' }, '直接用自己的话描述需求即可；以「-」开头的行会成为期望成果。'),
     h('p', { className: 'row' },
       submitBtn,
       h('button', { type: 'button', className: 'secondary', onclick: run(doAnalyze) }, '拆解技能关键词'),
@@ -389,10 +389,32 @@ async function requestDetail(view) {
   const data = await api(`/router/requests/${detail}`);
   const r = data.request.data;
   view.append(h('p', {}, h('button', { className: 'link', onclick: () => { detail = null; render(); } }, '← 返回')));
-  view.append(h('div', { className: 'card' }, h('div', { className: 'row' }, h('h1', {}, r.title), badge(STATUS[r.status] ?? r.status)),
-    h('p', { className: 'muted' }, `需求方：${data.requester}${r.rewardTypes?.length ? ` · 回报：${r.rewardTypes.map(reward => REWARD[reward]).join('、')}` : ''}${r.budget ? ` · 预算：${r.budget}` : ''}`), h('p', {}, r.description),
-    r.acceptanceCriteria.length ? h('h3', {}, '期望成果') : null, r.acceptanceCriteria.length ? h('ul', {}, r.acceptanceCriteria.map(item => h('li', {}, item))) : null,
-    h('h3', {}, '需要的能力'), r.needs.length ? chips(r.needs, r.needs.map(need => need.id)) : h('p', { className: 'muted' }, '还没识别出来。')));
+
+  const metaItems = [
+    r.rewardTypes?.length ? `回报：${r.rewardTypes.map(reward => REWARD[reward]).join('、')}` : null,
+    r.budget ? `预算：${r.budget}` : null,
+    r.stage === 'execute' ? '执行阶段' : '探索阶段',
+    time(data.request.createdAt)
+  ].filter(Boolean);
+
+  view.append(h('div', { className: 'card request-main-card' },
+    h('div', { className: 'request-meta-header' },
+      h('div', { className: 'row', style: 'align-items: center;' },
+        h('span', { className: 'request-requester' },
+          h('span', { className: 'muted' }, '需求方：'),
+          h('b', {}, data.requester)),
+        badge(STATUS[r.status] ?? r.status),
+        data.mine ? badge('我提的') : null,
+        data.invitedMe ? badge('邀请了我', 'warn') : null),
+      metaItems.length ? h('p', { className: 'muted small', style: 'margin: 6px 0 0;' }, metaItems.join(' · ')) : null),
+    h('div', { className: 'request-content' },
+      h('p', { className: 'request-demand-text' }, r.description || r.title)),
+    r.acceptanceCriteria.length ? h('h3', {}, '期望成果') : null,
+    r.acceptanceCriteria.length ? h('ul', {}, r.acceptanceCriteria.map(item => h('li', {}, item))) : null,
+    h('h3', {}, '需要的能力'),
+    r.needs.length
+      ? h('div', { className: 'tag-editor-chips', style: 'margin-top: 6px;' }, r.needs.map(need => h('span', { className: 'tag-chip' }, need.title)))
+      : h('p', { className: 'muted' }, '还没识别出来。')));
   if (data.myMatch && !data.mine) view.append(invitationCard(data));
   if (data.mine && r.status === 'open') view.append(refineCard(data));
   if (data.mine && data.candidates) view.append(candidatesCard(data));

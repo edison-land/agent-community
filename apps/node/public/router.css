@@ -307,6 +307,32 @@ table tr:hover { background: var(--surface-2) }
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0) }
 
+/* ---------- Request Detail Card (no redundant title) ---------- */
+.request-meta-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+.request-requester {
+  font-size: 15px;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.request-requester b {
+  font-weight: 600;
+  color: var(--ink);
+}
+.request-demand-text {
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin: 0 0 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ---------- Interactive Skill Tag Editor ---------- */
 .tag-editor-box {
   margin-top: 16px;
