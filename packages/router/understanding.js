@@ -74,7 +74,7 @@ export function parsePhrases(output) {
  * seconds and still produced nothing. An instruct model answers it in one pass.
  * `@cf/meta/llama-3.2-3b-instruct` is the cheaper swap if volume ever matters.
  */
-export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+export const DEFAULT_CHAT_MODEL = '@cf/qwen/qwen2.5-7b-instruct';
 
 export class WorkersAIChat {
   constructor({ ai = null, accountId = null, token = null, model = DEFAULT_CHAT_MODEL, maxTokens = 200, fetchImpl = fetch }) {
@@ -83,7 +83,19 @@ export class WorkersAIChat {
   }
   async complete(prompt) {
     const input = { messages: [{ role: 'user', content: prompt }], max_tokens: this.maxTokens, temperature: 0 };
-    if (this.ai) return (await this.ai.run(this.model, input))?.response ?? '';
+    if (this.ai) {
+      try {
+        const res = await this.ai.run(this.model, input);
+        if (res?.response) return res.response;
+      } catch (err) {
+        console.error(`Workers AI ${this.model} failed, falling back:`, err?.message || err);
+        try {
+          const fb = await this.ai.run('@cf/meta/llama-3.1-8b-instruct', input);
+          if (fb?.response) return fb.response;
+        } catch {}
+      }
+      return '';
+    }
     const response = await this.fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${this.model}`, {
       method: 'POST', headers: { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' }, body: JSON.stringify(input),
     });

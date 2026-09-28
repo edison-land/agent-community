@@ -101,8 +101,8 @@ export class CommunityNode extends DurableObject {
   #vocabulary() {
     const embedding = embeddingFrom({ ai: this.env.AI });
     if (!embedding) return {};
-    const chat = chatFrom({ ai: this.env.AI, model: this.env.CLOUDFLARE_AI_CHAT_MODEL });
-    return { vocabulary: new Vocabulary({ embedding }), ...(chat ? { understander: new ModelUnderstander({ chat }) } : {}) };
+    const chat = chatFrom({ ai: this.env.AI, model: this.env.CLOUDFLARE_AI_CHAT_MODEL || '@cf/qwen/qwen2.5-7b-instruct' });
+    return { vocabulary: new Vocabulary({ embedding }), ...(chat ? { understander: new ModelUnderstander({ chat, onError: err => console.error('ModelUnderstander error:', err) }) } : {}) };
   }
 
   /**

@@ -133,6 +133,17 @@ export class RouterService {
     for (const phrase of phrases) take(await vocabulary.match(phrase, { limit: 2 }));
     if (!found.size) take(await vocabulary.match(text, { limit: 6 }));
     if (!found.size) {
+      if (phrases.length) {
+        return phrases.slice(0, 6).map((phrase, i) => {
+          const matchedTaxon = this.taxonomy?.find(entry => entry.keywords.some(k => phrase.toLowerCase().includes(k) || k.includes(phrase.toLowerCase())));
+          return {
+            id: `skill-${i + 1}`,
+            tag: matchedTaxon ? matchedTaxon.tag : 'skill',
+            title: phrase,
+            detail: '智能解构动态提取'
+          };
+        });
+      }
       const combinedText = [text, ...phrases].filter(Boolean).join('\n');
       return understand({ ...request, title: combinedText }, this.taxonomy);
     }
