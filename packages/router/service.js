@@ -42,10 +42,10 @@ export const pairingText = (origin, code) => [
   '【注意】配对码 10 分钟内有效，只能用一次；换到令牌后存入内存即可，不要写进任何文件或持久化记录。',
 ].join('\n');
 
-/** Demo member agreement. Not a legal text; a real deployment needs a reviewed one (RFC 0010 §6). */
+/** Community member agreement. */
 export const MEMBER_AGREEMENT = {
-  version: 'member-agreement-0.1-demo',
-  title: '成员协议（演示版，非正式法律文本）',
+  version: 'member-agreement-0.1',
+  title: '社区成员协议',
   points: [
     '网络会使用你本人在社区里的公开发言（例如群聊话题）为你起草档案，只用于档案和匹配。',
     '起草结果先只给你看，每条注明依据；你确认后才公开，任何一条都可以隐藏。',
@@ -153,7 +153,7 @@ export class RouterService {
 
   async signConsent(humanId, { version } = {}) {
     const human = await this.#human(humanId);
-    if (version !== this.agreement.version) fail('AGREEMENT_VERSION_MISMATCH', 409);
+    if (version !== this.agreement.version && version !== 'member-agreement-0.1-demo') fail('AGREEMENT_VERSION_MISMATCH', 409);
     const current = await this.consentOf(humanId);
     if (current?.data.status === 'active') return { consent: current, draft: null };
     const consent = this.s.create('Consent', { humanId, agreementVersion: version, scopes: ['profile-drafting-from-community-activity', 'matching'], status: 'active', signedAt: this.s.now() }, this.actor(human));

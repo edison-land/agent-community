@@ -425,20 +425,9 @@ async function squadCard(squad, mine) {
   return card;
 }
 
-function agentLinkCard() {
-  return h('div', { className: 'card' },
-    h('div', { className: 'row' },
-      h('h2', {}, 'Agent 接入与令牌管理'),
-      h('button', { type: 'button', className: 'secondary', onclick: () => { tab = 'agent'; render(); } }, '前往 Agent 接入 →')
-    ),
-    h('p', { className: 'muted' }, '查看 Agent Note 接入指南、复制配对指令、配置 Cursor MCP，或管理已授权的 Agent 令牌。')
-  );
-}
-
 // ---------- everything you rarely touch ----------
 async function moreView(view) {
   await profileCard(view);
-  view.append(agentLinkCard());
   await metricsCard(view);
 }
 
@@ -628,8 +617,10 @@ async function agentView(view) {
   async function renderTokens() {
     try {
       const tokens = await api('/router/agents');
-      tokensBox.replaceChildren(
-        tokens.length ? tokens.map(token => h('div', { className: 'cap-item' },
+      if (!tokens.length) {
+        tokensBox.replaceChildren(h('p', { className: 'muted' }, '当前尚无已签发的长期令牌。'));
+      } else {
+        tokensBox.replaceChildren(...tokens.map(token => h('div', { className: 'cap-item' },
           h('div', { className: 'grow' },
             h('div', { className: 'row' },
               h('b', {}, token.agentName),
@@ -645,8 +636,8 @@ async function agentView(view) {
               await renderTokens();
             })
           }, '撤销') : null
-        )) : h('p', { className: 'muted' }, '当前尚无已签发的长期令牌。')
-      );
+        )));
+      }
     } catch {
       tokensBox.replaceChildren(h('p', { className: 'muted' }, '加载令牌失败。'));
     }
