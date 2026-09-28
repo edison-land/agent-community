@@ -162,4 +162,9 @@ test('worker entry & config: redirects / to /router and / is in run_worker_first
 
   const appJs = readFileSync('apps/node/public/app.js', 'utf8');
   assert.match(appJs, /if \(state\.loginKind && state\.loginKind !== 'password'\)/);
+
+  const routerJs = readFileSync('apps/node/public/router.js', 'utf8');
+  assert.match(routerJs, /if \(base\.canBootstrap\)/, 'router page allows online community bootstrap');
+  assert.match(routerJs, /Cursor MCP/, 'router page offers direct Cursor MCP configuration');
+  assert.match(wrangler, /"COMMUNITY_OPEN_BOOTSTRAP":\s*"1"/, 'wrangler sets open bootstrap for initial deploy');
 });

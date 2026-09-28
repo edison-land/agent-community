@@ -32,7 +32,9 @@
   "ai": { "binding": "AI" },
   "vars": {
     "PUBLIC_ORIGIN": "https://agent-network.zwteam.top",
-    "FLAREMO_URL": "https://flaremo.kosx.ai"
+    "FLAREMO_URL": "https://flaremo.kosx.ai",
+    "COMMUNITY_OPEN_BOOTSTRAP": "1",
+    "COMMUNITY_OPEN_JOIN": "1"
   },
   "observability": { "enabled": true }
 }

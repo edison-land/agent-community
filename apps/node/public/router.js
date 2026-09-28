@@ -6,6 +6,7 @@ const $ = selector => document.querySelector(selector);
 const app = $('#app');
 let base = null, state = null, tab = 'home', detail = null, who = null;
 let authorizing = new URLSearchParams(location.search).get('authorize');
+let inviteFromUrl = new URLSearchParams(location.search).get('invite') || '';
 
 function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
@@ -61,11 +62,44 @@ function render() {
   app.replaceChildren();
   if (base.mode === 'simulated' && location.protocol === 'https:') app.append(h('div', { className: 'notice' }, '公开演示：成员都是虚构的，任何人都可以用虚构身份或访客身份登录。请不要输入真实信息；演示数据会被重置。给你的 Agent 接入的说明见 ', h('a', { href: '/agents.md', target: '_blank', rel: 'noopener' }, '/agents.md'), '。'));
   if (!base.me) return app.append(loginView());
-  if (!base.community) return app.append(h('div', { className: 'card' }, h('h2', {}, '演示社区还没有初始化'), h('p', { className: 'muted' }, '运营者会用评估框架初始化演示数据，请稍后再来。')));
+  if (!base.community) {
+    if (base.canBootstrap) {
+      const name = h('input', { id: 'comm-name', required: true, maxlength: 60, placeholder: '例如：AI 创作者与开发者社区' });
+      const display = h('input', { id: 'comm-display', required: true, maxlength: 40, value: base.me.identity.displayName });
+      return app.append(h('form', { className: 'card', onsubmit: run(async () => {
+        await api('/community', { communityName: name.value, displayName: display.value });
+        await load();
+      }) },
+        h('h2', {}, '创建你的社区'),
+        h('p', { className: 'muted' }, '这个节点还没有社区。创建者成为社区所有者；社区记录保存在当前节点的持久存储中。'),
+        h('label', { for: 'comm-name' }, '社区名称'), name,
+        h('label', { for: 'comm-display' }, '你在社区里的称呼'), display,
+        h('p', {}, h('button', {}, '创建社区'))
+      ));
+    }
+    return app.append(h('div', { className: 'card' },
+      h('h2', {}, '社区尚未初始化'),
+      h('p', { className: 'muted' }, base.mode === 'simulated' ? '运营者会用评估框架初始化演示数据，请稍后再来。' : '当前节点尚未创建社区。请由管理员账号登录后完成创建。')
+    ));
+  }
   if (!base.me.member) {
-    if (base.inviteRequired) return app.append(h('div', { className: 'card' }, h('h2', {}, '还不是社区成员'), h('p', {}, '请先在 ', h('a', { href: '/' }, '主页'), ' 用邀请链接加入社区。')));
-    const name = h('input', { id: 'join-name', value: base.me.identity.displayName.replace(/（访客）$/u, ''), maxlength: 40 });
-    return app.append(h('form', { className: 'card', onsubmit: run(async () => { await api('/join', { displayName: name.value }); await load(); }) }, h('h2', {}, `加入「${base.community.name}」`), h('label', { for: 'join-name' }, '你在社区里的名字'), name, h('p', {}, h('button', {}, '加入'))));
+    const name = h('input', { id: 'join-name', value: base.me.identity.displayName.replace(/（访客）$/u, ''), maxlength: 40, required: true });
+    const inviteInput = h('input', { id: 'join-invite', value: inviteFromUrl, placeholder: 'XXXX-XXXX-XXXX-XXXX', required: base.inviteRequired, autocomplete: 'off' });
+    return app.append(h('form', { className: 'card', onsubmit: run(async () => {
+      await api('/join', { displayName: name.value, inviteCode: inviteInput.value.trim() || undefined });
+      if (inviteFromUrl) {
+        const u = new URL(location.href);
+        u.searchParams.delete('invite');
+        history.replaceState(null, '', u.pathname + u.search);
+      }
+      await load();
+    }) },
+      h('h2', {}, `加入「${base.community.name}」`),
+      h('p', { className: 'muted' }, '加入后会建立你的成员档案与身份绑定。'),
+      h('label', { for: 'join-name' }, '你在社区里的名字'), name,
+      base.inviteRequired ? [h('label', { for: 'join-invite' }, '邀请码（由社区管理员签发）'), inviteInput] : null,
+      h('p', {}, h('button', {}, '加入社区'))
+    ));
   }
   if (!base.me.member.active) return app.append(h('div', { className: 'card' }, h('h2', {}, '成员资格未生效'), h('p', {}, '你的成员资格已被暂停或移除。')));
   // An agent is waiting on this person's decision; nothing else matters until they make it.
@@ -111,7 +145,23 @@ function tokenLoginView() {
 function loginView() {
   if (base.mode !== 'simulated') {
     if (base.loginKind === 'flaremo-token') return tokenLoginView();
-    return h('div', { className: 'entry' }, h('div', { className: 'entry-body' }, h('p', { className: 'eyebrow' }, '需要登录'), h('h1', {}, '请先在主页登录'), h('p', { className: 'lede' }, h('a', { href: '/' }, '前往主页 →'))));
+    const username = h('input', { id: 'username', name: 'username', autocomplete: 'username', required: true });
+    const password = h('input', { id: 'password', name: 'password', type: 'password', autocomplete: 'current-password', required: true });
+    return h('div', { className: 'entry' },
+      h('div', { className: 'entry-body' },
+        h('p', { className: 'eyebrow' }, base.community?.name ?? '机会路由'),
+        h('h1', {}, '登录社区节点'),
+        h('p', { className: 'lede' }, `使用 ${base.loginProvider?.replace(/^https?:\/\//u, '') ?? '社区'} 账号登录。`),
+        h('form', { className: 'entry-form', onsubmit: run(async () => {
+          await api('/login', { username: username.value, password: password.value });
+          await load();
+        }) },
+          h('div', { className: 'field' }, h('span', { className: 'field-label' }, '用户名'), username),
+          h('div', { className: 'field' }, h('span', { className: 'field-label' }, '密码'), password),
+          h('p', {}, h('button', {}, '登录'))
+        )
+      )
+    );
   }
   const select = h('select', { id: 'member' }, (base.demoMembers ?? []).map(member => h('option', { value: member.username }, member.displayName)));
   const guest = h('input', { id: 'guest-name', maxlength: 40, placeholder: '你的名字' });
@@ -398,17 +448,45 @@ async function agentsCard(view) {
   const picked = () => scopes.map(label => label.firstChild).filter(box => box.checked).map(box => box.value);
   view.append(h('form', { className: 'card', onsubmit: run(async () => {
     const { instructions } = await api('/router/pairing', { name: name.value, scopes: picked() });
-    out.replaceChildren(
-      h('div', { className: 'notice' }, '把下面整段复制给你的 Agent —— Codex、Claude、ChatGPT，哪个都行。它自己会完成接入。'),
+    const pairingBox = h('div', { className: 'card' },
+      h('h3', {}, '方式一：对话接入（推荐任何对话助手）'),
+      h('div', { className: 'notice' }, '把下面整段指令复制给你的 Agent —— Cursor Composer、ChatGPT、Codex、DeepSeek 等大模型助手。它会自动通过安全配对接口换取访问凭据：'),
       h('pre', {}, instructions),
       h('p', { className: 'row' },
-        h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(instructions); toast('已复制'); }) }, '复制'),
-        h('span', { className: 'muted small' }, '配对码 10 分钟内有效、只能用一次。换成令牌后它就作废了，留在聊天记录里也没用。')));
-    toast('已生成');
+        h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(instructions); toast('已复制接入指令'); }) }, '复制接入指令'),
+        h('span', { className: 'muted small' }, '配对码 10 分钟内有效、只能用一次。换成令牌后失效，不污染对话历史。'))
+    );
+    const mcpBtn = h('button', { type: 'button', className: 'secondary', onclick: run(async () => {
+      const issued = await api('/router/agents', { name: name.value, scopes: picked() });
+      const mcpSnippet = JSON.stringify({
+        mcpServers: {
+          "agent-community": {
+            url: `${location.origin}/mcp`,
+            headers: {
+              Authorization: `Bearer ${issued.token}`
+            }
+          }
+        }
+      }, null, 2);
+      out.append(h('div', { className: 'card' },
+        h('h3', {}, '方式二：Cursor / IDE MCP 配置文件'),
+        h('p', { className: 'muted small' }, '已直接为你的 Agent 签发长期访问令牌。把以下配置保存到项目的 ', h('code', {}, '.cursor/mcp.json'), '，或填入 Cursor 设置中：'),
+        h('pre', {}, mcpSnippet),
+        h('p', { className: 'row' },
+          h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(mcpSnippet); toast('已复制 Cursor 配置'); }) }, '复制 Cursor MCP 配置'),
+          h('span', { className: 'muted small' }, '30 天内有效。也可以在终端使用任何标准 MCP 客户端直接连接。')
+        )
+      ));
+      toast('已生成 Cursor MCP 配置');
+      await load();
+    }) }, '直接签发 Cursor MCP 配置文件');
+
+    out.replaceChildren(pairingBox, h('p', { className: 'row' }, mcpBtn));
+    toast('已生成接入信息');
   }) }, h('h2', {}, '连接我的 Agent'), h('p', { className: 'muted' }, '勾上的事情你的 Agent 可以做，其中起草的内容仍要你确认。接受邀请和验收永远只能你本人做。30 天有效，随时可以撤销。'),
   h('label', { for: 'ag-name' }, 'Agent 名字'), name, h('label', {}, '允许它做的事'), h('div', { className: 'row' }, scopes),
   h('p', { className: 'muted small' }, '「替我邀请候选人和组队」默认不勾：勾上以后，你只要说清楚需求，找人和组队就不用你再点了；不勾就由你自己在需求页上做。'),
-  h('p', {}, h('button', {}, '生成接入指令')), out));
+  h('p', {}, h('button', {}, '生成接入指令 / 配置')), out));
   const tokens = await api('/router/agents');
   view.append(h('div', { className: 'card' }, h('h2', {}, '已签发的令牌'), tokens.length ? tokens.map(token => h('div', { className: 'cap-item' }, h('div', { className: 'grow' }, h('div', { className: 'row' }, h('b', {}, token.agentName), badge(STATUS[token.status] ?? token.status, token.status === 'active' ? '' : 'bad')), h('p', { className: 'muted' }, `${token.scopes.join('、')} · 有效至 ${time(token.expiresAt)}`)),
     token.status === 'active' ? h('button', { className: 'danger', onclick: run(async () => { await api(`/router/agents/tokens/${token.tokenId}/revoke`, {}); toast('已撤销'); await load(); }) }, '撤销') : null)) : h('p', { className: 'muted' }, '还没有签发。')));
