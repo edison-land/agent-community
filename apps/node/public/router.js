@@ -246,7 +246,10 @@ const TODO_ACTION = { 'draft.confirm': '确认', 'consent.sign': '去签署', 'p
 async function todoCard() {
   const todo = await api('/router/todo');
   const card = h('div', { className: 'card' }, h('div', { className: 'row' }, h('h2', {}, '等我决定'), todo.mine ? badge(`${todo.mine} 件`, 'warn') : badge('没有')),
-    h('p', { className: 'muted' }, todo.agents ? '只列你本人才能做的事。标注「Agent 会处理」的，你不用管。' : '只列你本人才能做的事。签发一个 Agent 令牌后，中间的协调就不用你做了。'));
+    h('p', { className: 'muted' }, todo.agents ? '只列你本人才能做的事。标注「Agent 会处理」的，你的 Agent 会自动在后台协调。' : [
+      '只列你本人才能做的事。签发一个 Agent 令牌后，中间的协调就不用你做了。',
+      h('button', { type: 'button', className: 'link', onclick: () => { tab = 'more'; render(); setTimeout(() => document.getElementById('ag-name')?.scrollIntoView({ behavior: 'smooth' }), 50); } }, '去连接我的 Agent →')
+    ]));
   if (!todo.items.length) card.append(h('p', { className: 'muted' }, '没有待办。'));
   for (const item of todo.items) {
     const go = () => { detail = item.requestId ?? null; tab = 'home'; render(); };
