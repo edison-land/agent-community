@@ -162,7 +162,7 @@ export class CommunityNode extends DurableObject {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (request.method === 'GET') {
+    if (request.method === 'GET' || request.method === 'HEAD') {
       // The landing page is published separately, under its own headers: this node's
       // content policy is written for the app and would strip the page bare. Old links
       // are sent on rather than silently answered with the app shell.
