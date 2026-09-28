@@ -224,19 +224,119 @@ function askCard() {
     h('label', {}, '回报方式'), h('div', { className: 'row' }, rewards),
     h('div', { className: 'grid2' }, h('div', {}, h('label', { for: 'rq-stage' }, '阶段'), stage), h('div', {}, h('label', { for: 'rq-source' }, '来源'), source)),
     h('label', { for: 'rq-budget' }, '预算'), budget);
-  const preview = h('div');
+  
+  const preview = h('div', { id: 'needs-preview-box', style: 'margin-top: 14px;' });
+  let userNeeds = [];
+  let analyzed = false;
+
+  const renderTags = () => {
+    if (!userNeeds.length) {
+      preview.replaceChildren(h('p', { className: 'muted', style: 'margin-top: 10px;' }, '尚未拆解出技能需求。可点击上方「拆解技能关键词」或直接在下方输入添加。'));
+      return;
+    }
+    const tagsContainer = h('div', { className: 'row', style: 'flex-wrap: wrap; gap: 8px; margin: 8px 0;' });
+    userNeeds.forEach((need, index) => {
+      const tagPill = h('span', {
+        className: 'status on',
+        style: 'display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 13px; background: var(--surface-2); border: 1px solid var(--accent);'
+      },
+        h('span', {
+          contenteditable: 'true',
+          title: '点击可直接就地编辑修改',
+          style: 'outline: none; cursor: text;',
+          onblur: e => {
+            const val = e.target.textContent.trim();
+            if (val) need.title = val;
+            else { userNeeds.splice(index, 1); renderTags(); }
+          },
+          onkeydown: e => {
+            if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+          }
+        }, need.title),
+        h('button', {
+          type: 'button',
+          title: '删除此技能',
+          style: 'border: none; background: transparent; cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; color: var(--ink-2); opacity: 0.7;',
+          onclick: () => {
+            userNeeds.splice(index, 1);
+            renderTags();
+          }
+        }, '×')
+      );
+      tagsContainer.append(tagPill);
+    });
+
+    const addInput = h('input', {
+      placeholder: '+ 自定义技能词 (回车添加)',
+      style: 'max-width: 200px; padding: 4px 8px; font-size: 12px; height: 28px;'
+    });
+    const addBtn = h('button', {
+      type: 'button',
+      className: 'secondary',
+      style: 'padding: 3px 10px; height: 28px; font-size: 12px;',
+      onclick: () => {
+        const val = addInput.value.trim();
+        if (val) {
+          userNeeds.push({ id: `custom-${Date.now()}`, tag: 'custom', title: val, detail: '用户自行定义' });
+          addInput.value = '';
+          renderTags();
+        }
+      }
+    }, '添加');
+    addInput.onkeydown = e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addBtn.click();
+      }
+    };
+
+    preview.replaceChildren(
+      h('div', { style: 'margin-top: 12px; padding: 12px; background: var(--surface-2); border-radius: var(--r); border: 1px dashed var(--line);' },
+        h('div', { className: 'row', style: 'align-items: center; justify-content: space-between;' },
+          h('b', {}, '确认技能关键词（已拆解）'),
+          h('span', { className: 'muted small' }, '点击文字可直接修改，点击 × 可删除')),
+        tagsContainer,
+        h('div', { className: 'row', style: 'align-items: center; gap: 8px; margin-top: 6px;' }, addInput, addBtn))
+    );
+  };
+
   const input = () => ({
     text: text.value, stage: stage.value, source: source.value, budget: budget.value || undefined,
     rewardTypes: rewards.map(label => label.firstChild).filter(box => box.checked).map(box => box.value),
+    needs: userNeeds.length ? userNeeds : undefined,
   });
-  return h('form', { className: 'card ask', onsubmit: run(async () => { const created = await api('/router/requests', input()); toast('已发布，网络开始找人'); detail = created.id; render(); }) },
+
+  const submitBtn = h('button', { type: 'submit' }, '确认需求并发布');
+
+  const doAnalyze = async () => {
+    if (!text.value.trim()) return;
+    preview.replaceChildren(h('p', { className: 'muted' }, '正在分析并拆解技能关键词...'));
+    const { needs } = await api('/router/requests/understand', input());
+    userNeeds = (needs ?? []).map(n => ({ id: n.id, tag: n.tag, title: n.title, detail: n.detail }));
+    analyzed = true;
+    renderTags();
+  };
+
+  return h('form', { className: 'card ask', onsubmit: run(async e => {
+    e.preventDefault();
+    if (!text.value.trim()) return;
+    if (!analyzed && !userNeeds.length) {
+      await doAnalyze();
+      toast('已拆解出技能关键词，请确认或修改后再次点击发布');
+      return;
+    }
+    const created = await api('/router/requests', input());
+    toast('需求已确认并发布，网络开始找人');
+    detail = created.id;
+    render();
+  }) },
     h('h1', {}, '你要什么？'),
-    h('p', { className: 'muted' }, '用自己的话说清楚就够了。找人、预沟通、组队交给网络和你的 Agent——你只在最后确认拿到的是不是你要的。'),
+    h('p', { className: 'muted' }, '用自己的话说清楚就够了。网络会智能拆解所需技能关键词，供你修改和确认。'),
     text,
     h('p', { className: 'muted small' }, '第一行会成为标题，以「-」开头的行会成为期望成果。'),
     h('p', { className: 'row' },
-      h('button', {}, '发布'),
-      h('button', { type: 'button', className: 'secondary', onclick: run(async () => { const { needs } = await api('/router/requests/understand', input()); preview.replaceChildren(h('label', {}, '网络识别出的能力需求'), needs.length ? chips(needs, needs.map(need => need.id)) : h('p', { className: 'muted' }, '还没识别出来。发布后可以补充，或者让你的 Agent 补。')); }) }, '先看看会拆成什么'),
+      submitBtn,
+      h('button', { type: 'button', className: 'secondary', onclick: run(doAnalyze) }, '拆解技能关键词'),
       h('button', { type: 'button', className: 'link', onclick: () => { optional.hidden = !optional.hidden; } }, '回报、阶段、预算（可不填）')),
     optional, preview);
 }
