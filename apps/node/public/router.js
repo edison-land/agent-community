@@ -209,10 +209,10 @@ async function authorizeView(view, code) {
 // ---------- the one thing: say what you want ----------
 const requestRow = item => h('div', { className: 'cap-item' },
   h('div', { className: 'grow' },
-    h('div', { className: 'row' }, h('b', {}, item.title), badge(STATUS[item.status] ?? item.status), item.mine ? badge('我提的') : null, item.invitedMe ? badge('邀请了我', 'warn') : null),
+    h('div', { className: 'row' }, h('b', { className: 'cap-title' }, item.title), badge(STATUS[item.status] ?? item.status), item.mine ? badge('我提的') : null, item.invitedMe ? badge('邀请了我', 'warn') : null),
     h('p', { className: 'muted' }, `${item.requester} · ${time(item.createdAt)}${item.rewardTypes?.length ? ` · ${item.rewardTypes.map(reward => REWARD[reward]).join('、')}` : ''}`),
     chips(item.needs, item.needs.map(need => need.id))),
-  h('button', { className: 'secondary', onclick: () => { detail = item.id; render(); } }, '查看'));
+  h('button', { className: 'secondary cap-action-btn', onclick: () => { detail = item.id; render(); } }, '查看'));
 
 function askCard() {
   const text = h('textarea', { id: 'ask', required: true, maxlength: 4000, rows: 4, placeholder: '做一个香港招聘行业的 AI 情报产品，先验证雇主愿不愿意付费。\n- 两周内给出可演示的原型\n- 至少访谈 5 家本地雇主' });
@@ -354,8 +354,8 @@ async function todoCard() {
         ? [h('button', { onclick: run(async () => { const result = await api('/router/consent', { version: state.agreement.version }); toast(result.draft ? '已签署；起草的档案在这份列表里等你确认' : '已签署'); await load(); }) }, '签署成员协议')]
         : [h('button', { className: item.agentCovers ? 'secondary' : '', onclick: go }, item.agentCovers ? '我自己来' : TODO_ACTION[item.type] ?? '处理')];
     card.append(h('div', { className: 'cap-item' },
-      h('div', { className: 'grow' }, h('div', { className: 'row' }, h('b', {}, item.title), item.agentCovers ? badge('Agent 会处理') : null), h('p', { className: 'muted' }, item.detail)),
-      h('div', { className: 'row' }, buttons)));
+      h('div', { className: 'grow' }, h('div', { className: 'row' }, h('b', { className: 'cap-title' }, item.title), item.agentCovers ? badge('Agent 会处理') : null), h('p', { className: 'muted' }, item.detail)),
+      h('div', { className: 'row cap-actions' }, buttons)));
   }
   return card;
 }
