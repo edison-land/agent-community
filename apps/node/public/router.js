@@ -36,7 +36,7 @@ async function api(path, body) {
   if (!response.ok) throw new Error(ERRORS[data.error] ?? data.error ?? `HTTP ${response.status}`);
   return data;
 }
-const run = fn => async event => { event?.preventDefault?.(); try { await fn(); } catch (error) { toast(error.message); } };
+const run = fn => async event => { event?.preventDefault?.(); try { await fn(event); } catch (error) { toast(error.message); } };
 const time = iso => iso ? new Date(iso).toLocaleString() : '';
 const REWARD = { paid: '有偿', equity: '股份', exchange: '资源交换', volunteer: '公益' };
 const STATUS = { open: '找人中', assigned: '小组进行中', review: '待验收', accepted: '已完成', invited: '已邀请', declined: '已拒绝', withdrawn: '已撤回', requested: '待回答', answered: '已回答', active: '生效', revoked: '已撤销' };
@@ -311,8 +311,7 @@ function askCard() {
     renderTags();
   };
 
-  return h('form', { className: 'card ask', onsubmit: run(async e => {
-    e.preventDefault();
+  return h('form', { className: 'card ask', onsubmit: run(async () => {
     if (!text.value.trim()) return;
     if (!analyzed && !userNeeds.length) {
       await doAnalyze();

@@ -309,14 +309,15 @@ table tr:hover { background: var(--surface-2) }
 
 /* ---------- Interactive Skill Tag Editor ---------- */
 .tag-editor-box {
-  margin-top: 14px;
-  padding: 14px 16px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  margin-top: 16px;
+  padding: 16px 18px;
+  background: #111216;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--r);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px -4px rgba(0, 0, 0, 0.4);
 }
 
 .tag-editor-header {
@@ -327,12 +328,22 @@ table tr:hover { background: var(--surface-2) }
 }
 
 .tag-editor-title {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--ink);
+  color: #f1f2f6;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.tag-editor-title::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
 }
 
 .tag-editor-hint {
@@ -344,27 +355,29 @@ table tr:hover { background: var(--surface-2) }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 }
 
 .tag-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px 4px 12px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 5px 10px 5px 13px;
+  font-size: 13.5px;
+  font-weight: 550;
   line-height: 1.4;
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--line-strong);
+  background: linear-gradient(180deg, #262933 0%, #191b22 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  transition: all .15s var(--ease);
-  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  transition: all .2s var(--ease);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .tag-chip:hover {
-  border-color: var(--accent-line);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px -2px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1.5px);
 }
 
 .tag-chip-text {
@@ -375,7 +388,7 @@ table tr:hover { background: var(--surface-2) }
 }
 
 .tag-chip-text:focus {
-  border-bottom-color: var(--accent);
+  border-bottom-color: #38bdf8;
 }
 
 .tag-chip-del {
@@ -383,23 +396,23 @@ table tr:hover { background: var(--surface-2) }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   font-size: 13px;
   line-height: 1;
-  color: var(--ink-3);
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
   cursor: pointer;
-  background: transparent;
   padding: 0;
-  margin: 0;
+  margin-left: 2px;
   box-shadow: none;
   transition: all .15s var(--ease);
 }
 
 .tag-chip-del:hover {
-  background: var(--bad-soft);
-  color: var(--bad);
+  background: rgba(244, 63, 94, 0.25);
+  color: #fb7185;
 }
 
 .tag-add-wrapper {
@@ -410,44 +423,92 @@ table tr:hover { background: var(--surface-2) }
 
 .tag-add-input {
   width: 140px;
-  height: 28px;
-  padding: 0 12px;
-  font-size: 12px;
-  background: var(--surface);
-  border: 1px dashed var(--line-strong);
+  height: 30px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  color: var(--ink);
-  transition: all .15s var(--ease);
+  color: #f4f4f5;
+  transition: all .2s var(--ease);
 }
 
 .tag-add-input:focus {
   width: 170px;
   border-style: solid;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  border-color: #38bdf8;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.18);
 }
 
 .tag-add-btn {
   all: unset;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 600;
   border-radius: 50%;
-  background: var(--surface);
-  color: var(--ink-2);
-  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   cursor: pointer;
-  transition: all .15s var(--ease);
+  transition: all .2s var(--ease);
 }
 
 .tag-add-btn:hover {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-color: var(--accent-line);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: scale(1.05);
+}
+
+@media (prefers-color-scheme: light) {
+  .tag-editor-box {
+    background: #f1f2f6;
+    border-color: rgba(0, 0, 0, 0.09);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  .tag-editor-title { color: #0f172a; }
+  .tag-editor-title::before {
+    background: #0284c7;
+    box-shadow: 0 0 6px rgba(2, 132, 199, 0.4);
+  }
+  .tag-chip {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f3f7 100%);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0, 0, 0, 0.07);
+  }
+  .tag-chip:hover {
+    border-color: #0284c7;
+    box-shadow: inset 0 1px 0 #fff, 0 4px 10px rgba(2, 132, 199, 0.15);
+  }
+  .tag-chip-del {
+    color: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .tag-add-input {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #0f172a;
+  }
+  .tag-add-input:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+  }
+  .tag-add-btn {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.16);
+    color: #334155;
+  }
+  .tag-add-btn:hover {
+    background: #e0f2fe;
+    color: #0284c7;
+    border-color: #7dd3fc;
+  }
 }
 
 [hidden] { display: none !important }
