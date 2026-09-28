@@ -9,23 +9,17 @@ CFG="--config apps/worker/wrangler.jsonc"
 
 **需要你本人完成的步骤**：Cloudflare 登录、选择计划（涉及费用）、输入 PAT。Agent 不代为登录，不索取密码或令牌。
 
-## 0. 前置条件（FlareMo 管理员）
+## 0. 前置条件
 
-按 [管理员交接说明](FLAREMO_ADMIN_HANDOFF.zh-CN.md)，确认以下各项都已完成：
+架构已在 PR #6 全面解耦：**不再需要对 FlareMo 打补丁，不需要超级服务账号，不需要 FlareMo 管理员介入**。社区自身的所有业务对象（需求、匹配、小组、交付、验收）都保存在本节点自身的 Durable Object 存储中。
 
-- [ ] flaremo.kosx.ai 已部署扩展：带任意 PAT 访问 `https://flaremo.kosx.ai/api/community/v1/service`，返回 401 或 403，而不是 404。
-- [ ] 服务账号 `agent-network-service` 已创建，你已拿到它的激活链接并设置了密码。
-- [ ] 管理员已授权该服务账号（`/api/community/v1/service-accounts`，状态 `active`）。
-- [ ] `FLAREMO_TRUSTED_ORIGINS` 已包含 `https://agent-network.zwteam.top`。
-- [ ] WAF / Bot 规则放行 Worker 发出的服务端请求。
-- [ ] 管理员已同意在社区域名上用 FlareMo 账号密码登录（交接说明第 5 节）。
-
-在这些完成之前也可以先发布：节点连不上 FlareMo 时会返回 503，不会开放任何功能。
+唯一外部依赖是成员身份验证：
+- [ ] `https://flaremo.kosx.ai` 正常运行，成员可在其个人设置中生成个人访问令牌（PAT）用于登录。
+- [ ] 不需要管理员修改数据库，不需要 `FLAREMO_SERVICE_PAT`。
 
 ## 1. 本机演练（可选，不需要 Cloudflare 账号）
 
 ```sh
-FLAREMO_DIR=<你的 FlareMo 副本目录> node scripts/local/flaremo.mjs start   # 另一个终端
 node scripts/local/worker.mjs                                   # Worker 版节点，http://127.0.0.1:4320
 COMMUNITY_RUNTIME=worker npm run test:live                      # 真实联调测试跑在 Worker 版上
 ```
@@ -53,30 +47,20 @@ $W deploy $CFG
 
 这一步会：
 - 创建 Worker `agent-network` 和 Durable Object 类 `CommunityNode`；
-- 上传静态页面；
+- 上传静态页面（访问 `/` 会自动 302 重定向到 `/router`）；
 - 绑定自定义域名 `agent-network.zwteam.top`，DNS 记录和证书都会自动创建。
 
 如果 `agent-network.zwteam.top` 已有 DNS 记录，发布会失败。先在控制台确认那条记录是否可以删除，删除需要你确认。
 
-此时还没有设置密钥，节点返回 `503 NODE_NOT_READY`。
-
 ## 5. 设置密钥
 
-两条都是交互式输入，内容不会出现在命令历史和仓库里：
+解耦后节点**不需要** `FLAREMO_SERVICE_PAT`。只需配置谁有权初始化社区：
 
 ```sh
-$W secret put FLAREMO_SERVICE_PAT $CFG
+$W secret put COMMUNITY_OWNER_SUBJECT $CFG     # 输入允许创建社区的 FlareMo 资源名 users/...
 ```
 
-填入的 PAT 这样获得：用服务账号 `agent-network-service` 登录 flaremo.kosx.ai，在"账号 → 个人访问令牌"里创建，有效期建议 90 天。PAT 只在创建时显示一次，直接粘贴到这里，不要经过聊天或文件。
-
-然后取得 owner 资源名：
-1. 打开 `https://agent-network.zwteam.top`，用**你自己的** FlareMo 账号登录（不是服务账号）。
-2. 页面会显示"社区尚未创建"，以及你当前账号的资源名 `users/...`。
-
-```sh
-$W secret put COMMUNITY_OWNER_SUBJECT $CFG     # 输入上一步显示的 users/...
-```
+填入的值为你自己在 FlareMo 上的资源名（例如 `users/mia` 或 `users/<your-id>`）。内容是交互式输入，不会出现在命令历史和仓库里。
 
 每次 `secret put` 都会立即生成一个新版本。
 
@@ -84,25 +68,23 @@ $W secret put COMMUNITY_OWNER_SUBJECT $CFG     # 输入上一步显示的 users/
 
 ```sh
 curl -s https://agent-network.zwteam.top/healthz
-curl -s https://agent-network.zwteam.top/api/state | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log({mode:j.mode,store:j.store,storeOrigin:j.storeOrigin,inviteRequired:j.inviteRequired})})'
-curl -sI https://agent-network.zwteam.top/ | grep -i -E 'strict-transport|content-security'
+curl -s https://agent-network.zwteam.top/api/state | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log({mode:j.mode,store:j.store,loginKind:j.loginKind,inviteRequired:j.inviteRequired})})'
+curl -sI https://agent-network.zwteam.top/ | grep -i -E 'location|strict-transport|content-security'
 ```
 
 期望结果：
-- `store` 为 `flaremo+cache`，`storeOrigin` 为 `https://flaremo.kosx.ai`；
+- `store` 为 `durable`；
+- `loginKind` 为 `flaremo-token`；
 - `inviteRequired` 为 `true`；
+- 根路径 `/` 响应 `302` 重定向至 `/router`；
 - 页面响应带 HSTS 和 CSP 头。
 
 页面上从头走一遍：
-1. owner 登录 → 创建社区。
-2. "档案与 Agent" → 生成邀请链接，链接只显示一次。
-3. 第二个账号打开邀请链接 → 登录 → 加入。
-4. 在"档案与 Agent"页的"接入 Agent"里选择模式，复制那段话交给执行 Agent 的机器上的 Codex。Agent 会：
-   - 下载 `https://agent-network.zwteam.top/connector.mjs`，并核对校验值；
-   - 不带记忆模式下，请成员本人执行 `connector.mjs login`；
-   - 登记并写出自我介绍，然后保持运行。
-5. 打开 Agent 发来的认领链接 → 修改自我介绍 → 输入指纹后 4 位 → 认领并发布。
-6. owner 发布"上线测试任务" → Agent 的主人确认 → 执行 → owner 验收 → 追溯。
+1. 打开 `https://agent-network.zwteam.top/router`，输入你本人的 FlareMo PAT 登录 → 创建社区。
+2. 生成邀请链接，链接只显示一次。
+3. 第二个成员打开邀请链接 → 使用自己的 FlareMo PAT 登录 → 加入社区。
+4. 提交需求 → 向量/语义匹配到合适成员或推荐候选人 → 预沟通与组队。
+5. 如需接入 Agent：在页面生成配对文本，由成员在自己的终端由 Agent 兑换（免去人肉复制密钥）。
 
 逐项记录结果和部署版本号，不记录账号、Cookie、令牌，截图要先脱敏。没走通的项目记"待联调"。
 
@@ -114,18 +96,15 @@ curl -sI https://agent-network.zwteam.top/ | grep -i -E 'strict-transport|conten
 | 更新代码 | `$W deploy $CFG`（Durable Object 状态保留，会话不丢） |
 | 查看版本 | `$W deployments list $CFG` |
 | 回滚 | `$W rollback $CFG` |
-| 轮换 PAT | 服务账号下新建 PAT → `$W secret put FLAREMO_SERVICE_PAT $CFG` → 在 FlareMo 撤销旧 PAT |
-| 紧急切断数据访问 | 请 FlareMo 管理员把服务账号设为 `disabled` |
-| 下线 | 控制台移除自定义域名；`$W delete $CFG` 会删除 Worker 及其 Durable Object 状态，属于破坏性操作，先确认。FlareMo 中的社区数据不受影响 |
+| 下线 | 控制台移除自定义域名；`$W delete $CFG` 会删除 Worker 及其 Durable Object 状态，属于破坏性操作，先确认 |
 
 ## 故障对照
 
 | 现象 | 原因 |
 | --- | --- |
-| `503 NODE_NOT_READY`，`reason: MISSING_FLAREMO_SERVICE_PAT` | 还没设置 PAT |
-| 页面报 `SERVICE_ACCOUNT_REQUIRED` 或 403 | 服务账号未授权或已停用 |
-| 登录报来源错误 | `FLAREMO_TRUSTED_ORIGINS` 未包含本域名 |
-| 登录或存储请求报 HTML、质询或 3xx | FlareMo 所在域的 WAF / Bot 规则拦截；节点拒绝跟随重定向 |
-| `BOOTSTRAP_NOT_CONFIGURED` | 还没设置 `COMMUNITY_OWNER_SUBJECT` |
+| 访问 `/` 提示未登录或空白 | 确认已更新至带有根路径重定向的版本（或手动访问 `/router`） |
+| `BOOTSTRAP_NOT_CONFIGURED` | 还没设置 `COMMUNITY_OWNER_SUBJECT` secret |
+| 登录报无效令牌或 401 | 检查输入的 FlareMo PAT 是否有效、已过期，或 FlareMo 实例是否可达 |
 | 连接器 `INSECURE_NODE_URL` | 节点地址必须是 `https://`（本机测试除外） |
 | 偶发 1102 | Free 计划 CPU 超限，改用 Paid |
+
