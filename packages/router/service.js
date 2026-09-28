@@ -132,7 +132,10 @@ export class RouterService {
     const phrases = this.understander ? await this.understander.decompose(text) : [];
     for (const phrase of phrases) take(await vocabulary.match(phrase, { limit: 2 }));
     if (!found.size) take(await vocabulary.match(text, { limit: 6 }));
-    if (!found.size) return understand(request, this.taxonomy);
+    if (!found.size) {
+      const combinedText = [text, ...phrases].filter(Boolean).join('\n');
+      return understand({ ...request, title: combinedText }, this.taxonomy);
+    }
     return [...found.values()].sort((a, b) => b.score - a.score).slice(0, 6)
       .map(({ term, score }) => ({ id: term.tag, tag: term.tag, title: term.title, detail: `社区里有人做过类似的事（相似 ${score}）` }));
   }

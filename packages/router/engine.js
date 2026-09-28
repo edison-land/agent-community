@@ -9,11 +9,11 @@
 /** A community-agnostic starting taxonomy; a community can replace it. */
 export const DEFAULT_TAXONOMY = [
   { tag: 'recruitment', title: '招聘与人才行业经验', keywords: ['招聘', '猎头', '人才', '求职', '人力资源', 'hr', 'hiring', 'recruit', 'recruitment', 'jobsdb'] },
-  { tag: 'data', title: '数据获取与处理', keywords: ['数据', '爬虫', '采集', '情报', '数据管道', 'data', 'pipeline', 'scraping', 'etl'] },
-  { tag: 'ai-engineering', title: 'AI / Agent 工程', keywords: ['ai', 'agent', 'llm', '大模型', 'rag', '智能体', '模型微调', 'codex'] },
-  { tag: 'product-design', title: '产品与交互设计', keywords: ['产品设计', '交互', '原型', 'ui', 'ux', 'figma', 'prototype', '用户体验'] },
-  { tag: 'frontend', title: '前端开发', keywords: ['前端', '网页', '小程序', 'react', 'vue', 'frontend', 'web app'] },
-  { tag: 'backend', title: '后端与部署', keywords: ['后端', '服务器', '部署', '数据库', 'backend', 'devops', 'cloudflare'] },
+  { tag: 'data', title: '数据获取与处理', keywords: ['数据', '爬虫', '采集', '情报', '数据管道', '聊天记录', '数据提取', '提取', '数据处理', '文本处理', '清洗', '知识加工', 'data', 'pipeline', 'scraping', 'etl'] },
+  { tag: 'ai-engineering', title: 'AI / Agent 工程', keywords: ['ai', 'agent', 'llm', '大模型', 'rag', '智能体', '模型微调', '知识库', '知识工程', '自然语言', '语义', '问答', 'nlp', '智能', '自动化', 'codex'] },
+  { tag: 'product-design', title: '产品与交互设计', keywords: ['产品设计', '交互', '原型', '软件产品', '产品规划', '需求分析', '方案设计', '业务流程', 'ui', 'ux', 'figma', 'prototype', '用户体验'] },
+  { tag: 'frontend', title: '前端开发', keywords: ['前端', '网页', '小程序', '微信小程序', 'web', 'h5', 'react', 'vue', 'frontend', 'web app'] },
+  { tag: 'backend', title: '后端与部署', keywords: ['后端', '服务器', '部署', '数据库', '软件开发', '系统开发', '接口开发', 'api', 'backend', 'devops', 'cloudflare'] },
   { tag: 'bd', title: '商务拓展与企业资源', keywords: ['商务', '企业资源', '销售', '渠道', '拓展', '客户资源', 'bd', 'sales', 'partnership'] },
   { tag: 'hk-market', title: '香港本地市场', keywords: ['香港', '港澳', 'hong kong', 'hk'] },
   { tag: 'legal', title: '法律与合规', keywords: ['律师', '法律', '合规', '合同', '知识产权', 'legal', 'compliance'] },
