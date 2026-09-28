@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Community</title>
-<link rel="stylesheet" href="/app.css">
+<title>Agent Network · 机会路由</title>
+<link rel="stylesheet" href="/router.css">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="社区的机会路由：让社群里的每一个需求，都找到能把它做成的人。">
 </head>
 <body>
 <header>
-  <div class="brand"><b>AGENT COMMUNITY</b><span id="community-name"></span></div>
+  <div class="brand"><b>AGENT NETWORK</b><span id="community-name"></span></div>
   <div class="meta"><span id="mode" class="badge"></span><span id="whoami"></span><button id="logout" class="link" hidden>退出</button></div>
 </header>
-<main id="app"><p class="muted">正在读取节点状态…</p></main>
-<div id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="/app.js"></script>
+<main id="app"></main>
+<div id="toast" role="status"></div>
+<script type="module" src="/router.js"></script>
 </body>
 </html>

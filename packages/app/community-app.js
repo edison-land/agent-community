@@ -248,13 +248,13 @@ export async function createCommunityApp({
         return reply(200, onboarding.replaceAll('{{NODE}}', origin).replaceAll('{{CONNECTOR_SHA256}}', connectorBundle?.sha256 ?? '（节点尚未构建连接器下载包）'), { type: 'text/markdown' });
       }
       // Node adapter only; on Cloudflare these are Static Assets.
-      // Every node opens directly on the opportunity routing page (router.html) at `/`.
+      // Every node opens directly on the opportunity routing page (index.html) at `/`.
       // `/` with a query string like ?page=execution reaches the execution (Phase 2) page.
-      if (assets && (request.method === 'GET' || request.method === 'HEAD') && (path === '/' || path === '/router' || path === '/app.js' || path === '/app.css' || (assets[path.slice(1)] && /^\/(connector\.(mjs|json)|agent-mcp\.mjs|router\.(html|js|css))$/u.test(path)) || /^\/(claim|invite)\/[A-Za-z0-9-]{16,24}$/u.test(path))) {
-        const isExecution = url.searchParams.get('page') === 'execution' || /^\/(claim|invite)\//u.test(path);
-        const name = (path === '/' && !isExecution) || path === '/router' ? 'router.html' : isExecution ? 'index.html' : path.slice(1);
+      if (assets && (request.method === 'GET' || request.method === 'HEAD') && (path === '/' || path === '/router' || path === '/execution' || path === '/app.js' || path === '/app.css' || (assets[path.slice(1)] && /^\/(connector\.(mjs|json)|agent-mcp\.mjs|router\.(html|js|css)|execution\.html)$/u.test(path)) || /^\/(claim|invite)\/[A-Za-z0-9-]{16,24}$/u.test(path))) {
+        const isExecution = url.searchParams.get('page') === 'execution' || path === '/execution' || /^\/(claim|invite)\//u.test(path);
+        const name = isExecution ? (assets['execution.html'] ? 'execution.html' : 'index.html') : path === '/' || path === '/router' ? (assets['index.html'] ? 'index.html' : 'router.html') : path.slice(1);
         const type = /\.m?js$/u.test(name) ? 'text/javascript' : name.endsWith('.css') ? 'text/css' : name.endsWith('.json') ? 'application/json' : 'text/html';
-        return reply(200, assets[name], { type });
+        return reply(200, assets[name] ?? assets['index.html'], { type });
       }
       if (path.startsWith('/api/')) {
         if (request.method !== 'GET' && (request.headers.get('origin') !== origin || request.headers.get('content-type')?.split(';')[0] !== 'application/json')) return reply(403, { error: 'INVALID_ORIGIN' });

@@ -22,7 +22,7 @@ import { ModelUnderstander, chatFrom } from '../../packages/router/understanding
  */
 export async function startNode({ port = 4320, host = '127.0.0.1', publicOrigin: fixedOrigin = null, mode = 'live', store, login, stateDir, registrationTtlMs, autoDispatch = true, ownerSubject = null, openBootstrap = true, openJoin = false, router = {}, log = () => {} } = {}) {
   const pointerFile = stateDir ? join(stateDir, 'community.json') : null;
-  const assets = Object.fromEntries(await Promise.all(['index.html', 'app.js', 'app.css', 'router.html', 'router.js', 'router.css', 'agent-mcp.mjs'].map(async name => [name, await readFile(new URL(`./public/${name}`, import.meta.url))])));
+  const assets = Object.fromEntries(await Promise.all(['index.html', 'execution.html', 'app.js', 'app.css', 'router.html', 'router.js', 'router.css', 'agent-mcp.mjs'].map(async name => [name, await readFile(new URL(`./public/${name}`, import.meta.url))])));
   const agentGuide = await readFile(new URL('../../docs/agents.md', import.meta.url), 'utf8');
   // The downloadable connector exists after `npm run build:connector`.
   let connectorBundle = null;

@@ -129,9 +129,9 @@ test('an invited member can still be joined through the HTTP API helper', async 
   assert.equal((await b.get('/state')).me.member.membership.data.role, 'member');
 });
 
-test('node entry: GET / without query serves router.html directly, while ?page=execution serves execution page', async () => {
+test('node entry: GET / without query serves index.html (router) directly, while ?page=execution serves execution page', async () => {
   const origin = 'https://agent-network.example';
-  const assets = { 'router.html': '<h1>Router</h1>', 'index.html': '<h1>Execution</h1>' };
+  const assets = { 'index.html': '<h1>Router</h1>', 'execution.html': '<h1>Execution</h1>' };
   const app = await createCommunityApp({
     mode: 'simulated',
     store: new MemoryObjectStore(),
@@ -158,7 +158,7 @@ test('worker entry & config: serves router page directly on / and redirects /rou
   assert.match(wrangler, /"run_worker_first":\s*\[\s*"\/",\s*"\/router",/);
 
   const workerSrc = readFileSync('apps/worker/src/index.js', 'utf8');
-  assert.match(workerSrc, /router\.html/);
+  assert.match(workerSrc, /execution\.html/);
   assert.match(workerSrc, /if \(url\.pathname === '\/router'\)/);
 
   const appJs = readFileSync('apps/node/public/app.js', 'utf8');
