@@ -169,11 +169,14 @@ export default {
       if (env.LANDING_URL && (url.pathname === '/landing' || url.pathname === '/landing.html')) {
         return Response.redirect(env.LANDING_URL, 302);
       }
-      // Every node opens on the routing page. The execution (Phase 2) page is
-      // still here, and still reached by the links that carry their own query.
+      // Every node opens directly on the routing page at `/`. The execution (Phase 2) page
+      // is reached by ?page=execution. Visiting /router redirects cleanly to `/`.
       if (url.pathname === '/') {
-        if (!url.search) return Response.redirect(new URL('/router', request.url).toString(), 302);
-        return env.ASSETS.fetch(request);
+        if (url.searchParams.get('page') === 'execution') return env.ASSETS.fetch(request);
+        return env.ASSETS.fetch(new Request(new URL('/router.html', request.url), request));
+      }
+      if (url.pathname === '/router') {
+        return Response.redirect(new URL(`/${url.search}`, request.url).toString(), 302);
       }
     }
     // One node per deployment; the object's name is stable across deploys.

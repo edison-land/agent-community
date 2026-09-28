@@ -248,13 +248,11 @@ export async function createCommunityApp({
         return reply(200, onboarding.replaceAll('{{NODE}}', origin).replaceAll('{{CONNECTOR_SHA256}}', connectorBundle?.sha256 ?? '（节点尚未构建连接器下载包）'), { type: 'text/markdown' });
       }
       // Node adapter only; on Cloudflare these are Static Assets.
-      // The node opens on the routing page, the same as the deployed demo does. `/` with a
-      // query string still reaches the execution (Phase 2) page, which reads its own links.
-      if (assets && request.method === 'GET' && path === '/' && !url.search) {
-        return Response.redirect(new URL('/router', request.url).toString(), 302);
-      }
-      if (assets && request.method === 'GET' && (path === '/' || path === '/app.js' || path === '/app.css' || path === '/router' || (assets[path.slice(1)] && /^\/(connector\.(mjs|json)|agent-mcp\.mjs|router\.(html|js|css))$/u.test(path)) || /^\/(claim|invite)\/[A-Za-z0-9-]{16,24}$/u.test(path))) {
-        const name = path === '/router' ? 'router.html' : path === '/' || /^\/(claim|invite)\//u.test(path) ? 'index.html' : path.slice(1);
+      // Every node opens directly on the opportunity routing page (router.html) at `/`.
+      // `/` with a query string like ?page=execution reaches the execution (Phase 2) page.
+      if (assets && (request.method === 'GET' || request.method === 'HEAD') && (path === '/' || path === '/router' || path === '/app.js' || path === '/app.css' || (assets[path.slice(1)] && /^\/(connector\.(mjs|json)|agent-mcp\.mjs|router\.(html|js|css))$/u.test(path)) || /^\/(claim|invite)\/[A-Za-z0-9-]{16,24}$/u.test(path))) {
+        const isExecution = url.searchParams.get('page') === 'execution' || /^\/(claim|invite)\//u.test(path);
+        const name = (path === '/' && !isExecution) || path === '/router' ? 'router.html' : isExecution ? 'index.html' : path.slice(1);
         const type = /\.m?js$/u.test(name) ? 'text/javascript' : name.endsWith('.css') ? 'text/css' : name.endsWith('.json') ? 'application/json' : 'text/html';
         return reply(200, assets[name], { type });
       }

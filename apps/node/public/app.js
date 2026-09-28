@@ -91,7 +91,7 @@ function loginView() {
     return h('div', { className: 'card' },
       h('h1', {}, '登录社区节点'),
       h('p', { className: 'muted' }, '这个节点用 ', state.loginProvider ?? '社区', ' 的访问令牌登录，不使用密码。'),
-      h('p', {}, h('a', { href: '/router' }, '前往登录 →')));
+      h('p', {}, h('a', { href: '/' }, '前往登录 →')));
   }
   const form = h('form', { className: 'card', onsubmit: async event => {
     event.preventDefault();
