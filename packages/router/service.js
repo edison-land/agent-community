@@ -1011,7 +1011,7 @@ export class RouterService {
     const pendingPreflightDrafts = new Set(drafts.filter(draft => draft.type === 'preflight').map(draft => draft.payload.preflightId));
     if (consent?.data.status !== 'active' && this.activity) items.push({ type: 'consent.sign', humanOnly: true, summary: '主人尚未签署成员协议；签署后网络才会用他的社区发言起草档案', hint: '提醒主人在页面「我的档案」查看协议' });
     if (!human.data.profile?.items.length) items.push({ type: 'profile.draft', action: 'draft_profile', humanOnly: false, summary: '主人的档案还是空的', hint: '根据你对主人的了解起草档案条目；不要编造，主人确认后才公开' });
-    if (drafts.length) items.push({ type: 'drafts.pending', humanOnly: true, count: drafts.length, summary: `${drafts.length} 份草稿等主人确认`, hint: '提醒主人在页面「待我确认」处理' });
+    if (drafts.length) items.push({ type: 'drafts.pending', humanOnly: true, count: drafts.length, summary: `${drafts.length} 份草稿等主人确认`, hint: '提醒主人在页面「等我决定」处理' });
     const openMatches = new Set(matches.filter(item => item.data.status === 'invited').map(item => item.id));
     for (const preflight of preflights.filter(item => item.data.humanId === humanId && item.data.status === 'requested' && openMatches.has(item.data.matchId) && !pendingPreflightDrafts.has(item.id))) {
       const request = requests.find(item => item.id === preflight.data.requestId);
@@ -1072,7 +1072,37 @@ export class RouterService {
     const items = [];
 
     if (this.activity && consent?.data.status !== 'active') items.push({ type: 'consent.sign', agentCovers: false, title: '签署成员协议', detail: '签署后网络才会用你在社区里的发言为你起草档案。' });
-    for (const draft of drafts) items.push({ type: 'draft.confirm', agentCovers: false, draftId: draft.id, title: DRAFT_TITLES[draft.type] ?? '确认草稿', detail: draft.origin === 'community' ? '社区依据你的群聊发言起草，你确认后才公开。' : `${draft.agentName ?? '你的 Agent'} 起草，你确认后才生效。` });
+    for (const draft of drafts) {
+      let title = DRAFT_TITLES[draft.type] ?? '确认草稿';
+      let summary = '';
+      if (draft.type === 'profile') {
+        const headline = draft.payload?.headline;
+        if (headline) title = `确认档案：${headline}`;
+        const itemsList = draft.payload?.items?.map(it => it.title).filter(Boolean);
+        const parts = [
+          itemsList?.length ? `技能/经历：${itemsList.slice(0, 3).join('、')}${itemsList.length > 3 ? ` 等 ${itemsList.length} 项` : ''}` : null,
+          draft.payload?.hoursPerWeek ? `每周 ${draft.payload.hoursPerWeek} 小时` : null,
+          draft.payload?.openTo?.length ? `回报：${draft.payload.openTo.join('/')}` : null,
+        ].filter(Boolean);
+        summary = parts.join(' · ');
+      } else if (draft.type === 'refine') {
+        const reqTitle = titleOf(draft.payload?.requestId);
+        if (draft.payload?.title) title = `确认需求优化：${draft.payload.title}`;
+        else if (reqTitle) title = `确认补充需求：${reqTitle}`;
+        const parts = [
+          draft.payload?.acceptanceCriteria?.length ? `期望成果 ${draft.payload.acceptanceCriteria.length} 项` : null,
+          draft.payload?.needs?.length ? `能力要求 ${draft.payload.needs.length} 项` : null,
+          draft.payload?.rewardTypes?.length ? `回报方式：${draft.payload.rewardTypes.join('/')}` : null,
+        ].filter(Boolean);
+        summary = parts.join(' · ');
+      } else if (draft.type === 'request') {
+        if (draft.payload?.title) title = `确认新需求：${draft.payload.title}`;
+        summary = draft.payload?.acceptanceCriteria?.length ? `期望成果 ${draft.payload.acceptanceCriteria.length} 项` : '';
+      }
+      const originNote = draft.origin === 'community' ? '社区发言起草，确认后公开' : `${draft.agentName ?? '你的 Agent'} 起草，确认后生效`;
+      const detail = [summary, originNote].filter(Boolean).join(' ； ');
+      items.push({ type: 'draft.confirm', agentCovers: false, draftId: draft.id, draftType: draft.type, title, detail });
+    }
     for (const match of matches.filter(item => item.data.humanId === humanId && item.data.status === 'invited')) {
       const preflight = preflights.find(item => item.data.matchId === match.id);
       if (preflight?.data.status === 'answered') items.push({ type: 'invitation.decide', agentCovers: false, matchId: match.id, requestId: match.data.requestId, title: `决定接不接：「${titleOf(match.data.requestId)}」`, detail: '预沟通已经发出。答应投入时间只能你本人做。' });
