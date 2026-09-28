@@ -83,6 +83,16 @@ function render() {
 
 function loginView() {
   const sim = state.mode === 'simulated';
+  // This page signs in with a password. A node whose members sign in with a
+  // token cannot accept one, and asking for a password anyway invites someone
+  // to type a credential into a field that will never work — so it says where
+  // to go instead.
+  if (state.loginKind && state.loginKind !== 'password') {
+    return h('div', { className: 'card' },
+      h('h1', {}, '登录社区节点'),
+      h('p', { className: 'muted' }, '这个节点用 ', state.loginProvider ?? '社区', ' 的访问令牌登录，不使用密码。'),
+      h('p', {}, h('a', { href: '/router' }, '前往登录 →')));
+  }
   const form = h('form', { className: 'card', onsubmit: async event => {
     event.preventDefault();
     const data = new FormData(form);

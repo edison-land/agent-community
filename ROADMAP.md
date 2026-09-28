@@ -32,11 +32,11 @@ Route a request one community cannot meet to other consenting communities. Resea
 ## Next decision gate
 
 The KOSX pilot. Before it starts:
-- the FlareMo extension gains the new record kinds, and the administrator patch is regenerated;
+- the community node holds its own records in Durable Object storage (no FlareMo patch needed, completed in PR #6);
 - the community brain provides profile-drafting signals for consenting members;
 - the member agreement is written and reviewed.
 
-Deployment steps are in [DEPLOY_CLOUDFLARE](docs/DEPLOY_CLOUDFLARE.zh-CN.md) and [the FlareMo administrator handoff](docs/FLAREMO_ADMIN_HANDOFF.zh-CN.md).
+Deployment steps are in [DEPLOY_CLOUDFLARE](docs/DEPLOY_CLOUDFLARE.zh-CN.md).
 
 ## Measurement
 

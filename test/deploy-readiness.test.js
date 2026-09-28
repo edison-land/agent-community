@@ -128,3 +128,38 @@ test('an invited member can still be joined through the HTTP API helper', async 
   await inviteAndJoin(a, b, 'B');
   assert.equal((await b.get('/state')).me.member.membership.data.role, 'member');
 });
+
+test('node entry: GET / without query redirects to /router, while query strings reach assets', async () => {
+  const origin = 'https://agent-network.example';
+  const assets = { 'router.html': '<h1>Router</h1>', 'index.html': '<h1>Execution</h1>' };
+  const app = await createCommunityApp({
+    mode: 'simulated',
+    store: new MemoryObjectStore(),
+    login: createMockLogin(),
+    kv: new MemoryKV(),
+    materials: loadMaterials(),
+    onboarding: '',
+    publicOrigin: origin,
+    openBootstrap: true,
+    assets,
+  });
+  const redirect = await app.fetch(new Request(`${origin}/`));
+  assert.equal(redirect.status, 302);
+  assert.equal(redirect.headers.get('location'), `${origin}/router`);
+
+  const execution = await app.fetch(new Request(`${origin}/?page=execution`));
+  assert.equal(execution.status, 200);
+  assert.equal(await execution.text(), '<h1>Execution</h1>');
+});
+
+test('worker entry & config: redirects / to /router and / is in run_worker_first', async () => {
+  const { readFileSync } = await import('node:fs');
+  const wrangler = readFileSync('apps/worker/wrangler.jsonc', 'utf8');
+  assert.match(wrangler, /"run_worker_first":\s*\[\s*"\/",/);
+
+  const workerSrc = readFileSync('apps/worker/src/index.js', 'utf8');
+  assert.match(workerSrc, /if \(url\.pathname === '\/'\) \{\s*if \(!url\.search\) return Response\.redirect\(new URL\('\/router', request\.url\)\.toString\(\), 302\);/);
+
+  const appJs = readFileSync('apps/node/public/app.js', 'utf8');
+  assert.match(appJs, /if \(state\.loginKind && state\.loginKind !== 'password'\)/);
+});
