@@ -4,7 +4,8 @@
 // All server data is rendered with textContent only.
 const $ = selector => document.querySelector(selector);
 const app = $('#app');
-let base = null, state = null, tab = 'home', detail = null, who = null;
+const initialTab = new URLSearchParams(location.search).get('tab') || location.hash.replace(/^#/u, '');
+let base = null, state = null, tab = ['home', 'browse', 'agent', 'more'].includes(initialTab) ? initialTab : 'home', detail = null, who = null;
 let authorizing = new URLSearchParams(location.search).get('authorize');
 let inviteFromUrl = new URLSearchParams(location.search).get('invite') || '';
 
@@ -52,7 +53,7 @@ async function load() {
   $('#whoami').textContent = base.me?.member?.human.data.displayName ?? base.me?.identity.displayName ?? '';
   // A different person (or none) starts from the one question again.
   const current = base.me?.member?.human.id ?? null;
-  if (current !== who) { who = current; tab = 'home'; detail = null; }
+  if (current !== who) { who = current; tab = ['home', 'browse', 'agent', 'more'].includes(initialTab) ? initialTab : 'home'; detail = null; }
   state = base.me?.member?.active ? await api('/router/state') : null;
   render();
 }
@@ -107,10 +108,10 @@ function render() {
     const view = h('div'); app.append(view);
     return authorizeView(view, authorizing).catch(error => view.append(h('div', { className: 'notice' }, error.message)));
   }
-  const tabs = [['home', `我要什么${state.todo ? `（${state.todo}）` : ''}`], ['browse', '社区机会'], ['more', '更多']];
+  const tabs = [['home', `我要什么${state.todo ? `（${state.todo}）` : ''}`], ['browse', '社区机会'], ['agent', 'Agent 接入'], ['more', '更多']];
   app.append(h('nav', { className: 'tabs' }, tabs.map(([key, label]) => h('button', { className: tab === key ? 'on' : '', onclick: () => { tab = key; detail = null; render(); } }, label))));
   const view = h('div'); app.append(view);
-  const views = { home: detail ? requestDetail : homeView, browse: detail ? requestDetail : browseView, more: moreView };
+  const views = { home: detail ? requestDetail : homeView, browse: detail ? requestDetail : browseView, agent: agentView, more: moreView };
   views[tab](view).catch(error => view.append(h('div', { className: 'notice' }, error.message)));
 }
 
@@ -247,8 +248,8 @@ async function todoCard() {
   const todo = await api('/router/todo');
   const card = h('div', { className: 'card' }, h('div', { className: 'row' }, h('h2', {}, '等我决定'), todo.mine ? badge(`${todo.mine} 件`, 'warn') : badge('没有')),
     h('p', { className: 'muted' }, todo.agents ? '只列你本人才能做的事。标注「Agent 会处理」的，你的 Agent 会自动在后台协调。' : [
-      '只列你本人才能做的事。签发一个 Agent 令牌后，中间的协调就不用你做了。',
-      h('button', { type: 'button', className: 'link', onclick: () => { tab = 'more'; render(); setTimeout(() => document.getElementById('ag-name')?.scrollIntoView({ behavior: 'smooth' }), 50); } }, '去连接我的 Agent →')
+      '只列你本人才能做的事。接入 Agent 后，中间的协调就不用你做了。',
+      h('button', { type: 'button', className: 'link', onclick: () => { tab = 'agent'; render(); } }, '去「Agent 接入」复制 Agent Note →')
     ]));
   if (!todo.items.length) card.append(h('p', { className: 'muted' }, '没有待办。'));
   for (const item of todo.items) {
@@ -266,9 +267,20 @@ async function todoCard() {
   return card;
 }
 
+function agentQuickBanner() {
+  return h('div', { className: 'card', style: 'border-left: 3px solid var(--accent);' },
+    h('div', { className: 'row' },
+      h('b', {}, '🤖 AI Agent 自动接入'),
+      h('button', { type: 'button', className: 'secondary small', onclick: () => { tab = 'agent'; render(); } }, '进入 Agent 接入窗口 →')
+    ),
+    h('p', { className: 'muted small' }, '想让 Cursor、ChatGPT、DeepSeek 或 Codex 替你打理需求与协作？前往「Agent 接入」一键复制专属 Agent Note 指令发给 AI，无需配置环境变量即可自动接入。')
+  );
+}
+
 async function homeView(view) {
   view.append(askCard());
   view.append(await todoCard());
+  view.append(agentQuickBanner());
   const mine = (await api('/router/requests')).filter(item => item.mine);
   if (mine.length) view.append(h('div', { className: 'card' }, h('h2', {}, '我提的需求'), mine.map(requestRow)));
 }
@@ -413,10 +425,20 @@ async function squadCard(squad, mine) {
   return card;
 }
 
+function agentLinkCard() {
+  return h('div', { className: 'card' },
+    h('div', { className: 'row' },
+      h('h2', {}, 'Agent 接入与令牌管理'),
+      h('button', { type: 'button', className: 'secondary', onclick: () => { tab = 'agent'; render(); } }, '前往 Agent 接入 →')
+    ),
+    h('p', { className: 'muted' }, '查看 Agent Note 接入指南、复制配对指令、配置 Cursor MCP，或管理已授权的 Agent 令牌。')
+  );
+}
+
 // ---------- everything you rarely touch ----------
 async function moreView(view) {
   await profileCard(view);
-  await agentsCard(view);
+  view.append(agentLinkCard());
   await metricsCard(view);
 }
 
@@ -444,56 +466,200 @@ async function profileCard(view) {
     h('p', {}, h('button', {}, '保存档案'))));
 }
 
-async function agentsCard(view) {
-  const out = h('div');
+async function agentView(view) {
+  view.append(h('div', { className: 'card' },
+    h('div', { className: 'row' },
+      h('h1', {}, 'Agent 接入窗口 & 智能体指南'),
+      badge('Agent Note', 'warn')
+    ),
+    h('p', { className: 'muted' }, '给你的 AI 助手（Cursor Composer、ChatGPT、DeepSeek、Codex、Claude 等）发放代表你行动的权限。无需在本地或终端配置复杂密钥，只需将专属 Agent Note 复制发给 AI 对话框，即可全自动配对接入。')
+  ));
+
   const name = h('input', { id: 'ag-name', value: `${base.me.member.human.data.displayName} 的 Agent`, maxlength: 120 });
   const scopes = SCOPE_LABELS.map(([value, label, on]) => h('label', { className: 'check' }, h('input', { type: 'checkbox', value, checked: on }), label));
   const picked = () => scopes.map(label => label.firstChild).filter(box => box.checked).map(box => box.value);
-  view.append(h('form', { className: 'card', onsubmit: run(async () => {
-    const { instructions } = await api('/router/pairing', { name: name.value, scopes: picked() });
-    const pairingBox = h('div', { className: 'card' },
-      h('h3', {}, '方式一：对话接入（推荐任何对话助手）'),
-      h('div', { className: 'notice' }, '把下面整段指令复制给你的 Agent —— Cursor Composer、ChatGPT、Codex、DeepSeek 等大模型助手。它会自动通过安全配对接口换取访问凭据：'),
-      h('pre', {}, instructions),
-      h('p', { className: 'row' },
-        h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(instructions); toast('已复制接入指令'); }) }, '复制接入指令'),
-        h('span', { className: 'muted small' }, '配对码 10 分钟内有效、只能用一次。换成令牌后失效，不污染对话历史。'))
-    );
-    const mcpBtn = h('button', { type: 'button', className: 'secondary', onclick: run(async () => {
-      const issued = await api('/router/agents', { name: name.value, scopes: picked() });
-      const mcpSnippet = JSON.stringify({
-        mcpServers: {
-          "agent-community": {
-            url: `${location.origin}/mcp`,
-            headers: {
-              Authorization: `Bearer ${issued.token}`
-            }
-          }
-        }
-      }, null, 2);
-      out.append(h('div', { className: 'card' },
-        h('h3', {}, '方式二：Cursor / IDE MCP 配置文件'),
-        h('p', { className: 'muted small' }, '已直接为你的 Agent 签发长期访问令牌。把以下配置保存到项目的 ', h('code', {}, '.cursor/mcp.json'), '，或填入 Cursor 设置中：'),
-        h('pre', {}, mcpSnippet),
-        h('p', { className: 'row' },
-          h('button', { type: 'button', onclick: run(async () => { await navigator.clipboard.writeText(mcpSnippet); toast('已复制 Cursor 配置'); }) }, '复制 Cursor MCP 配置'),
-          h('span', { className: 'muted small' }, '30 天内有效。也可以在终端使用任何标准 MCP 客户端直接连接。')
-        )
-      ));
-      toast('已生成 Cursor MCP 配置');
-      await load();
-    }) }, '直接签发 Cursor MCP 配置文件');
 
-    out.replaceChildren(pairingBox, h('p', { className: 'row' }, mcpBtn));
-    toast('已生成接入信息');
-  }) }, h('h2', {}, '连接我的 Agent'), h('p', { className: 'muted' }, '勾上的事情你的 Agent 可以做，其中起草的内容仍要你确认。接受邀请和验收永远只能你本人做。30 天有效，随时可以撤销。'),
-  h('label', { for: 'ag-name' }, 'Agent 名字'), name, h('label', {}, '允许它做的事'), h('div', { className: 'row' }, scopes),
-  h('p', { className: 'muted small' }, '「替我邀请候选人和组队」默认不勾：勾上以后，你只要说清楚需求，找人和组队就不用你再点了；不勾就由你自己在需求页上做。'),
-  h('p', {}, h('button', {}, '生成接入指令 / 配置')), out));
-  const tokens = await api('/router/agents');
-  view.append(h('div', { className: 'card' }, h('h2', {}, '已签发的令牌'), tokens.length ? tokens.map(token => h('div', { className: 'cap-item' }, h('div', { className: 'grow' }, h('div', { className: 'row' }, h('b', {}, token.agentName), badge(STATUS[token.status] ?? token.status, token.status === 'active' ? '' : 'bad')), h('p', { className: 'muted' }, `${token.scopes.join('、')} · 有效至 ${time(token.expiresAt)}`)),
-    token.status === 'active' ? h('button', { className: 'danger', onclick: run(async () => { await api(`/router/agents/tokens/${token.tokenId}/revoke`, {}); toast('已撤销'); await load(); }) }, '撤销') : null)) : h('p', { className: 'muted' }, '还没有签发。')));
+  const notePre = h('pre', { style: 'white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow-y: auto; background: var(--surface-2); padding: 14px; border-radius: var(--r); font-size: 13px; line-height: 1.6;' }, '正在生成专属 Agent Note 与配对码...');
+  let currentInstructions = '';
+
+  async function refreshPairing() {
+    notePre.textContent = '正在生成最新配对码...';
+    try {
+      const res = await api('/router/pairing', { name: name.value.trim() || undefined, scopes: picked() });
+      currentInstructions = res.instructions;
+      notePre.textContent = currentInstructions;
+    } catch (e) {
+      notePre.textContent = `生成失败: ${e.message}`;
+    }
+  }
+
+  const copyBtn = h('button', {
+    type: 'button',
+    style: 'font-weight: 600; padding: 10px 18px;',
+    onclick: run(async () => {
+      if (!currentInstructions) await refreshPairing();
+      await navigator.clipboard.writeText(currentInstructions);
+      toast('✅ 已复制 Agent Note 接入指令！发给 AI 即可自动接入');
+    })
+  }, '📋 一键复制 Agent Note 接入指令');
+
+  const refreshBtn = h('button', {
+    type: 'button',
+    className: 'secondary',
+    onclick: run(async () => {
+      await refreshPairing();
+      toast('已刷新配对码（10分钟内有效）');
+    })
+  }, '🔄 刷新配对码');
+
+  const configToggle = h('button', {
+    type: 'button',
+    className: 'link small',
+    onclick: () => { configSection.hidden = !configSection.hidden; }
+  }, '自定义 Agent 称呼与授权范围');
+
+  const configSection = h('div', { className: 'subcard', hidden: true },
+    h('label', { for: 'ag-name' }, '给 Agent 起的名字'), name,
+    h('label', {}, '允许它代办的事项'), h('div', { className: 'row' }, scopes),
+    h('p', { className: 'muted small' }, '修改后点击下方重新生成生效：'),
+    h('p', {}, h('button', { type: 'button', className: 'secondary', onclick: run(async () => { await refreshPairing(); toast('已重新生成专属配对码'); }) }, '应用并重新生成'))
+  );
+
+  const stepsList = h('ol', { className: 'entry-steps', style: 'margin: 14px 0 0;' },
+    h('li', {}, h('b', {}, '复制指令：'), '点击上方「一键复制 Agent Note 接入指令」按钮。'),
+    h('li', {}, h('b', {}, '发送给 AI：'), '将内容直接粘贴发送给 Cursor Composer、ChatGPT、DeepSeek 等任意对话助手。'),
+    h('li', {}, h('b', {}, '自动接入：'), 'AI 助手会自主阅读规范、换取安全访问令牌并开始在后台替你起草与协办！')
+  );
+
+  view.append(h('div', { className: 'card' },
+    h('div', { className: 'row' },
+      h('h2', {}, '核心方式：对话接入（一键复制 Agent Note）'),
+      badge('推荐', '')
+    ),
+    h('p', { className: 'muted' }, '把下方带有时效配对码的 Agent Note 发给任何大模型助手，它将全自动完成握手。'),
+    h('div', { className: 'row', style: 'margin: 12px 0;' }, copyBtn, refreshBtn, configToggle),
+    configSection,
+    notePre,
+    stepsList
+  ));
+
+  refreshPairing();
+
+  const mcpContainer = h('div');
+  view.append(h('div', { className: 'card' },
+    h('div', { className: 'row' },
+      h('h2', {}, '进阶方式：Cursor / IDE MCP 原生配置文件'),
+      badge('长期令牌')
+    ),
+    h('p', { className: 'muted' }, '如果你习惯使用 Cursor 的 Agent 模式或标准 MCP 客户端，可以直接生成 30 天有效的 MCP 配置代码。'),
+    h('p', {},
+      h('button', {
+        type: 'button',
+        className: 'secondary',
+        onclick: run(async () => {
+          const issued = await api('/router/agents', { name: name.value.trim() || undefined, scopes: picked() });
+          const mcpSnippet = JSON.stringify({
+            mcpServers: {
+              "agent-community": {
+                url: `${location.origin}/mcp`,
+                headers: {
+                  Authorization: `Bearer ${issued.token}`
+                }
+              }
+            }
+          }, null, 2);
+          mcpContainer.replaceChildren(
+            h('div', { className: 'subcard' },
+              h('p', { className: 'muted small' }, '将下方 JSON 填入项目根目录下的 ', h('code', {}, '.cursor/mcp.json'), ' 或 Cursor 设置中的 MCP 服务器：'),
+              h('pre', { style: 'background: var(--surface-2); padding: 12px; border-radius: var(--r); font-size: 13px;' }, mcpSnippet),
+              h('p', { className: 'row' },
+                h('button', {
+                  type: 'button',
+                  onclick: run(async () => {
+                    await navigator.clipboard.writeText(mcpSnippet);
+                    toast('✅ 已复制 Cursor MCP 配置');
+                  })
+                }, '📋 复制 Cursor MCP 配置'),
+                h('span', { className: 'muted small' }, '令牌已生效（30天有效），可在下方管理。')
+              )
+            )
+          );
+          toast('已生成 Cursor MCP 配置');
+          renderTokens();
+        })
+      }, '直接签发 Cursor MCP 配置文件')
+    ),
+    mcpContainer
+  ));
+
+  view.append(h('div', { className: 'card' },
+    h('h2', {}, '权责边界与人类决策红线'),
+    h('p', { className: 'muted' }, '社区机会网络在协议层严格保障成员权利，清晰界定 Agent 跑腿与人类拍板的边界：'),
+    h('div', { className: 'grid2', style: 'margin-top: 12px;' },
+      h('div', { className: 'subcard' },
+        h('h3', { style: 'color: var(--accent); margin-top: 0;' }, '🟢 Agent 自动协办（跑腿）'),
+        h('ul', { className: 'small' },
+          h('li', {}, '根据你在社区的真实履历起草技能档案（由你确认后才公开）'),
+          h('li', {}, '自动拆解并补全你发布的需求痛点与期望交付物'),
+          h('li', {}, '根据技能网络寻找合适成员，向需求方推荐人选'),
+          h('li', {}, '收到合作邀请时代为起草预沟通回答（由你确认后才发送）'),
+          h('li', {}, '在已组建的小组中代为提交阶段性成果与交付物草稿')
+        )
+      ),
+      h('div', { className: 'subcard' },
+        h('h3', { style: 'color: var(--bad); margin-top: 0;' }, '🔴 人类绝对决策（系统强制锁定）'),
+        h('ul', { className: 'small' },
+          h('li', {}, '接受或拒绝合作邀请（绝不代你承诺时间或报酬）'),
+          h('li', {}, '验收项目交付物、确认结项与签发信誉凭证'),
+          h('li', {}, '签署或撤回社区成员协议'),
+          h('li', {}, '随时在控制台一键撤销任意 Agent 访问令牌')
+        )
+      )
+    ),
+    h('p', { className: 'muted small', style: 'margin-top: 12px;' },
+      '公开规范文档：',
+      h('a', { href: '/agents.md', target: '_blank', rel: 'noopener' }, '/agents.md'), ' · ',
+      h('a', { href: '/agent-note.md', target: '_blank', rel: 'noopener' }, '/agent-note.md'), ' · ',
+      h('a', { href: '/.well-known/agent-network.json', target: '_blank', rel: 'noopener' }, '网络机器清单')
+    )
+  ));
+
+  const tokensBox = h('div');
+  async function renderTokens() {
+    try {
+      const tokens = await api('/router/agents');
+      tokensBox.replaceChildren(
+        tokens.length ? tokens.map(token => h('div', { className: 'cap-item' },
+          h('div', { className: 'grow' },
+            h('div', { className: 'row' },
+              h('b', {}, token.agentName),
+              badge(STATUS[token.status] ?? token.status, token.status === 'active' ? '' : 'bad')
+            ),
+            h('p', { className: 'muted' }, `${token.scopes.join('、')} · 有效至 ${time(token.expiresAt)}`)
+          ),
+          token.status === 'active' ? h('button', {
+            className: 'danger',
+            onclick: run(async () => {
+              await api(`/router/agents/tokens/${token.tokenId}/revoke`, {});
+              toast('已撤销该令牌');
+              await renderTokens();
+            })
+          }, '撤销') : null
+        )) : h('p', { className: 'muted' }, '当前尚无已签发的长期令牌。')
+      );
+    } catch {
+      tokensBox.replaceChildren(h('p', { className: 'muted' }, '加载令牌失败。'));
+    }
+  }
+  renderTokens();
+
+  view.append(h('div', { className: 'card' },
+    h('h2', {}, '已连接的 Agent 令牌'),
+    tokensBox
+  ));
 }
+
+const agentsCard = agentView;
 
 async function metricsCard(view) {
   const m = await api('/router/metrics');

@@ -236,7 +236,7 @@ export async function createCommunityApp({
       if (request.method === 'GET' && path === '/healthz') return reply(200, { ok: true, mode, store: store.kind, communityId: service.communityId });
       // Member agents (RFC 0010 §7): the contract, the guide, and the API. No cookies or Origin checks: bearer tokens only.
       if (request.method === 'GET' && path === '/.well-known/agent-network.json') return reply(200, agentManifest(origin));
-      if (request.method === 'GET' && path === '/agents.md') return reply(200, agentGuide.replaceAll('{{NODE}}', origin), { type: 'text/markdown' });
+      if (request.method === 'GET' && (path === '/agents.md' || path === '/agent-note.md' || path === '/agent-note')) return reply(200, agentGuide.replaceAll('{{NODE}}', origin), { type: 'text/markdown' });
       if (path === '/mcp') return await mcp(request, raw);
       if (path.startsWith('/api/agent/v1/')) {
         let body = {};

@@ -150,12 +150,20 @@ test('node entry: GET / without query serves index.html (router) directly, while
   const execution = await app.fetch(new Request(`${origin}/?page=execution`));
   assert.equal(execution.status, 200);
   assert.equal(await execution.text(), '<h1>Execution</h1>');
+
+  const noteRes = await app.fetch(new Request(`${origin}/agent-note.md`));
+  assert.equal(noteRes.status, 200);
+  assert.equal(noteRes.headers.get('content-type'), 'text/markdown; charset=utf-8');
+
+  const noteNoExtRes = await app.fetch(new Request(`${origin}/agent-note`));
+  assert.equal(noteNoExtRes.status, 200);
 });
 
 test('worker entry & config: serves router page directly on / and redirects /router to /', async () => {
   const { readFileSync } = await import('node:fs');
   const wrangler = readFileSync('apps/worker/wrangler.jsonc', 'utf8');
   assert.match(wrangler, /"run_worker_first":\s*\[\s*"\/",\s*"\/router",/);
+  assert.match(wrangler, /"\/agent-note\.md"/, 'wrangler includes agent-note.md in run_worker_first');
 
   const workerSrc = readFileSync('apps/worker/src/index.js', 'utf8');
   assert.match(workerSrc, /execution\.html/);
@@ -167,5 +175,7 @@ test('worker entry & config: serves router page directly on / and redirects /rou
   const routerJs = readFileSync('apps/node/public/router.js', 'utf8');
   assert.match(routerJs, /if \(base\.canBootstrap\)/, 'router page allows online community bootstrap');
   assert.match(routerJs, /Cursor MCP/, 'router page offers direct Cursor MCP configuration');
+  assert.match(routerJs, /Agent 接入/, 'router page has dedicated agent onboarding tab');
+  assert.match(routerJs, /一键复制 Agent Note 接入指令/, 'router page has one-click copy for agent note');
   assert.match(wrangler, /"COMMUNITY_OPEN_BOOTSTRAP":\s*"1"/, 'wrangler sets open bootstrap for initial deploy');
 });

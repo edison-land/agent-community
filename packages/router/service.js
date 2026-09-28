@@ -25,18 +25,21 @@ const PAIRING_TTL_MS = 10 * 60 * 1000;
 
 /** What a member copies out of the page. Deliberately not any one vendor's command. */
 export const pairingText = (origin, code) => [
-  '请帮我接入社区机会网络（我是这个网络的成员，你将代表我行动）。',
+  '# Agent Note：社区机会网络接入指南与操作指令',
   '',
-  `1. 先读说明：${origin}/agents.md`,
+  '请帮我接入社区机会网络（我是这个网络的成员，你将代表我行动）：',
+  '',
+  `1. 先读规范说明：${origin}/agents.md`,
   '2. 用下面这个一次性配对码换一个访问令牌：',
   `     POST ${origin}/api/agent/v1/pair`,
   `     {"code": "${code}"}`,
   '3. 之后带着返回的令牌（Authorization: Bearer …）调用：',
   `     HTTP  ${origin}/api/agent/v1/*`,
   `     MCP   ${origin}/mcp`,
-  '4. 读一次 inbox，按里面写的去做。',
+  '4. 读一次 inbox，按里面写明的条目去行动。',
   '',
-  '配对码 10 分钟内有效，只能用一次；换到令牌后就把它忘掉，不要写进任何文件或记录。',
+  '【核心原则】你可以起草需求、起草预沟通回答并整理交付物；但承诺（接受邀请）与验收永远只能由主人本人操作。',
+  '【注意】配对码 10 分钟内有效，只能用一次；换到令牌后存入内存即可，不要写进任何文件或持久化记录。',
 ].join('\n');
 
 /** Demo member agreement. Not a legal text; a real deployment needs a reviewed one (RFC 0010 §6). */
