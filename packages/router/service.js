@@ -123,6 +123,42 @@ export class RouterService {
    *
    * All of it runs once, when the request is published. Reads never come here.
    */
+  async decomposeRequest(request) {
+    const text = [request.title, request.description, ...(request.acceptanceCriteria ?? [])].filter(Boolean).join('\n');
+    const phrases = this.understander ? await this.understander.decompose(text) : [];
+    if (phrases.length) {
+      const vocabulary = await this.#vocab();
+      const results = [];
+      for (let i = 0; i < phrases.length; i++) {
+        const phrase = phrases[i];
+        let tag = 'skill';
+        let detail = '智能解构动态提炼';
+        if (vocabulary) {
+          const hits = await vocabulary.match(phrase, { limit: 1 });
+          if (hits?.[0] && hits[0].score >= 0.45) {
+            tag = hits[0].term.tag;
+            detail = `匹配社区能力：${hits[0].term.title}`;
+          }
+        }
+        if (tag === 'skill' && this.taxonomy) {
+          const matchedTaxon = this.taxonomy.find(entry => entry.keywords.some(k => phrase.toLowerCase().includes(k) || k.includes(phrase.toLowerCase())));
+          if (matchedTaxon) {
+            tag = matchedTaxon.tag;
+            detail = `匹配领域分类：${matchedTaxon.title}`;
+          }
+        }
+        results.push({
+          id: `skill-${i + 1}-${tag}`,
+          tag,
+          title: phrase,
+          detail
+        });
+      }
+      return results;
+    }
+    return this.understandNeeds(request);
+  }
+
   async understandNeeds(request) {
     const vocabulary = await this.#vocab();
     if (!vocabulary) return understand(request, this.taxonomy);

@@ -10,18 +10,18 @@
 export const DEFAULT_TAXONOMY = [
   { tag: 'recruitment', title: '人才招聘', keywords: ['招聘', '猎头', '人才', '求职', '人力资源', 'hr', 'hiring', 'recruit', 'recruitment', 'jobsdb'] },
   { tag: 'data', title: '数据工程', keywords: ['数据', '爬虫', '采集', '情报', '数据管道', '聊天记录', '数据提取', '提取', '数据处理', '文本处理', '清洗', '知识加工', 'data', 'pipeline', 'scraping', 'etl'] },
-  { tag: 'ai-engineering', title: '智能算法工程', keywords: ['ai', 'agent', 'llm', '大模型', 'rag', '智能体', '模型微调', '知识库', '知识工程', '自然语言', '语义', '问答', 'nlp', '智能', '自动化', 'codex'] },
+  { tag: 'ai-engineering', title: '智能算法工程', keywords: ['ai', 'agent', 'llm', '大模型', 'rag', '智能体', '模型微调', '知识库', '知识工程', '自然语言', '语义', '问答', 'nlp', '智能', '自动化', 'codex', '算法', '量化', '积分', '模型'] },
   { tag: 'product-design', title: '产品设计', keywords: ['产品设计', '交互', '原型', '软件产品', '产品规划', '需求分析', '方案设计', '业务流程', 'ui', 'ux', 'figma', 'prototype', '用户体验'] },
   { tag: 'frontend', title: '前端开发', keywords: ['前端', '网页', '小程序', '微信小程序', 'web', 'h5', 'react', 'vue', 'frontend', 'web app'] },
-  { tag: 'backend', title: '服务端研发', keywords: ['后端', '服务器', '部署', '数据库', '软件开发', '系统开发', '接口开发', 'api', 'backend', 'devops', 'cloudflare'] },
+  { tag: 'backend', title: '服务端研发', keywords: ['后端', '服务器', '部署', '数据库', '软件开发', '系统开发', '接口开发', 'api', 'backend', 'devops', 'cloudflare', 'github', '开源', 'pr', '代码', '开发', '代码审查', 'git'] },
   { tag: 'bd', title: '商务拓展', keywords: ['商务', '企业资源', '销售', '渠道', '拓展', '客户资源', 'bd', 'sales', 'partnership'] },
   { tag: 'hk-market', title: '香港市场', keywords: ['香港', '港澳', 'hong kong', 'hk'] },
   { tag: 'legal', title: '合规风控', keywords: ['律师', '法律', '合规', '合同', '知识产权', 'legal', 'compliance'] },
   { tag: 'content', title: '内容运营', keywords: ['内容', '小红书', '抖音', '视频号', '社媒', '文案', '创作者', 'kol', 'content'] },
-  { tag: 'web3', title: 'Web3', keywords: ['web3', '区块链', '链上', 'crypto', 'defi', 'nft'] },
+  { tag: 'web3', title: 'Web3', keywords: ['web3', '区块链', '链上', 'crypto', 'defi', 'nft', '信誉', 'token', '贡献', '不可转让'] },
   { tag: 'research', title: '行业调研', keywords: ['调研', '行业研究', '市场研究', '研究报告', '行业报告', 'research', 'market research'] },
   { tag: 'hardware', title: '硬件研发', keywords: ['硬件', '芯片', '嵌入式', 'hardware', 'iot'] },
-  { tag: 'fundraising', title: '融资规划', keywords: ['融资', '投资', '天使轮', '投资人', 'fundraising', 'vc'] },
+  { tag: 'fundraising', title: '融资规划', keywords: ['融资', '投资', '天使轮', '投资人', 'fundraising', 'vc', 'grant', 'grants', '基金', '激励'] },
 ];
 
 const TAG = /^[a-z0-9][a-z0-9-]{0,39}$/u;

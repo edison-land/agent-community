@@ -230,10 +230,6 @@ function askCard() {
   let analyzed = false;
 
   const renderTags = () => {
-    if (!userNeeds.length) {
-      preview.replaceChildren(h('p', { className: 'muted', style: 'margin-top: 10px;' }, '尚未拆解出技能需求。可点击上方「拆解技能关键词」或直接在下方输入添加。'));
-      return;
-    }
     const tagsContainer = h('div', { className: 'tag-editor-chips' });
     userNeeds.forEach((need, index) => {
       const tagPill = h('span', { className: 'tag-chip' },
@@ -292,8 +288,8 @@ function askCard() {
     preview.replaceChildren(
       h('div', { className: 'tag-editor-box' },
         h('div', { className: 'tag-editor-header' },
-          h('div', { className: 'tag-editor-title' }, '已拆解技能关键词'),
-          h('span', { className: 'tag-editor-hint' }, '点击文字可直接修改，点击 × 删除')),
+          h('div', { className: 'tag-editor-title' }, userNeeds.length ? '已拆解技能关键词' : '技能关键词'),
+          h('span', { className: 'tag-editor-hint' }, userNeeds.length ? '点击文字可直接修改，点击 × 删除' : '暂未自动识别到关键词，可在下方直接手动添加')),
         tagsContainer)
     );
   };

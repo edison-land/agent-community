@@ -158,3 +158,23 @@ test('a reasoning model that spends its whole budget thinking is reported, not s
   });
   await assert.rejects(truncated.complete('x'), /CHAT_TRUNCATED.*700/u);
 });
+
+test('decomposeRequest returns dynamic extracted skills for interactive editing', async t => {
+  const chat = chatSaying('信誉算法设计\n贡献量化\n开源激励机制\n社区基金管理');
+  const { users } = await community(t, { chat });
+  const understood = await users.owner.post('/router/requests/understand', {
+    text: '计划做一个开源开发者激励网络，把 GitHub 上的 PR 贡献和代码审查行为量化，设计一套不可转让的信誉积分算法，根据积分定期给核心贡献者分发社区 Grants 基金。'
+  });
+  assert.ok(understood.needs.length >= 4);
+  assert.deepEqual(understood.needs.map(n => n.title), ['信誉算法设计', '贡献量化', '开源激励机制', '社区基金管理']);
+});
+
+test('decomposeRequest falls back to enriched taxonomy on developer input when model is unavailable', async t => {
+  const chat = { async complete() { throw new Error('model down'); } };
+  const { users } = await community(t, { chat });
+  const understood = await users.owner.post('/router/requests/understand', {
+    text: '计划做一个开源开发者激励网络，把 GitHub 上的 PR 贡献和代码审查行为量化，设计一套不可转让的信誉积分算法，根据积分定期给核心贡献者分发社区 Grants 基金。'
+  });
+  assert.ok(understood.needs.length > 0, '不会出现空标签');
+  assert.ok(understood.needs.some(n => n.tag === 'backend' || n.tag === 'ai-engineering' || n.tag === 'fundraising' || n.tag === 'web3'));
+});

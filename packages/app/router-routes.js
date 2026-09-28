@@ -30,7 +30,7 @@ export function humanRoutes({ router, service }) {
     ['GET', '/members', ({ humanId, params }) => router.directory(humanId, { q: params.get('q') ?? '' })],
     ['GET', '/requests', ({ humanId }) => router.listRequests(humanId)],
     ['POST', '/requests', ({ humanId, body }) => router.createRequest(humanId, body)],
-    ['POST', '/requests/understand', async ({ body }) => ({ needs: await router.understandNeeds(router.cleanRequest({ ...body, needs: undefined })) })],
+    ['POST', '/requests/understand', async ({ body }) => ({ needs: await router.decomposeRequest(router.cleanRequest({ ...body, needs: undefined })) })],
     ['GET', `/requests/${U}`, ({ humanId, m }) => router.requestView(humanId, m[1])],
     ['POST', `/requests/${U}/refine`, ({ humanId, body, m }) => router.refineRequest(humanId, m[1], body)],
     ['POST', `/requests/${U}/invite`, ({ humanId, body, m }) => router.invite(humanId, m[1], body.humanIds)],

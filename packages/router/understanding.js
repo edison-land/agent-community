@@ -74,7 +74,7 @@ export function parsePhrases(output) {
  * seconds and still produced nothing. An instruct model answers it in one pass.
  * `@cf/meta/llama-3.2-3b-instruct` is the cheaper swap if volume ever matters.
  */
-export const DEFAULT_CHAT_MODEL = '@cf/qwen/qwen2.5-7b-instruct';
+export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 export class WorkersAIChat {
   constructor({ ai = null, accountId = null, token = null, model = DEFAULT_CHAT_MODEL, maxTokens = 200, fetchImpl = fetch }) {
@@ -90,9 +90,11 @@ export class WorkersAIChat {
       } catch (err) {
         console.error(`Workers AI ${this.model} failed, falling back:`, err?.message || err);
         try {
-          const fb = await this.ai.run('@cf/meta/llama-3.1-8b-instruct', input);
+          const fb = await this.ai.run('@cf/meta/llama-3.1-8b-instruct-fast', input);
           if (fb?.response) return fb.response;
-        } catch {}
+        } catch (fbErr) {
+          console.error(`Workers AI fallback failed:`, fbErr?.message || fbErr);
+        }
       }
       return '';
     }
