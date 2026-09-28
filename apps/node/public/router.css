@@ -307,6 +307,149 @@ table tr:hover { background: var(--surface-2) }
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0) }
 
+/* ---------- Interactive Skill Tag Editor ---------- */
+.tag-editor-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tag-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tag-editor-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-editor-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.tag-editor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  transition: all .15s var(--ease);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+.tag-chip:hover {
+  border-color: var(--accent-line);
+}
+
+.tag-chip-text {
+  outline: none;
+  cursor: text;
+  border-bottom: 1px dashed transparent;
+  transition: border-color .15s;
+}
+
+.tag-chip-text:focus {
+  border-bottom-color: var(--accent);
+}
+
+.tag-chip-del {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ink-3);
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  transition: all .15s var(--ease);
+}
+
+.tag-chip-del:hover {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.tag-add-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-add-input {
+  width: 140px;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
+  transition: all .15s var(--ease);
+}
+
+.tag-add-input:focus {
+  width: 170px;
+  border-style: solid;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.tag-add-btn {
+  all: unset;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  transition: all .15s var(--ease);
+}
+
+.tag-add-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-line);
+}
+
 [hidden] { display: none !important }
 
 @media (max-width: 720px) {

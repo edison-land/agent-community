@@ -234,16 +234,13 @@ function askCard() {
       preview.replaceChildren(h('p', { className: 'muted', style: 'margin-top: 10px;' }, '尚未拆解出技能需求。可点击上方「拆解技能关键词」或直接在下方输入添加。'));
       return;
     }
-    const tagsContainer = h('div', { className: 'row', style: 'flex-wrap: wrap; gap: 8px; margin: 8px 0;' });
+    const tagsContainer = h('div', { className: 'tag-editor-chips' });
     userNeeds.forEach((need, index) => {
-      const tagPill = h('span', {
-        className: 'status on',
-        style: 'display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 13px; background: var(--surface-2); border: 1px solid var(--accent);'
-      },
+      const tagPill = h('span', { className: 'tag-chip' },
         h('span', {
+          className: 'tag-chip-text',
           contenteditable: 'true',
-          title: '点击可直接就地编辑修改',
-          style: 'outline: none; cursor: text;',
+          title: '点击直接修改技能文字',
           onblur: e => {
             const val = e.target.textContent.trim();
             if (val) need.title = val;
@@ -255,8 +252,8 @@ function askCard() {
         }, need.title),
         h('button', {
           type: 'button',
+          className: 'tag-chip-del',
           title: '删除此技能',
-          style: 'border: none; background: transparent; cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; color: var(--ink-2); opacity: 0.7;',
           onclick: () => {
             userNeeds.splice(index, 1);
             renderTags();
@@ -267,13 +264,13 @@ function askCard() {
     });
 
     const addInput = h('input', {
-      placeholder: '+ 自定义技能词 (回车添加)',
-      style: 'max-width: 200px; padding: 4px 8px; font-size: 12px; height: 28px;'
+      className: 'tag-add-input',
+      placeholder: '+ 添加技能词',
     });
     const addBtn = h('button', {
       type: 'button',
-      className: 'secondary',
-      style: 'padding: 3px 10px; height: 28px; font-size: 12px;',
+      className: 'tag-add-btn',
+      title: '添加',
       onclick: () => {
         const val = addInput.value.trim();
         if (val) {
@@ -282,7 +279,7 @@ function askCard() {
           renderTags();
         }
       }
-    }, '添加');
+    }, '+');
     addInput.onkeydown = e => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -290,13 +287,14 @@ function askCard() {
       }
     };
 
+    tagsContainer.append(h('div', { className: 'tag-add-wrapper' }, addInput, addBtn));
+
     preview.replaceChildren(
-      h('div', { style: 'margin-top: 12px; padding: 12px; background: var(--surface-2); border-radius: var(--r); border: 1px dashed var(--line);' },
-        h('div', { className: 'row', style: 'align-items: center; justify-content: space-between;' },
-          h('b', {}, '确认技能关键词（已拆解）'),
-          h('span', { className: 'muted small' }, '点击文字可直接修改，点击 × 可删除')),
-        tagsContainer,
-        h('div', { className: 'row', style: 'align-items: center; gap: 8px; margin-top: 6px;' }, addInput, addBtn))
+      h('div', { className: 'tag-editor-box' },
+        h('div', { className: 'tag-editor-header' },
+          h('div', { className: 'tag-editor-title' }, '已拆解技能关键词'),
+          h('span', { className: 'tag-editor-hint' }, '点击文字可直接修改，点击 × 删除')),
+        tagsContainer)
     );
   };
 
